@@ -15,16 +15,17 @@ jobs:
       - name: Kód letöltése
         uses: actions/checkout@v4
 
-      - name: Java 17 beállítása
+      # A Capacitor 7 android modulja Java 21-re fordul (sourceCompatibility VERSION_21).
+      - name: Java 21 beállítása
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: Node beállítása
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Csomagok telepítése
         run: npm ci
