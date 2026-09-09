@@ -2,7 +2,7 @@
 //
 // KET FIZIKAI GOMB, KET KULON PARANCS:
 //   NAGY gomb  (GPIO23) -> "STOP"  : megallitja a zenet
-//   KIS  gomb  (GPIO22) -> "PLAY"  : elinditja / folytatja a zenet
+//   KIS  gomb  (GPIO25) -> "PLAY"  : elinditja / folytatja a zenet
 //
 // Mindket parancs egyszerre ket csatornan megy ki:
 //   1) Klasszikus Bluetooth SPP  -> a Kodular app (BluetoothClient)
@@ -12,7 +12,7 @@
 //
 // LED es hangjelzes:
 //   - a piros gomb LED-je (GPIO18) CSAK akkor vilagit, amikor zene szol
-//   - csatlakozaskor rovid "ting" hangot ad a buzzer (GPIO25)
+//   - csatlakozaskor rovid "ting" hangot ad a buzzer (GPIO26)
 //
 // A LED valos allapotat a fogado oldal is visszakuldheti ("PLAYING"/"STOPPED"),
 // addig is a gombnyomas azonnal atallitja (optimista visszajelzes), hogy soha
@@ -23,11 +23,13 @@
 //
 //   NAGY gomb : egyik laba -> P23 (GPIO23), masik laba -> 3V3
 //               (nyomaskor 3.3V-ra huz, belso pulldown tartja alacsonyan)
-//   KIS  gomb : egyik laba -> P22 (GPIO22), masik laba -> GND
+//   KIS  gomb : egyik laba -> GPIO25, masik laba -> GND
+//               (meressel derult ki, hogy ide van kotve - a panelre irt "P22"
+//                jeloles nem ezt a labat jelentette)
 //               (belso pullup tartja magasan, nyomaskor GND-re huz)
 //   LED       : anod (hosszabb lab) -> 220 ohm ellenallas -> P18 (GPIO18)
 //               katod (rovidebb lab) -> GND
-//   Buzzer    : + -> P25 (GPIO25),  - -> GND   (passziv piezo buzzer)
+//   Buzzer    : + -> GPIO26,  - -> GND   (passziv piezo buzzer)
 //
 //   FONTOS: a "SD0/SD1/SD2/SD3/CMD/CLK" (vagy "SDD") jelolesu labak a belso
 //   flash memoriahoz tartoznak (GPIO6-11), azokra SEMMIT nem szabad kotni -
@@ -61,9 +63,9 @@
 const char *DEVICE_NAME = "Hipster Gomb";
 
 const int STOP_BUTTON_PIN = 23;  // NAGY gomb: nyomaskor 3.3V-ra huz  (pulldown, felfuto el)
-const int PLAY_BUTTON_PIN = 22;  // KIS gomb : nyomaskor GND-re huz   (pullup,  lefuto el)
+const int PLAY_BUTTON_PIN = 25;  // KIS gomb : nyomaskor GND-re huz   (pullup,  lefuto el)
 const int LED_PIN = 18;          // piros gomb LED-je (220 ohm ellenallason at)
-const int BUZZER_PIN = 25;       // passziv piezo buzzer
+const int BUZZER_PIN = 26;       // passziv piezo buzzer
 
 const unsigned long DEBOUNCE_MS = 250;  // pergesmentesites
 
@@ -186,7 +188,7 @@ void setup() {
   BLEDevice::startAdvertising();
 
   Serial.printf("Elindulva. Eszkoznev: %s\n", DEVICE_NAME);
-  Serial.println("NAGY gomb (GPIO23) = STOP, kis gomb (GPIO22) = PLAY");
+  Serial.println("NAGY gomb (GPIO23) = STOP, kis gomb (GPIO25) = PLAY");
   Serial.println("Klasszikus BT (app) + BLE (weboldal) egyszerre aktiv.");
 }
 

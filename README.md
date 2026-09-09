@@ -40,6 +40,13 @@ npm run android
 
 ESP32-WROOM, klasszikus Bluetooth és BLE egyszerre. A bekötés és a lábkiosztás az [`arduino/asthetic_gomb/asthetic_gomb.ino`](arduino/asthetic_gomb/asthetic_gomb.ino) fejlécében van leírva.
 
+| Alkatrész | Láb |
+|---|---|
+| Nagy gomb (STOP) | GPIO23, másik lába 3V3 |
+| Fehér gomb (PLAY) | GPIO25, másik lába GND |
+| Piros LED | GPIO18, 220 Ω ellenálláson át |
+| Buzzer | GPIO26 |
+
 A gomb `STOP` / `PLAY` sort küld, a játék pedig `PLAYING` / `STOPPED` sorral válaszol vissza — ettől világít a gomb LED-je pontosan akkor, amikor szól a zene.
 
 ## Dalok adatbázisa
