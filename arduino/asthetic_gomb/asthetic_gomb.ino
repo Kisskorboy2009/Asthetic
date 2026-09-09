@@ -96,13 +96,32 @@ void ledFrissit() {
   digitalWrite(LED_PIN, zeneSzol ? HIGH : LOW);
 }
 
+// A noTone() a hatterben ledcDetach()-et hiv, az pedig "nincs buszhoz rendelve"
+// allapotban hagyja a labat - vagyis szabadon logva. Egy piezo ilyenkor a
+// szomszedos digitalis jelektol folyamatosan kattog. Ezert minden hang utan
+// visszaallitjuk hajtott kimenetnek, alacsony szinten.
+void buzzerElnemit() {
+  noTone(BUZZER_PIN);
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
 // Rovid ket hangos "ting" - ezt hallod, amikor sikerult a csatlakozas.
+// Ha a Bluetooth-kapcsolat pillanatokra ki-be ugral, egymast ero tingek helyett
+// legalabb ket masodpercenkent szolal meg.
+unsigned long utolsoTingMs = 0;
+const unsigned long TING_SZUNET_MS = 2000;
+
 void tingHang() {
+  unsigned long most = millis();
+  if (utolsoTingMs != 0 && most - utolsoTingMs < TING_SZUNET_MS) return;
+  utolsoTingMs = most;
+
   tone(BUZZER_PIN, 1760, 70);   // A6
   delay(85);
   tone(BUZZER_PIN, 2637, 110);  // E7
   delay(130);
-  noTone(BUZZER_PIN);
+  buzzerElnemit();
 }
 
 // ----------------------- bejovo allapot -----------------------
@@ -163,6 +182,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);   // hajtott alacsony szint, hogy ne kattogjon
 
   // 1) Klasszikus Bluetooth SPP a Kodular apphoz (dual-mode inditas)
   SerialBT.begin(DEVICE_NAME);
