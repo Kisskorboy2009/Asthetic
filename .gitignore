@@ -1,0 +1,23 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# A www/ mappát a scripts/build-www.js állítja elő minden fordításkor
+www/
+
+# Android build kimenetek
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+
+# Arduino fordítási kimenet
+arduino/**/build/
+
+# Rendszerfájlok
+.DS_Store
+Thumbs.db

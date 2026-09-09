@@ -1,0 +1,266 @@
+/* ═══════════════════════════════════════════════════════════════
+   ASTHETIC — Kahoot-mód (szobák, kérdések, pontozás)
+   A színek a fő dizájnrendszerből jönnek (styles.css), hogy egységes legyen.
+   ═══════════════════════════════════════════════════════════════ */
+
+.kview { display: none; }
+.kview.is-active { display: block; animation: kfade .45s var(--ease) both; }
+@keyframes kfade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.kwrap { max-width: 760px; margin-inline: auto; }
+.kwrap--wide { max-width: 960px; }
+
+/* ───────────── kártyák, űrlapok ───────────── */
+
+.kcard {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: clamp(22px, 4vw, 34px);
+  box-shadow: var(--shadow-sm);
+}
+.kcard + .kcard { margin-top: 16px; }
+
+.kfield { margin-bottom: 18px; }
+.kfield > label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--ink-2);
+}
+.kinput {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-2);
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 16px var(--body);
+  outline: none;
+  transition: border-color .3s, box-shadow .3s;
+}
+.kinput:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-wash); }
+.kinput--code {
+  font-family: var(--display);
+  font-size: 30px;
+  letter-spacing: .3em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.krow { display: flex; gap: 12px; flex-wrap: wrap; }
+.krow > * { flex: 1 1 160px; }
+
+/* kapcsolók (kérdéstípusok, publikus) */
+.ktoggles { display: flex; gap: 10px; flex-wrap: wrap; }
+.ktoggle {
+  flex: 1 1 140px;
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color .3s, background .3s, transform .3s var(--ease);
+}
+.ktoggle:hover { transform: translateY(-2px); border-color: var(--ink-3); }
+.ktoggle input { position: absolute; opacity: 0; pointer-events: none; }
+.ktoggle__box {
+  width: 20px; height: 20px; flex: none;
+  border: 1.5px solid var(--line-2);
+  border-radius: 6px;
+  display: grid; place-items: center;
+  transition: background .25s, border-color .25s;
+}
+.ktoggle__box::after {
+  content: ""; width: 10px; height: 10px; border-radius: 3px;
+  background: var(--paper-2); transform: scale(0); transition: transform .25s var(--ease);
+}
+.ktoggle input:checked ~ .ktoggle__box { background: var(--accent); border-color: var(--accent); }
+.ktoggle input:checked ~ .ktoggle__box::after { transform: scale(1); }
+.ktoggle input:focus-visible ~ .ktoggle__box { outline: 2px solid var(--accent); outline-offset: 3px; }
+.ktoggle__label { font-size: 15px; font-weight: 500; }
+
+/* ───────────── szobakód, lobby ───────────── */
+
+.kcode {
+  text-align: center;
+  padding: 26px;
+  border-radius: var(--r-lg);
+  background: var(--night);
+  color: var(--night-ink);
+}
+.kcode__label { font-size: 12px; letter-spacing: .26em; text-transform: uppercase; opacity: .6; }
+.kcode__value {
+  font-family: var(--display);
+  font-size: clamp(46px, 12vw, 76px);
+  font-weight: 500;
+  letter-spacing: .18em;
+  line-height: 1.1;
+  margin: 6px 0 4px;
+}
+.kcode__hint { font-size: 14px; opacity: .72; }
+
+.kplayers { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.kplayer {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 15px; font-weight: 500;
+  animation: kpop .4s var(--ease) both;
+}
+@keyframes kpop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+.kplayer--host { border-color: var(--accent); }
+.kplayer__crown { color: var(--accent); font-size: 13px; }
+.kplayer__pont { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+/* ───────────── kérdés ───────────── */
+
+.kq__fej {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.kq__kor { font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+.kq__ido {
+  font-family: var(--display); font-size: 34px; font-weight: 500;
+  font-variant-numeric: tabular-nums; min-width: 2.4ch; text-align: right;
+  transition: color .3s;
+}
+.kq__ido.is-keves { color: var(--accent); }
+.kq__ido.is-veszely { color: #B3261E; animation: kpulzus .6s ease-in-out infinite; }
+@keyframes kpulzus { 50% { transform: scale(1.12); } }
+
+.kq__sav { height: 6px; border-radius: 999px; background: var(--paper-3); overflow: hidden; margin-bottom: 22px; }
+.kq__savBelso { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); width: 100%; transition: width .25s linear; }
+
+.kq__szoveg {
+  font-family: var(--display);
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.kvalaszok { display: grid; gap: 12px; }
+@media (min-width: 620px) { .kvalaszok { grid-template-columns: 1fr 1fr; } }
+
+.kvalasz {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 22px;
+  border: 0; border-radius: var(--r-md);
+  color: #fff; cursor: pointer;
+  font: 600 clamp(15px, 2.2vw, 18px)/1.3 var(--body);
+  text-align: left;
+  min-height: 74px;
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease), opacity .25s, filter .25s;
+}
+.kvalasz:hover:not(:disabled) { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.kvalasz:active:not(:disabled) { transform: translateY(0) scale(.985); }
+.kvalasz:disabled { cursor: default; }
+
+.kvalasz--0 { background: #B0603A; }
+.kvalasz--1 { background: #4C6B58; }
+.kvalasz--2 { background: #8E4A2B; }
+.kvalasz--3 { background: #3D4753; }
+
+.kvalasz__jel {
+  flex: none; width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(255,255,255,.22);
+  display: grid; place-items: center;
+  font-family: var(--display); font-weight: 600; font-size: 16px;
+}
+
+/* válaszadás után / kiértékeléskor */
+.kvalasz.is-valasztott { outline: 3px solid var(--ink); outline-offset: 3px; }
+.kvalaszok.is-lezart .kvalasz { opacity: .35; filter: grayscale(.5); }
+.kvalaszok.is-lezart .kvalasz.is-helyes { opacity: 1; filter: none; box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px #2E7D32; }
+.kvalaszok.is-lezart .kvalasz.is-rossz { opacity: 1; filter: none; box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px #B3261E; }
+
+.kvarunk { text-align: center; color: var(--ink-2); margin-top: 20px; font-size: 15px; }
+
+/* rejtett videó (csak a szobavezetőnél szól) */
+.kvideo { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
+
+.khang {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  height: 30px; margin: 0 auto 18px;
+}
+.khang i {
+  width: 4px; border-radius: 2px; height: 100%;
+  background: var(--accent); transform-origin: bottom; transform: scaleY(.2);
+  animation: khangUgral 1s var(--ease-soft) infinite alternate;
+  animation-delay: calc(var(--i) * -.12s);
+  animation-play-state: paused;
+}
+.is-szol .khang i { animation-play-state: running; }
+@keyframes khangUgral { from { transform: scaleY(.18); } to { transform: scaleY(1); } }
+
+/* ───────────── eredmény ───────────── */
+
+.keredmeny__dal {
+  text-align: center; padding: 22px; border-radius: var(--r-md);
+  background: var(--accent-wash); border: 1px solid var(--accent);
+  margin-bottom: 20px;
+  animation: kpop .5s var(--ease) both;
+}
+.keredmeny__cim { font-family: var(--display); font-size: clamp(20px, 3vw, 26px); font-weight: 500; }
+.keredmeny__meta { color: var(--accent-deep); margin-top: 4px; font-weight: 500; }
+
+.ktabla { width: 100%; border-collapse: collapse; }
+.ktabla th, .ktabla td { padding: 13px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+.ktabla th { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.ktabla td { font-size: 15.5px; }
+.ktabla td.szam { text-align: right; font-variant-numeric: tabular-nums; }
+.ktabla tr.is-en { background: var(--accent-wash); }
+.ktabla .jo { color: #2E7D32; font-weight: 600; }
+.ktabla .rossz { color: #B3261E; }
+
+/* dobogó */
+.kdobogo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: end; margin-bottom: 26px; }
+.kdobogo__hely {
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  padding: 16px 10px; text-align: center; color: #fff;
+  animation: knovekszik .7s var(--ease) both;
+}
+@keyframes knovekszik { from { transform: scaleY(.4); opacity: 0; transform-origin: bottom; } to { transform: none; opacity: 1; } }
+.kdobogo__hely--1 { background: var(--accent); min-height: 150px; }
+.kdobogo__hely--2 { background: var(--ink-2); min-height: 118px; animation-delay: .1s; }
+.kdobogo__hely--3 { background: var(--ink-3); min-height: 96px; animation-delay: .2s; }
+.kdobogo__nev { font-family: var(--display); font-size: 17px; font-weight: 500; margin-top: 6px; word-break: break-word; }
+.kdobogo__pont { font-size: 14px; opacity: .85; font-variant-numeric: tabular-nums; }
+.kdobogo__helyszam { font-family: var(--display); font-size: 26px; font-weight: 600; }
+
+/* ───────────── publikus szobák ───────────── */
+
+.kszobak { display: grid; gap: 10px; }
+.kszoba {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 16px 18px; border-radius: var(--r-md);
+  border: 1px solid var(--line); background: var(--paper-2);
+  cursor: pointer; text-align: left; width: 100%;
+  transition: border-color .3s, transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.kszoba:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.kszoba__kod { font-family: var(--display); font-size: 22px; font-weight: 600; letter-spacing: .12em; }
+.kszoba__info { color: var(--ink-2); font-size: 14px; }
+
+.kures { text-align: center; color: var(--ink-3); padding: 26px; font-size: 15px; }
+
+/* ───────────── hibaüzenet ───────────── */
+
+.khiba {
+  margin-top: 14px; padding: 12px 16px; border-radius: var(--r-sm);
+  background: #FDECEA; border: 1px solid #F5C6C2; color: #8E2C22;
+  font-size: 14.5px;
+}
+.khiba:empty { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kview.is-active, .kplayer, .kdobogo__hely, .keredmeny__dal { animation: none; }
+}

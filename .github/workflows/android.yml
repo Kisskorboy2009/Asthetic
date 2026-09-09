@@ -1,0 +1,50 @@
+name: Android APK
+
+# Minden main-re küldött változtatásnál lefordul az alkalmazás, és letölthető APK lesz belőle.
+# Kézzel is indítható a GitHub "Actions" fülén (Run workflow).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Kód letöltése
+        uses: actions/checkout@v4
+
+      - name: Java 17 beállítása
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Node beállítása
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Csomagok telepítése
+        run: npm ci
+
+      - name: Weboldal becsomagolása (www/)
+        run: npm run build
+
+      - name: Capacitor szinkron
+        run: npx cap sync android
+
+      - name: Gradle futtathatóvá tétele
+        run: chmod +x android/gradlew
+
+      - name: APK fordítása
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: APK feltöltése
+        uses: actions/upload-artifact@v4
+        with:
+          name: asthetic-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

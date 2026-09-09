@@ -1,0 +1,18 @@
+{
+  "appId": "hu.kisskorboy.asthetic",
+  "appName": "Asthetic",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "BluetoothLe": {
+      "displayStrings": {
+        "scanning": "Keresés…",
+        "cancel": "Mégse",
+        "availableDevices": "Elérhető eszközök",
+        "noDeviceFound": "Nem található eszköz"
+      }
+    }
+  }
+}

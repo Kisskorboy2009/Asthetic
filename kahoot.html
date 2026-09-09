@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kvízcsata — Asthetic Game</title>
+<meta name="description" content="Asthetic Kvízcsata: hozz létre szobát, hívd be a barátaidat, és tippeljetek zenékre — évszám, előadó vagy cím. A gyorsabb több pontot kap.">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15171B" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/asthetic-logo.png" sizes="any">
+<link rel="apple-touch-icon" href="assets/asthetic-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.youtube.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/kahoot.css">
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Ugrás a tartalomra</a>
+
+<header class="site-header" id="siteHeader">
+  <div class="container nav">
+    <a class="logo" href="index.html" aria-label="Asthetic Game — főoldal">
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__text">Asthetic</span>
+    </a>
+    <ul class="nav__links" id="navLinks">
+      <li><a href="index.html#hogyan">Hogyan működik</a></li>
+      <li><a href="szabalyok.html">Szabályok</a></li>
+      <li><a href="jatek.html">Kártyás játék</a></li>
+    </ul>
+    <div class="nav__cta">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Sötét mód be- és kikapcsolása">
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/></svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"/></svg>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="section section--tight">
+  <div class="container">
+
+    <!-- ════════ MENÜ ════════ -->
+    <section class="kview is-active" id="kv-menu">
+      <div class="kwrap">
+        <div class="section-head section-head--center">
+          <p class="kicker">Kvízcsata</p>
+          <h1 class="h2">Zenei kvíz, közösen</h1>
+          <p class="lead">Nyiss egy szobát, hívd be a többieket, és tippeljetek: melyik évben, ki adta elő, mi a címe. A gyorsabb több pontot kap.</p>
+        </div>
+
+        <div class="kcard">
+          <div class="kfield">
+            <label for="nevInput">A neved</label>
+            <input class="kinput" id="nevInput" type="text" maxlength="20" placeholder="pl. Kisskorboy" autocomplete="nickname">
+          </div>
+          <div class="krow">
+            <button class="btn btn--accent btn--lg" id="ujSzobaBtn" type="button">Szoba létrehozása</button>
+            <button class="btn btn--outline btn--lg" id="csatlakozNezetBtn" type="button">Csatlakozás kóddal</button>
+          </div>
+          <p class="khiba" id="menuHiba" role="alert"></p>
+        </div>
+
+        <div class="kcard">
+          <h2 class="h3" style="margin-bottom:14px">Nyilvános szobák</h2>
+          <div class="kszobak" id="publikusLista"><p class="kures">Töltés…</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ SZOBA LÉTREHOZÁSA ════════ -->
+    <section class="kview" id="kv-letrehoz">
+      <div class="kwrap">
+        <div class="section-head">
+          <p class="kicker">Beállítások</p>
+          <h1 class="h2">Szoba beállításai</h1>
+        </div>
+
+        <div class="kcard">
+          <div class="kfield">
+            <label>Miből lehessen tippelni?</label>
+            <div class="ktoggles">
+              <label class="ktoggle"><input type="checkbox" id="tipusYear" checked><span class="ktoggle__box" aria-hidden="true"></span><span class="ktoggle__label">Évszám</span></label>
+              <label class="ktoggle"><input type="checkbox" id="tipusArtist" checked><span class="ktoggle__box" aria-hidden="true"></span><span class="ktoggle__label">Előadó</span></label>
+              <label class="ktoggle"><input type="checkbox" id="tipusTitle" checked><span class="ktoggle__box" aria-hidden="true"></span><span class="ktoggle__label">Dal címe</span></label>
+            </div>
+          </div>
+
+          <div class="krow">
+            <div class="kfield">
+              <label for="korokInput">Körök száma</label>
+              <input class="kinput" id="korokInput" type="number" min="1" max="50" value="10" inputmode="numeric">
+            </div>
+            <div class="kfield">
+              <label for="idoInput">Válaszidő (mp)</label>
+              <input class="kinput" id="idoInput" type="number" min="5" max="120" value="30" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="krow">
+            <div class="kfield">
+              <label for="kezdesInput">A dal hányadik mp-től szóljon</label>
+              <input class="kinput" id="kezdesInput" type="number" min="0" max="300" value="45" inputmode="numeric">
+            </div>
+            <div class="kfield">
+              <label for="pontInput">Maximum pont körönként</label>
+              <input class="kinput" id="pontInput" type="number" min="100" max="5000" step="100" value="1000" inputmode="numeric">
+            </div>
+          </div>
+
+          <div class="kfield" style="margin-bottom:6px">
+            <label class="ktoggle" style="flex:1 1 100%">
+              <input type="checkbox" id="publikusInput">
+              <span class="ktoggle__box" aria-hidden="true"></span>
+              <span class="ktoggle__label">Nyilvános szoba — bárki láthatja és csatlakozhat</span>
+            </label>
+          </div>
+
+          <p class="khiba" id="letrehozHiba" role="alert"></p>
+
+          <div class="krow" style="margin-top:18px">
+            <button class="btn btn--accent btn--lg" id="letrehozBtn" type="button">Szoba megnyitása</button>
+            <button class="btn btn--ghost" id="letrehozVisszaBtn" type="button">Mégse</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ CSATLAKOZÁS ════════ -->
+    <section class="kview" id="kv-csatlakoz">
+      <div class="kwrap">
+        <div class="section-head section-head--center">
+          <p class="kicker">Csatlakozás</p>
+          <h1 class="h2">Írd be a szoba kódját</h1>
+        </div>
+        <div class="kcard">
+          <div class="kfield">
+            <label for="kodInput">Szobakód</label>
+            <input class="kinput kinput--code" id="kodInput" type="text" maxlength="4" placeholder="ABCD" autocomplete="off" autocapitalize="characters">
+          </div>
+          <p class="khiba" id="csatlakozHiba" role="alert"></p>
+          <div class="krow">
+            <button class="btn btn--accent btn--lg" id="csatlakozBtn" type="button">Belépés</button>
+            <button class="btn btn--ghost" id="csatlakozVisszaBtn" type="button">Mégse</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ VÁRÓ (LOBBY) ════════ -->
+    <section class="kview" id="kv-lobby">
+      <div class="kwrap">
+        <div class="kcode">
+          <div class="kcode__label">Szobakód</div>
+          <div class="kcode__value" id="lobbyKod">----</div>
+          <div class="kcode__hint" id="lobbyHint">Ezt a kódot írják be a többiek</div>
+        </div>
+
+        <div class="kcard" style="margin-top:16px">
+          <h2 class="h3" style="margin-bottom:12px">Játékosok (<span id="lobbyLetszam">0</span>)</h2>
+          <div class="kplayers" id="lobbyJatekosok"></div>
+          <p class="kures" id="lobbyBeallitas" style="text-align:left;padding:18px 0 0"></p>
+          <p class="khiba" id="lobbyHiba" role="alert"></p>
+          <div class="krow" style="margin-top:12px">
+            <button class="btn btn--accent btn--lg" id="inditBtn" type="button" hidden>Játék indítása</button>
+            <button class="btn btn--ghost" id="kilepBtn" type="button">Kilépés</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ KÉRDÉS ════════ -->
+    <section class="kview" id="kv-kerdes">
+      <div class="kwrap kwrap--wide">
+        <div class="kq__fej">
+          <span class="kq__kor" id="qKor">1. kör</span>
+          <span class="kq__ido" id="qIdo">30</span>
+        </div>
+        <div class="kq__sav"><div class="kq__savBelso" id="qSav"></div></div>
+
+        <div class="khang" id="qHang" aria-hidden="true">
+          <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i>
+          <i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i>
+        </div>
+
+        <p class="kq__szoveg" id="qSzoveg">…</p>
+
+        <div class="kvalaszok" id="qValaszok"></div>
+
+        <p class="kvarunk" id="qStatusz"></p>
+
+        <div class="krow" style="justify-content:center;margin-top:18px">
+          <button class="btn btn--ghost" id="kihagyBtn" type="button" hidden>Ez a dal nem jó — kihagyom</button>
+        </div>
+
+        <div class="kvideo" aria-hidden="true"><div id="kYtFrame"></div></div>
+      </div>
+    </section>
+
+    <!-- ════════ KÖR EREDMÉNYE ════════ -->
+    <section class="kview" id="kv-eredmeny">
+      <div class="kwrap">
+        <div class="keredmeny__dal">
+          <div class="keredmeny__cim" id="eDalCim">…</div>
+          <div class="keredmeny__meta" id="eDalMeta"></div>
+        </div>
+
+        <div class="kcard">
+          <h2 class="h3" id="eHelyes" style="margin-bottom:16px"></h2>
+          <table class="ktabla">
+            <thead><tr><th>Játékos</th><th>Válasz</th><th class="szam">Kör</th><th class="szam">Összesen</th></tr></thead>
+            <tbody id="eTabla"></tbody>
+          </table>
+          <div class="krow" style="margin-top:18px">
+            <button class="btn btn--accent btn--lg" id="kovetkezoBtn" type="button" hidden>Következő kör</button>
+            <span class="kvarunk" id="eVarunk" style="align-self:center"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ VÉGE ════════ -->
+    <section class="kview" id="kv-vege">
+      <div class="kwrap">
+        <div class="section-head section-head--center">
+          <p class="kicker">Vége</p>
+          <h1 class="h2">Végeredmény</h1>
+        </div>
+
+        <div class="kdobogo" id="vDobogo"></div>
+
+        <div class="kcard">
+          <table class="ktabla">
+            <thead><tr><th>#</th><th>Játékos</th><th class="szam">Pont</th></tr></thead>
+            <tbody id="vTabla"></tbody>
+          </table>
+          <div class="krow" style="margin-top:18px">
+            <button class="btn btn--accent btn--lg" id="ujJatekBtn" type="button">Új játék</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__bottom" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© <span id="year">2026</span> Asthetic Game</span>
+      <a class="maker" href="https://kisskorboy.hu/" target="_blank" rel="noopener">
+        <span class="maker__dot" aria-hidden="true"></span>
+        Az oldalt készítette: <b>Kisskorboy</b>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/vendor/capacitor.js" defer></script>
+<script src="js/config.js" defer></script>
+<script src="js/site.js" defer></script>
+<script src="js/kahoot.js" defer></script>
+</body>
+</html>

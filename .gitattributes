@@ -1,0 +1,13 @@
+# A repóban mindenhol LF sorvég, hogy a Linuxos GitHub-futtató is boldoguljon vele.
+* text=auto eol=lf
+
+# Windowsos indítófájlok viszont CRLF-et akarnak.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# A Gradle indítója Linuxon shell-szkript: CRLF-fel nem indulna el.
+gradlew text eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary

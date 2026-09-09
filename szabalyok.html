@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Játékszabályok — Asthetic Game</title>
+<meta name="description" content="Az Asthetic Game mind a négy játékmódjának teljes szabályzata: Klasszikus Idővonal, Villám-Rablás, Dúdolós csapatverseny és Hister Rubik-Bingo.">
+<link rel="canonical" href="https://asthetic.kisskorboy.hu/szabalyok.html">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15171B" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Asthetic Game">
+<meta property="og:locale" content="hu_HU">
+<meta property="og:title" content="Játékszabályok — Asthetic Game">
+<meta property="og:description" content="Négy játékmód teljes szabályzata: idővonal-építés, buzzeres reflexjáték, dúdolós csapatverseny és Rubik-Bingo.">
+<meta property="og:url" content="https://asthetic.kisskorboy.hu/szabalyok.html">
+<meta property="og:image" content="https://asthetic.kisskorboy.hu/assets/asthetic-logo.png">
+<meta property="og:image:alt" content="Az Asthetic Game logója">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Játékszabályok — Asthetic Game">
+<meta name="twitter:description" content="Négy játékmód teljes szabályzata egy helyen.">
+<meta name="twitter:image" content="https://asthetic.kisskorboy.hu/assets/asthetic-logo.png">
+
+<link rel="icon" href="assets/asthetic-logo.png" sizes="any">
+<link rel="apple-touch-icon" href="assets/asthetic-logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Ugrás a tartalomra</a>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header" id="siteHeader">
+  <div class="container nav">
+    <a class="logo" href="index.html" aria-label="Asthetic Game — főoldal">
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__text">Asthetic</span>
+    </a>
+    <ul class="nav__links" id="navLinks">
+      <li><a href="index.html#hogyan">Hogyan működik</a></li>
+      <li><a href="index.html#modok">Játékmódok</a></li>
+      <li><a href="szabalyok.html" aria-current="page">Szabályok</a></li>
+      <li><a href="index.html#gyik">GYIK</a></li>
+    </ul>
+    <div class="nav__cta">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Sötét mód be- és kikapcsolása">
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/></svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"/></svg>
+      </button>
+      <a class="btn btn--accent btn--sm" href="jatek.html">Játék indítása</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <div class="page-head">
+    <div class="container">
+      <p class="kicker">Játékszabályok</p>
+      <h1 class="h2">Négy játékmód, egy pakli</h1>
+      <p class="lead" style="max-width:60ch">
+        Mindegyik mód ugyanazokkal a QR-kódos kártyákkal játszható. Válaszd ki, melyikbe vágtok bele —
+        a részletekért kattints a mód nevére.
+      </p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="rules" data-accordion>
+
+        <!-- 1 -->
+        <article class="rule reveal" id="klasszikus" style="--i:0">
+          <h2>
+            <button class="rule__head" type="button" aria-expanded="false" aria-controls="rule-1">
+              <span class="rule__num" aria-hidden="true">01</span>
+              <span class="rule__title">A Klasszikus Idővonal</span>
+              <svg class="rule__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </h2>
+          <div class="rule__body" id="rule-1" role="region" aria-label="A Klasszikus Idővonal szabályai">
+            <div class="rule__inner"><div class="rule__content">
+              <hr>
+              <p><b>A játék célja:</b> Elsőként felépíteni egy 10+1 kártyából álló, kronológiailag (évszám szerint növekvő) helyes idővonalat magad előtt az asztalon.</p>
+              <p><b>A játék menete:</b><br>
+                1. A soron lévő játékos kap egy kártyát, az applikáció beolvassa a QR-kódot, és elindul a <b>30 másodperces időzítő</b>.<br>
+                2. A játékosnak meg kell tippelnie a megszólaló zene <b>címét</b>, <b>előadóját</b> és <b>évszámát</b>.<br>
+                3. A kör végén a találatok száma alapján jár a jutalom:</p>
+              <ul>
+                <li><b>1 találat</b> (csak cím, csak előadó VAGY csak évszám): Jár <b>1 pontozókorong</b>. A kártya a pakli aljára kerül.</li>
+                <li><b>2 találat:</b> Jár <b>2 pontozókorong</b>, és a kártyát megtarthatod az idővonaladba.</li>
+                <li><b>3 találat (Teljes siker):</b> Jár <b>3 pontozókorong</b>, és a kártya szintén bekerül az idővonaladba.</li>
+              </ul>
+              <p><b>A korongok felhasználása:</b><br>
+                A megszerzett korongokat a köröd elején válthatod be az alábbiakra:<br>
+                • <b>Segítség (2 korong):</b> Kérhetsz egy tippet az appból (pl. stílus vagy kezdőbetű).<br>
+                • <b>Vásárlás (3 korong):</b> Megvásárolhatsz egy korábbi, pakli aljára tett kártyát az idővonaladba (ha az évszám szerint passzol).</p>
+            </div></div>
+          </div>
+        </article>
+
+        <!-- 2 -->
+        <article class="rule reveal" id="rablas" style="--i:1">
+          <h2>
+            <button class="rule__head" type="button" aria-expanded="false" aria-controls="rule-2">
+              <span class="rule__num" aria-hidden="true">02</span>
+              <span class="rule__title">Villám-Rablás <small style="font-weight:400;color:var(--ink-3)">(reflex mód)</small></span>
+              <svg class="rule__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </h2>
+          <div class="rule__body" id="rule-2" role="region" aria-label="A Villám-Rablás szabályai">
+            <div class="rule__inner"><div class="rule__content">
+              <hr>
+              <p><b>A játék célja:</b> Elsőként összegyűjteni 10 darab kártyát.</p>
+              <p><b>A játék menete:</b><br>
+                1. Helyezzétek a <b>nagy gombot (buzzert)</b> az asztal közepére.<br>
+                2. Az applikáció elindítja a dalt. Nem kell megvárni a 30 másodpercet: <b>aki a leggyorsabb, és először csap rá a gombra, az kap szót!</b><br>
+                3. A gombot megnyomó játékosnak azonnal meg kell mondania a zene <b>címét ÉS előadóját</b> (az évszám itt nem számít).</p>
+              <p><b>Értékelés:</b><br>
+                • Ha a tipp <b>helyes</b>, megkapod a kártyát, és jöhet a következő szám.<br>
+                • Ha a tipp <b>hibás</b>, a kártya a pakli aljára megy, te pedig ebből a körből kibuksz. A többiek előtt újraindul a zene, és tovább próbálkozhatnak.</p>
+            </div></div>
+          </div>
+        </article>
+
+        <!-- 3 -->
+        <article class="rule reveal" id="dudolos" style="--i:2">
+          <h2>
+            <button class="rule__head" type="button" aria-expanded="false" aria-controls="rule-3">
+              <span class="rule__num" aria-hidden="true">03</span>
+              <span class="rule__title">„Dúdolós” csapatverseny</span>
+              <svg class="rule__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </h2>
+          <div class="rule__body" id="rule-3" role="region" aria-label="A Dúdolós csapatverseny szabályai">
+            <div class="rule__inner"><div class="rule__content">
+              <hr>
+              <p><b>A játék célja:</b> Elsőként összegyűjteni 10 darab kártyát a csapatnak.</p>
+              <p><b>A játék menete:</b><br>
+                1. A soron lévő csapatból egy játékos felveszi a <b>fülhallgatót</b>, így a zenét kizárólag ő hallja az appból.<br>
+                2. A fülest viselő játékos a kör elején dob a dobókockával:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;• <b>Páratlan szám – sima kör:</b> Csak a saját csapattársai tippelhetnek.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;• <b>Páros szám – rablós kör:</b> Ha a saját csapat elakad, az ellenfél csapata is rabolhat.<br>
+                3. Elindul a zene. A játékosnak <b>el kell dúdolnia, vagy halandzsázva (pl. „na-na-na”) kell átadnia</b> a dallamot. Szavakat használni vagy mutogatni szigorúan tilos!<br>
+                4. Ha a csapat (vagy rablásnál az ellenfél) kitalálja a dalt (<b>előadó + cím</b>), megkapják a kártyát.</p>
+            </div></div>
+          </div>
+        </article>
+
+        <!-- 4 -->
+        <article class="rule reveal" id="bingo" style="--i:3">
+          <h2>
+            <button class="rule__head" type="button" aria-expanded="false" aria-controls="rule-4">
+              <span class="rule__num" aria-hidden="true">04</span>
+              <span class="rule__title">Hister Rubik-Bingo</span>
+              <svg class="rule__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </h2>
+          <div class="rule__body" id="rule-4" role="region" aria-label="A Hister Rubik-Bingo szabályai">
+            <div class="rule__inner"><div class="rule__content">
+              <hr>
+              <p><b>A játék célja:</b> Elsőként kirakni 5 darab X-et egy vonalban a Bingo-tábládon.</p>
+              <p><b>A játék menete:</b><br>
+                1. <b>A dobás:</b> A soron lévő játékos feldobja a Rubik-dobókockát. A kidobott szín határozza meg, hogy a táblán melyik színes oszlopból (piros, kék, zöld, sárga, narancs) lehet majd mezőt behúzni. (A <i>fehér a JOKER</i>: bármelyik oszlop választható.)<br>
+                2. <b>Titkos tippelés:</b> Az app elindítja a zenét. <b>Senki sem kiabálhat!</b> Minden játékos titokban felírja a saját kis papírjára a tippjét (<b>előadó + cím</b>).<br>
+                3. <b>Ellenőrzés és ikszelés:</b> Ha lejárt az idő, mindenki felfedi a papírját.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;• <b>Aki eltalálta:</b> Tehet egy X-et a saját tábláján a kidobott szín oszlopában egy olyan kategóriára, ami igaz a dalra.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;• <b>Aki elrontotta:</b> Ebben a körben nem ikszelhet semmit.</p>
+              <p><b>Győzelem:</b> Akinek először jön ki <b>5 darab X egy vonalban</b> (vízszintesen, függőlegesen vagy átlósan), felkiált: <b>„BINGO!”</b> — és nyert.</p>
+            </div></div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container">
+      <div class="cta-band reveal">
+        <h2>Megvan a mód? Jöhet a zene.</h2>
+        <p>Vegyétek elő a paklit, tegyétek a gombot az asztal közepére, és indítsátok el a játékot.</p>
+        <a class="btn btn--lg" href="jatek.html">
+          Játék indítása
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__about">
+        <a class="logo" href="index.html" aria-label="Asthetic Game — főoldal">
+          <span class="logo__mark" aria-hidden="true"></span>
+          <span class="logo__text">Asthetic</span>
+        </a>
+        <p>Zenei kártyajáték QR-kódos kártyákkal, 30 másodperces dalrészletekkel és egy nagy piros gombbal.</p>
+      </div>
+      <div>
+        <h4>Játék</h4>
+        <ul>
+          <li><a href="kahoot.html">Kvízcsata</a></li>
+          <li><a href="jatek.html">Kártyás játék</a></li>
+          <li><a href="szabalyok.html">Játékszabályok</a></li>
+          <li><a href="index.html#gyik">Gyakori kérdések</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Jogi</h4>
+        <ul>
+          <li><a href="adatvedelem.html">Adatvédelem</a></li>
+          <li><a href="feltetelek.html">Felhasználási feltételek</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© <span id="year">2026</span> Asthetic Game</span>
+      <a class="maker" href="https://kisskorboy.hu/" target="_blank" rel="noopener">
+        <span class="maker__dot" aria-hidden="true"></span>
+        Az oldalt készítette: <b>Kisskorboy</b>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/site.js" defer></script>
+</body>
+</html>

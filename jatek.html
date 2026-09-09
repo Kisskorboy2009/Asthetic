@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Játék — Asthetic Game</title>
+<meta name="description" content="Indítsd el az Asthetic Game-et: olvasd be a kártya QR-kódját, és szól a dal a 45. másodperctől 30 másodpercig. Csatlakoztasd a Bluetooth-gombot is.">
+<link rel="canonical" href="https://asthetic.kisskorboy.hu/jatek.html">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15171B" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Asthetic Game">
+<meta property="og:locale" content="hu_HU">
+<meta property="og:title" content="Játék — Asthetic Game">
+<meta property="og:description" content="Olvasd be a kártyát, és szól a dal 30 másodpercig.">
+<meta property="og:url" content="https://asthetic.kisskorboy.hu/jatek.html">
+<meta property="og:image" content="https://asthetic.kisskorboy.hu/assets/asthetic-logo.png">
+<meta property="og:image:alt" content="Az Asthetic Game logója">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Játék — Asthetic Game">
+<meta name="twitter:description" content="Olvasd be a kártyát, és szól a dal 30 másodpercig.">
+<meta name="twitter:image" content="https://asthetic.kisskorboy.hu/assets/asthetic-logo.png">
+
+<link rel="icon" href="assets/asthetic-logo.png" sizes="any">
+<link rel="apple-touch-icon" href="assets/asthetic-logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.youtube.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/game.css">
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Ugrás a tartalomra</a>
+
+<header class="site-header" id="siteHeader">
+  <div class="container nav">
+    <a class="logo" href="index.html" aria-label="Asthetic Game — főoldal">
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__text">Asthetic</span>
+    </a>
+    <ul class="nav__links" id="navLinks">
+      <li><a href="index.html#hogyan">Hogyan működik</a></li>
+      <li><a href="index.html#modok">Játékmódok</a></li>
+      <li><a href="szabalyok.html">Szabályok</a></li>
+      <li><a href="index.html#gyik">GYIK</a></li>
+    </ul>
+    <div class="nav__cta">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Sötét mód be- és kikapcsolása">
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/></svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"/></svg>
+      </button>
+      <a class="btn btn--outline btn--sm" href="szabalyok.html">Szabályok</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="section section--tight">
+  <div class="container">
+
+    <h1 class="sr-only">Asthetic Game — játék</h1>
+
+    <div class="status">
+      <button class="status__pill" id="btConnect" type="button">
+        <span class="status__dot" id="btDot" data-state="off" aria-hidden="true"></span>
+        <span id="btLabel">Gomb csatlakoztatása</span>
+      </button>
+    </div>
+
+    <div class="stage">
+
+      <!-- ════ Kezdés ════ -->
+      <section class="gview is-active" id="gv-home" aria-label="Kezdés">
+        <h2>Kezdődhet a kör</h2>
+        <p>Olvasd be a soron következő kártya QR-kódját, és azonnal indul a 30 másodperces részlet.</p>
+        <div class="gactions">
+          <button class="btn btn--light btn--lg" id="startScan" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10"/></svg>
+            Kártya beolvasása
+          </button>
+          <button class="btn btn--line" id="manualOpen" type="button">Link beillesztése</button>
+        </div>
+      </section>
+
+      <!-- ════ Szkenner ════ -->
+      <section class="gview" id="gv-scan" aria-label="QR-kód beolvasása">
+        <div class="scanbox">
+          <video id="camera" playsinline muted autoplay aria-label="Kamera képe"></video>
+          <div class="reticle" aria-hidden="true"><span></span><span></span><span></span><span></span><i class="laser"></i></div>
+          <div class="scanbox__vig" aria-hidden="true"></div>
+        </div>
+        <p class="hint" id="scanHint" role="status">Tartsd a QR-kódot a keretbe…</p>
+        <div class="gactions">
+          <button class="btn btn--line" id="cancelScan" type="button">Mégse</button>
+          <button class="btn btn--line" id="manualOpen2" type="button">Inkább beillesztem</button>
+        </div>
+      </section>
+
+      <!-- ════ Lejátszó ════ -->
+      <section class="gview" id="gv-play" aria-label="Lejátszó">
+        <div class="dial">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="dial__track" cx="100" cy="100" r="86"/>
+            <circle class="dial__value" cx="100" cy="100" r="86" id="ring"/>
+          </svg>
+          <div class="dial__core">
+            <div class="eq" id="eq" aria-hidden="true">
+              <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i>
+              <i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i>
+              <i style="--i:8"></i><i style="--i:9"></i>
+            </div>
+            <div class="dial__time" id="timeLeft">30</div>
+            <div class="dial__unit">másodperc</div>
+          </div>
+        </div>
+
+        <p class="gstate" id="stateText" role="status" aria-live="polite">Betöltés…</p>
+
+        <div class="gactions">
+          <button class="btn btn--light" id="toggleBtn" type="button">
+            <svg id="toggleIcon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+            <span id="toggleLabel">Szünet</span>
+          </button>
+          <button class="btn btn--line" id="nextCard" type="button">Következő kártya</button>
+        </div>
+
+        <div class="gactions">
+          <button class="glink" id="revealBtn" type="button">Videó felfedése</button>
+          <button class="glink" id="backHome" type="button">Vissza a kezdéshez</button>
+        </div>
+
+        <!-- A videó képe szándékosan takarva: ne árulja el a dalt -->
+        <div class="screen" id="screen">
+          <div class="screen__frame"><div id="ytFrame"></div></div>
+          <div class="screen__cover" id="screenCover">a kép elrejtve — most csak a zene számít</div>
+        </div>
+
+        <button class="tap-to-play" id="tapToPlay" type="button" hidden>
+          <span>Koppints a lejátszáshoz</span>
+          <small>a böngésző kérte</small>
+        </button>
+      </section>
+    </div>
+
+    <p class="tips">
+      <span><kbd>Szóköz</kbd> szünet / folytatás</span>
+      <span><kbd>Esc</kbd> vissza</span>
+      <span>A fizikai gomb ugyanezt csinálja</span>
+    </p>
+  </div>
+</main>
+
+<!-- Kézi link megadása -->
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet__panel">
+    <h2 id="sheetTitle">YouTube-link megadása</h2>
+    <p>Illeszd be a kártyához tartozó linket, ha a kamera épp nem elérhető.</p>
+    <form id="manualForm" novalidate>
+      <label class="sr-only" for="manualInput">YouTube-link</label>
+      <input id="manualInput" class="field" type="url" inputmode="url" autocomplete="off"
+             placeholder="https://www.youtube.com/watch?v=…" aria-describedby="manualError">
+      <p class="field-error" id="manualError" role="alert"></p>
+      <div class="gactions" style="justify-content:flex-start;margin-top:6px">
+        <button class="btn btn--accent" type="submit">Indítás</button>
+        <button class="btn btn--outline" type="button" id="manualClose">Mégse</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="shock" id="shock" aria-hidden="true"><i></i><i></i><b id="shockText">GOMB</b></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__bottom" style="margin-top:0;border-top:0;padding-top:0">
+      <span>© <span id="year">2026</span> Asthetic Game</span>
+      <a class="maker" href="https://kisskorboy.hu/" target="_blank" rel="noopener">
+        <span class="maker__dot" aria-hidden="true"></span>
+        Az oldalt készítette: <b>Kisskorboy</b>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- Capacitor futtatókörnyezet + Bluetooth-bővítmény: az Android alkalmazásban
+     ezeken keresztül megy a BLE. Böngészőben tétlenek, a Web Bluetooth marad. -->
+<script src="js/vendor/capacitor.js" defer></script>
+<script src="js/vendor/bluetooth-le.js" defer></script>
+<script src="js/site.js" defer></script>
+<script src="js/game.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Asthetic Game — zenei kártyajáték QR-kóddal és villámgombbal</title>
+<meta name="description" content="Az Asthetic Game zenei társasjáték: olvasd be a kártya QR-kódját, szól a dal a 45. másodperctől 30 másodpercig, és aki elsőként üti a Bluetooth-gombot, az tippelhet. Négy játékmód, kártyák, pontozókorongok.">
+<link rel="canonical" href="https://asthetic.kisskorboy.hu/">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Kisskorboy">
+<meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15171B" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Asthetic Game">
+<meta property="og:locale" content="hu_HU">
+<meta property="og:title" content="Asthetic Game — zenei kártyajáték QR-kóddal">
+<meta property="og:description" content="Szól a dal 30 másodpercig. Aki elsőként üti a gombot, az tippelhet. Négy játékmód egy társasjátékban.">
+<meta property="og:url" content="https://asthetic.kisskorboy.hu/">
+<meta property="og:image" content="https://asthetic.kisskorboy.hu/assets/asthetic-logo.png">
+<meta property="og:image:alt" content="Az Asthetic Game logója">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Asthetic Game — zenei kártyajáték QR-kóddal">
+<meta name="twitter:description" content="Szól a dal 30 másodpercig. Aki elsőként üti a gombot, az tippelhet.">
+<meta name="twitter:image" content="https://asthetic.kisskorboy.hu/assets/asthetic-logo.png">
+
+<link rel="icon" href="assets/asthetic-logo.png" sizes="any">
+<link rel="apple-touch-icon" href="assets/asthetic-logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"Game",
+      "name":"Asthetic Game",
+      "description":"Zenei kártyajáték: QR-kódos kártyák, 30 másodperces dalrészletek és fizikai Bluetooth-gomb. Négy játékmódban játszható.",
+      "url":"https://asthetic.kisskorboy.hu/",
+      "inLanguage":"hu",
+      "numberOfPlayers":{"@type":"QuantitativeValue","minValue":2,"maxValue":12},
+      "author":{"@type":"Person","name":"Kisskorboy","url":"https://kisskorboy.hu/"}
+    },
+    {
+      "@type":"FAQPage",
+      "mainEntity":[
+        {"@type":"Question","name":"Kell hozzá internet?","acceptedAnswer":{"@type":"Answer","text":"Igen. A dalok a YouTube-ról szólnak, ezért a játékhoz internetkapcsolat szükséges."}},
+        {"@type":"Question","name":"Muszáj a fizikai gomb?","acceptedAnswer":{"@type":"Answer","text":"Nem. A gomb a Villám-Rablás módban teszi izgalmasabbá a játékot, de minden mód játszható a képernyőn lévő Szünet gombbal is."}},
+        {"@type":"Question","name":"Miért nem látszik a videó?","acceptedAnswer":{"@type":"Answer","text":"Szándékosan takarva van, hogy a kép ne árulja el a dalt. Egy gombnyomással bármikor felfedhető."}},
+        {"@type":"Question","name":"Melyik böngészőben működik a gomb?","acceptedAnswer":{"@type":"Answer","text":"A fizikai gomb Web Bluetooth-t használ, ami Chrome és Edge böngészőben érhető el asztali gépen és Androidon. iPhone-on és Safariban nem támogatott."}}
+      ]
+    }
+  ]
+}
+</script>
+<noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
+<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Ugrás a tartalomra</a>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header" id="siteHeader">
+  <div class="container nav">
+    <a class="logo" href="index.html" aria-label="Asthetic Game — főoldal">
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__text">Asthetic</span>
+    </a>
+
+    <ul class="nav__links" id="navLinks">
+      <li><a href="#hogyan">Hogyan működik</a></li>
+      <li><a href="kahoot.html">Kvízcsata</a></li>
+      <li><a href="#modok">Játékmódok</a></li>
+      <li><a href="szabalyok.html">Szabályok</a></li>
+      <li><a href="#gyik">GYIK</a></li>
+    </ul>
+
+    <div class="nav__cta">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Sötét mód be- és kikapcsolása">
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/></svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"/></svg>
+      </button>
+      <a class="btn btn--accent btn--sm" href="jatek.html">Játék indítása</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ════ Hero ════ -->
+  <section class="hero">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="container hero__inner">
+      <div>
+        <h1 data-split data-em-from="5">Találd ki a dalt, mielőtt lejár a 30 másodperc.</h1>
+        <p class="lead hero__lead">
+          Kétféleképpen játszhatjátok: kártyákkal és a fizikai gombbal, vagy
+          <b>Kvízcsatában</b> — szoba, négy válasz, és a gyorsabb kap több pontot.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--accent btn--lg" href="kahoot.html">
+            Kvízcsata indítása
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn--outline btn--lg" href="jatek.html">Kártyás játék</a>
+        </div>
+
+        <dl class="hero__meta">
+          <div><dt>Dalok</dt><dd>1751</dd></div>
+          <div><dt>Játékidő</dt><dd>30 mp</dd></div>
+          <div><dt>Játékmódok</dt><dd>4 db</dd></div>
+        </dl>
+      </div>
+
+      <div class="hero__logo">
+        <img src="assets/asthetic-logo.png" width="1536" height="941"
+             alt="Az Asthetic Game logója: geometrikus A betű, benne lejátszás gombbal" fetchpriority="high">
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Futószalag ════ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Zenei kártyajáték</span><span>QR-kódos kártyák</span><span>Villámgomb</span><span>Négy játékmód</span><span>2–12 játékos</span>
+      <span>Zenei kártyajáték</span><span>QR-kódos kártyák</span><span>Villámgomb</span><span>Négy játékmód</span><span>2–12 játékos</span>
+    </div>
+  </div>
+
+  <!-- ════ Hogyan működik ════ -->
+  <section class="section" id="hogyan">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="kicker">Hogyan működik</p>
+        <h2 class="h2">Három lépés, és már szól is a zene</h2>
+        <p class="lead">Nem kell hozzá se applikáció-telepítés, se regisztráció — elég egy böngésző és a kártyapakli.</p>
+      </div>
+
+      <div class="steps">
+        <article class="step reveal" style="--i:0">
+          <div class="step__n" aria-hidden="true"></div>
+          <h3 class="h3">Olvasd be a kártyát</h3>
+          <p>A telefon kamerájával ráirányítasz a kártyán lévő QR-kódra. A játék felismeri, melyik dal következik.</p>
+        </article>
+        <article class="step reveal" style="--i:1">
+          <div class="step__n" aria-hidden="true"></div>
+          <h3 class="h3">Szól a részlet</h3>
+          <p>A dal a 45. másodperctől indul — ott, ahol már felismerhető —, és pontosan 30 másodpercig szól. A képet elrejtjük, hogy ne árulja el a megfejtést.</p>
+        </article>
+        <article class="step reveal" style="--i:2">
+          <div class="step__n" aria-hidden="true"></div>
+          <h3 class="h3">Csapj a gombra</h3>
+          <p>A fizikai Bluetooth-gomb egyetlen ütésre megállítja a zenét. Aki elsőként ér oda, az tippelhet.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Játékmódok ════ -->
+  <section class="section section--paper2" id="modok">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <p class="kicker">Játékmódok</p>
+        <h2 class="h2">Egy pakli, négyféle este</h2>
+        <p class="lead">Ugyanazokkal a kártyákkal négy teljesen más játékot játszhattok — a nyugodt idővonal-építéstől a fejvesztett buzzerezésig.</p>
+      </div>
+
+      <div class="modes">
+        <a class="mode reveal" style="--i:0" href="szabalyok.html#klasszikus">
+          <div class="mode__top"><h3 class="h3">A Klasszikus Idővonal</h3><span class="mode__tag">Alapjáték</span></div>
+          <p>Építsd fel elsőként a 10+1 kártyás, évszám szerint helyes idővonalat. Cím, előadó és évszám — minden találat korongot ér.</p>
+          <span class="mode__go">Szabályok
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+
+        <a class="mode reveal" style="--i:1" href="szabalyok.html#rablas">
+          <div class="mode__top"><h3 class="h3">Villám-Rablás</h3><span class="mode__tag">Reflex</span></div>
+          <p>A buzzer az asztal közepén. Nem kell kivárni a 30 másodpercet: aki elsőként csap rá a gombra, azé a szó — de a hibás tipp kizár a körből.</p>
+          <span class="mode__go">Szabályok
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+
+        <a class="mode reveal" style="--i:2" href="szabalyok.html#dudolos">
+          <div class="mode__top"><h3 class="h3">„Dúdolós" csapatverseny</h3><span class="mode__tag">Csapat</span></div>
+          <p>Egyvalaki fülhallgatóval hallgatja a dalt, és dúdolva adja át a csapatának. Szavak és mutogatás szigorúan tilos.</p>
+          <span class="mode__go">Szabályok
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+
+        <a class="mode reveal" style="--i:3" href="szabalyok.html#bingo">
+          <div class="mode__top"><h3 class="h3">Hister Rubik-Bingo</h3><span class="mode__tag">Taktikai</span></div>
+          <p>Rubik-dobókocka dönti el a színt, mindenki titokban írja a tippjét. Öt X egy vonalban, és jöhet a „BINGO!" kiáltás.</p>
+          <span class="mode__go">Szabályok
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ GYIK ════ -->
+  <section class="section" id="gyik">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <p class="kicker">Gyakori kérdések</p>
+        <h2 class="h2">Mielőtt nekikezdtek</h2>
+      </div>
+
+      <div class="faq reveal" data-accordion>
+        <div class="faq__item">
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-1">Kell hozzá internet?</button></h3>
+          <div class="faq__a" id="faq-1" role="region"><div><p>Igen. A dalok a YouTube-ról szólnak, ezért a játék internetkapcsolatot igényel. Sávszélességből viszont keveset eszik, egy mobilnet is bőven elég hozzá.</p></div></div>
+        </div>
+        <div class="faq__item">
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-2">Muszáj a fizikai gomb?</button></h3>
+          <div class="faq__a" id="faq-2" role="region"><div><p>Nem. A gomb a Villám-Rablás módban adja meg az igazi hangulatot, de minden játékmód végigjátszható a képernyőn lévő Szünet gombbal — vagy a szóköz billentyűvel — is.</p></div></div>
+        </div>
+        <div class="faq__item">
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-3">Miért nem látszik a videó?</button></h3>
+          <div class="faq__a" id="faq-3" role="region"><div><p>Mert a kép azonnal elárulná a dalt. Ezért alapból letakarjuk, és csak a hang megy. Ha mégis látni szeretnétek — például a megfejtés után —, a „Videó felfedése” gombbal egy pillanat alatt előhívható.</p></div></div>
+        </div>
+        <div class="faq__item">
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-4">Melyik böngészőben működik a gomb?</button></h3>
+          <div class="faq__a" id="faq-4" role="region"><div><p>A fizikai gomb Web Bluetooth-on keresztül kapcsolódik, amit a Chrome és az Edge támogat asztali gépen és Androidon. iPhone-on és Safariban ez a technológia nem érhető el, ott a képernyős gombot érdemes használni.</p></div></div>
+        </div>
+        <div class="faq__item">
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-5">Mi történik, ha nem működik a kamera?</button></h3>
+          <div class="faq__a" id="faq-5" role="region"><div><p>A játékban van egy „Link beillesztése” lehetőség: ide bemásolhatod a kártyához tartozó YouTube-linket, és ugyanúgy elindul a 30 másodperces részlet.</p></div></div>
+        </div>
+        <div class="faq__item">
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-6">Hány játékos játszhatja?</button></h3>
+          <div class="faq__a" id="faq-6" role="region"><div><p>Kettőtől nagyjából tizenkettőig. A csapatmódokhoz érdemes legalább négyen lenni, a Bingo pedig annál jobb, minél többen ülnek az asztal körül.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Kiemelt CTA ════ -->
+  <section class="section section--tight">
+    <div class="container">
+      <div class="cta-band reveal">
+        <h2>Kezdődhet a zenei kvíz?</h2>
+        <p>Nincs telepítés, nincs regisztráció. Nyisd meg a játékot, olvasd be az első kártyát, és már szól is.</p>
+        <a class="btn btn--lg" href="jatek.html">
+          Játék indítása
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__about">
+        <a class="logo" href="index.html" aria-label="Asthetic Game — főoldal">
+          <span class="logo__mark" aria-hidden="true"></span>
+          <span class="logo__text">Asthetic</span>
+        </a>
+        <p>Zenei kártyajáték QR-kódos kártyákkal, 30 másodperces dalrészletekkel és egy nagy piros gombbal.</p>
+      </div>
+
+      <div>
+        <h4>Játék</h4>
+        <ul>
+          <li><a href="kahoot.html">Kvízcsata</a></li>
+          <li><a href="jatek.html">Kártyás játék</a></li>
+          <li><a href="szabalyok.html">Játékszabályok</a></li>
+          <li><a href="index.html#gyik">Gyakori kérdések</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Jogi</h4>
+        <ul>
+          <li><a href="adatvedelem.html">Adatvédelem</a></li>
+          <li><a href="feltetelek.html">Felhasználási feltételek</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>© <span id="year">2026</span> Asthetic Game</span>
+      <a class="maker" href="https://kisskorboy.hu/" target="_blank" rel="noopener">
+        <span class="maker__dot" aria-hidden="true"></span>
+        Az oldalt készítette: <b>Kisskorboy</b>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/site.js" defer></script>
+</body>
+</html>

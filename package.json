@@ -1,0 +1,22 @@
+{
+  "name": "asthetic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Asthetic Game – zenei társasjáték: weboldal + Android alkalmazás",
+  "author": "Kisskorboy",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node scripts/build-www.js",
+    "sync": "npm run build && cap sync android",
+    "android": "npm run sync && cap open android"
+  },
+  "dependencies": {
+    "@capacitor-community/bluetooth-le": "^7.1.1",
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
