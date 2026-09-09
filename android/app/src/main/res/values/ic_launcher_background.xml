@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Az adaptív ikon háttere: ugyanaz a sötét alap, mint a weboldal --night színe. -->
+    <!-- Az adaptív ikon háttere: ugyanaz a sötét alap, mint a weboldalon. -->
     <color name="ic_launcher_background">#1A1D21</color>
 </resources>
