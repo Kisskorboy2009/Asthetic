@@ -74,6 +74,19 @@
           <h2 class="h3" style="margin-bottom:14px">Nyilvános szobák</h2>
           <div class="kszobak" id="publikusLista"><p class="kures">Töltés…</p></div>
         </div>
+
+        <!-- Csak az alkalmazásban látszik: ott meg kell adni, melyik kiszolgálón
+             élnek a szobák (a böngészőben ez magától az oldal címe). -->
+        <div class="kcard" id="szerverKartya" hidden>
+          <h2 class="h3" style="margin-bottom:6px">Kiszolgáló</h2>
+          <p class="lead" style="font-size:15px;margin-bottom:14px">A szobák egy közös kiszolgálón élnek. Írd be a címét — ugyanazt, amit a böngészőben is használnál.</p>
+          <div class="kfield">
+            <label for="szerverInput">Cím</label>
+            <input class="kinput" id="szerverInput" type="url" inputmode="url" placeholder="pl. http://192.168.1.69:4173" autocomplete="off" spellcheck="false">
+          </div>
+          <button class="btn btn--outline" id="szerverMentBtn" type="button">Mentés</button>
+          <p class="khiba" id="szerverHiba" role="alert"></p>
+        </div>
       </div>
     </section>
 

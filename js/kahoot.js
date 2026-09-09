@@ -438,6 +438,33 @@ async function publikusFrissit() {
   }
 }
 
+// ───────────────────────── kiszolgáló beállítása (csak az alkalmazásban) ─────────────────────────
+
+function szerverKartyaBeallit() {
+  const kartya = $('szerverKartya');
+  if (!kartya || !window.ASTHETIC || !window.ASTHETIC.natív) return;
+
+  kartya.hidden = false;
+  $('szerverInput').value = window.ASTHETIC.szerver || '';
+
+  if (window.ASTHETIC.szerverKell) {
+    hibaKiir('szerverHiba', 'Add meg a kiszolgáló címét, különben nem látod a szobákat.');
+  }
+
+  $('szerverMentBtn').addEventListener('click', () => {
+    const cim = $('szerverInput').value.trim();
+    if (cim && !/^https?:\/\/.+/i.test(cim)) {
+      hibaKiir('szerverHiba', 'A címnek http:// vagy https:// előtaggal kell kezdődnie.');
+      return;
+    }
+    window.ASTHETIC.szerverMent(cim);
+    hibaKiir('szerverHiba', '');
+    publikusFrissit();
+  });
+}
+
+szerverKartyaBeallit();
+
 // ───────────────────────── indulás ─────────────────────────
 
 // Ha frissítettük az oldalt egy futó játék közben, visszakapcsolódunk.
