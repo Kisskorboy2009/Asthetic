@@ -21,3 +21,7 @@ arduino/**/build/
 # Rendszerfájlok
 .DS_Store
 Thumbs.db
+
+# Firebase helyi gyorsítótár
+.firebase/
+firebase-debug.log

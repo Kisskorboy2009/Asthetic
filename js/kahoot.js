@@ -434,21 +434,34 @@ async function publikusFrissit() {
       });
     });
   } catch {
-    $('publikusLista').innerHTML = '<p class="kures">A szobalista most nem érhető el.</p>';
+    $('publikusLista').innerHTML =
+      '<p class="kures">A szobalista most nem érhető el — add meg lent a kiszolgáló címét.</p>';
+    // A kiszolgáló nélkül nincs Kvízcsata: mutassuk meg a beállítómezőt.
+    // (A weboldal statikus tárhelyen is így fut, ahol nincs /api.)
+    szerverKartyaMutat();
   }
 }
 
 // ───────────────────────── kiszolgáló beállítása (csak az alkalmazásban) ─────────────────────────
 
+// Előhozza a kiszolgáló-beállító kártyát. Az alkalmazásban mindig látszik,
+// a weboldalon csak akkor, ha a /api nem érhető el (pl. statikus tárhelyen).
+function szerverKartyaMutat() {
+  const kartya = $('szerverKartya');
+  if (!kartya) return;
+  kartya.hidden = false;
+  $('szerverInput').value = (window.ASTHETIC && window.ASTHETIC.szerver) || '';
+}
+
 function szerverKartyaBeallit() {
   const kartya = $('szerverKartya');
-  if (!kartya || !window.ASTHETIC || !window.ASTHETIC.natív) return;
+  if (!kartya) return;
 
-  kartya.hidden = false;
-  $('szerverInput').value = window.ASTHETIC.szerver || '';
-
-  if (window.ASTHETIC.szerverKell) {
-    hibaKiir('szerverHiba', 'Add meg a kiszolgáló címét, különben nem látod a szobákat.');
+  if (window.ASTHETIC && window.ASTHETIC.natív) {
+    szerverKartyaMutat();
+    if (window.ASTHETIC.szerverKell) {
+      hibaKiir('szerverHiba', 'Add meg a kiszolgáló címét, különben nem látod a szobákat.');
+    }
   }
 
   $('szerverMentBtn').addEventListener('click', () => {

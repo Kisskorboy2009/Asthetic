@@ -11,7 +11,8 @@
 // (BTDM) inditja a radiot, ezert a BLE memoria nem szabadul fel.
 //
 // LED es hangjelzes:
-//   - a piros gomb LED-je (GPIO18) CSAK akkor vilagit, amikor zene szol
+//   - a piros gomb LED-je (GPIO18) villog, amig nincs Bluetooth-kapcsolat,
+//     utana pedig csak akkor vilagit, amikor zene szol
 //   - csatlakozaskor rovid "ting" hangot ad a buzzer (GPIO26)
 //
 // A LED valos allapotat a fogado oldal is visszakuldheti ("PLAYING"/"STOPPED"),
@@ -27,7 +28,7 @@
 //               (meressel derult ki, hogy ide van kotve - a panelre irt "P22"
 //                jeloles nem ezt a labat jelentette)
 //               (belso pullup tartja magasan, nyomaskor GND-re huz)
-//   LED       : anod (hosszabb lab) -> 220 ohm ellenallas -> P18 (GPIO18)
+//   LED       : anod (hosszabb lab) -> 220 ohm ellenallas -> GPIO18
 //               katod (rovidebb lab) -> GND
 //   Buzzer    : + -> GPIO26,  - -> GND   (passziv piezo buzzer)
 //
@@ -92,17 +93,42 @@ volatile bool tingKert = false;
 
 // ----------------------- hang- es fenyjelzes -----------------------
 
+bool vanKapcsolat() {
+  return bleClientConnected || sppVoltCsatlakozva;
+}
+
+// A LED harom allapotot mutat:
+//   nincs Bluetooth-kapcsolat -> villog (el a gomb, de meg varja a parositast)
+//   csatlakozva, csend         -> nem vilagit
+//   csatlakozva, szol a zene   -> folyamatosan vilagit
+const unsigned long VILLOGAS_MS = 400;
+
 void ledFrissit() {
+  if (!vanKapcsolat()) {
+    digitalWrite(LED_PIN, (millis() / VILLOGAS_MS) % 2 == 0 ? HIGH : LOW);
+    return;
+  }
   digitalWrite(LED_PIN, zeneSzol ? HIGH : LOW);
 }
 
-// A noTone() a hatterben ledcDetach()-et hiv, az pedig "nincs buszhoz rendelve"
-// allapotban hagyja a labat - vagyis szabadon logva. Egy piezo ilyenkor a
-// szomszedos digitalis jelektol folyamatosan kattog. Ezert minden hang utan
-// visszaallitjuk hajtott kimenetnek, alacsony szinten.
-void buzzerElnemit() {
-  noTone(BUZZER_PIN);
-  pinMode(BUZZER_PIN, OUTPUT);
+// A tone()/noTone() parost szandekosan NEM hasznaljuk.
+// A noTone() egy hatterben futo taskon keresztul ledcDetach()-et hiv, ami
+// "nincs buszhoz rendelve" allapotban hagyja a labat - vagyis szabadon logva,
+// es a piezo ilyenkor kattog. Mivel a tone() aszinkron, ez a levalasztas azutan
+// is megtortenhet, hogy mi mar visszaallitottuk a labat kimenetnek; ezert nem
+// segitett az elozo javitas. Sajat kezuleg billegtetjuk a labat: igy vegig
+// hajtott marad, es a hang utan garantaltan alacsony szinten all.
+void hangSzol(unsigned int frekvencia, unsigned int msHossz) {
+  if (frekvencia == 0) return;
+  const unsigned long felPeriodusUs = 500000UL / frekvencia;
+  const unsigned long ciklusok = ((unsigned long)msHossz * 1000UL) / (felPeriodusUs * 2UL);
+
+  for (unsigned long i = 0; i < ciklusok; i++) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    delayMicroseconds(felPeriodusUs);
+    digitalWrite(BUZZER_PIN, LOW);
+    delayMicroseconds(felPeriodusUs);
+  }
   digitalWrite(BUZZER_PIN, LOW);
 }
 
@@ -117,11 +143,9 @@ void tingHang() {
   if (utolsoTingMs != 0 && most - utolsoTingMs < TING_SZUNET_MS) return;
   utolsoTingMs = most;
 
-  tone(BUZZER_PIN, 1760, 70);   // A6
-  delay(85);
-  tone(BUZZER_PIN, 2637, 110);  // E7
-  delay(130);
-  buzzerElnemit();
+  hangSzol(1760, 70);   // A6
+  delay(40);
+  hangSzol(2637, 110);  // E7
 }
 
 // ----------------------- bejovo allapot -----------------------

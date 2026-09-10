@@ -420,6 +420,14 @@ function extractVideoId(text) {
      • Android app     → @capacitor-community/bluetooth-le natív bővítmény
    A játék többi része nem tud róla, melyik van érvényben.                     */
 
+// A felhasználó bezárta az eszközválasztót — ez nem hiba, ne kiabáljunk vele,
+// és ne is próbálkozzunk helyette másik kereséssel.
+function megszakitottaE(err) {
+  if (!err) return false;
+  const uzenet = String(err.message || err);
+  return err.name === 'NotFoundError' || /cancel|megszak|user/i.test(uzenet);
+}
+
 // Az alkalmazásban a Capacitor futtatókörnyezete be van töltve és natív módban fut.
 function natívE() {
   const cap = window.capacitorExports && window.capacitorExports.Capacitor;
@@ -504,11 +512,44 @@ async function bleCsatlakozNatív() {
   const ble = window.capacitorCommunityBluetoothLe;
   const { BleClient, dataViewToText, textToDataView } = ble;
 
-  // androidNeverForLocation: nem a helymeghatározáshoz kérjük a Bluetooth-t,
-  // így a rendszer nem kér külön helyhozzáférést a felhasználótól.
-  await BleClient.initialize({ androidNeverForLocation: true });
+  // FONTOS: androidNeverForLocation-t NEM adunk meg. A bővítmény olyankor nem kéri
+  // el a helyhozzáférést, viszont a manifestjében a BLUETOOTH_SCAN sincs
+  // "neverForLocation" jelzővel ellátva — Android 12-től emiatt a keresés lefut,
+  // de egyetlen eszközt sem ad vissza ("nem található eszköz").
+  await BleClient.initialize();
 
-  const eszkoz = await BleClient.requestDevice({ services: [NUS_SERVICE] });
+  // Kikapcsolt Bluetooth vagy helymeghatározás mellett a keresés némán üres
+  // marad — inkább mondjuk meg pontosan, mi hiányzik.
+  try {
+    if (!(await BleClient.isEnabled())) {
+      toast('Kapcsold be a Bluetooth-t a telefonon.', 'warn');
+      await BleClient.requestEnable();
+    }
+  } catch { /* nem minden rendszeren kérdezhető le */ }
+
+  let helyKikapcsolva = false;
+  try {
+    helyKikapcsolva = !(await BleClient.isLocationEnabled());
+  } catch { /* iOS-en nincs ilyen ellenőrzés */ }
+
+  if (helyKikapcsolva) {
+    toast('Androidon a Bluetooth-kereséshez a helymeghatározást is be kell kapcsolni.', 'warn');
+    await BleClient.openLocationSettings();
+    throw new Error('A helymeghatározás ki van kapcsolva.');
+  }
+
+  // Elsőre a szolgáltatás azonosítójára szűrünk. Ha a hirdetési csomagba nem fért
+  // bele a 128 bites UUID, ez üres marad — ilyenkor névre keresünk rá.
+  let eszkoz;
+  try {
+    eszkoz = await BleClient.requestDevice({ services: [NUS_SERVICE] });
+  } catch (err) {
+    if (megszakitottaE(err)) throw err;
+    eszkoz = await BleClient.requestDevice({
+      namePrefix: 'Hipster',
+      optionalServices: [NUS_SERVICE],
+    });
+  }
 
   setBtUi('busy', 'Csatlakozás…');
   await BleClient.connect(eszkoz.deviceId, bleLecsatlakozott);
@@ -552,9 +593,9 @@ async function connectButton() {
   } catch (err) {
     bleKapcsolat = null;
     setBtUi('off', 'Gomb csatlakoztatása');
-    // A felhasználó bezárta a választót — ez nem hiba, ne kiabáljunk vele.
-    const megse = err && (err.name === 'NotFoundError' || /cancel|user/i.test(err.message || ''));
-    if (!megse) toast('Nem sikerült csatlakozni a gombhoz.', 'bad');
+    if (!megszakitottaE(err)) {
+      toast(err && err.message ? err.message : 'Nem sikerült csatlakozni a gombhoz.', 'bad');
+    }
   }
 }
 

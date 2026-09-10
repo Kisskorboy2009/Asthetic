@@ -22,6 +22,8 @@ const MASOLANDO = [
   'css',
   'js',
   'assets',
+  'robots.txt',
+  'sitemap.xml',
 ];
 
 function torol(cel) {
