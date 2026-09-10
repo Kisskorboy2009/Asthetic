@@ -45,10 +45,22 @@ let mod = null;
 async function modMeghataroz() {
   if (mod) return mod;
 
-  try {
-    const valasz = await fetch(apiBazis() + '/api/szobak', { cache: 'no-store' });
-    if (valasz.ok) { mod = 'szerver'; return mod; }
-  } catch { /* nincs saját kiszolgáló — jöhet a Firestore */ }
+  // Az alkalmazásban a beépített kiszolgáló MINDEN pont nélküli útvonalat az
+  // index.html-re irányít, 200-as státusszal — a /api/szobak próba tehát ott
+  // hamis „van saját kiszolgáló” eredményt adna. Ezért ha natívan futunk és
+  // nincs kézzel megadott cím, meg sem próbálkozunk: egyből Firestore.
+  const sajatCim = apiBazis();
+  const probalkozzunk = sajatCim || !(window.ASTHETIC && window.ASTHETIC.natív);
+
+  if (probalkozzunk) {
+    try {
+      const valasz = await fetch(sajatCim + '/api/szobak', { cache: 'no-store' });
+      // Nem elég a 200-as státusz: azt is ellenőrizzük, hogy tényleg a mi
+      // kiszolgálónk válaszolt-e, és nem egy HTML-oldal jött vissza.
+      const adat = valasz.ok ? await valasz.json() : null;
+      if (adat && Array.isArray(adat.szobak)) { mod = 'szerver'; return mod; }
+    } catch { /* nincs saját kiszolgáló — jöhet a Firestore */ }
+  }
 
   if (!window.AstheticFirestore) throw new Error('A Kvízcsata most nem érhető el.');
   await window.AstheticFirestore.init();

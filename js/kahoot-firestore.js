@@ -47,6 +47,13 @@
     if (!firebase.apps.length) firebase.initializeApp(BEALLITAS);
     db = firebase.firestore();
 
+    // A Firestore alapesetben streamelő kapcsolatot nyit. Az Android WebView-ban
+    // ez gyakran nem jön létre, és a játék némán "offline" marad. Az automatikus
+    // felismerés ilyenkor hosszú lekérdezésre vált. Böngészőben nincs hatása.
+    try {
+      db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+    } catch { /* ha már el is indult a kapcsolat, marad az alapértelmezés */ }
+
     const belepes = await firebase.auth().signInAnonymously();
     uid = belepes.user.uid;
 
