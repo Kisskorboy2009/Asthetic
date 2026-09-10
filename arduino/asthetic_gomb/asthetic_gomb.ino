@@ -13,7 +13,7 @@
 // LED es hangjelzes:
 //   - a piros gomb LED-je (GPIO18) villog, amig nincs Bluetooth-kapcsolat,
 //     utana pedig csak akkor vilagit, amikor zene szol
-//   - csatlakozaskor rovid "ting" hangot ad a buzzer (GPIO26)
+//   - csatlakozaskor rovid "ting" hangot ad a buzzer (GPIO33)
 //
 // A LED valos allapotat a fogado oldal is visszakuldheti ("PLAYING"/"STOPPED"),
 // addig is a gombnyomas azonnal atallitja (optimista visszajelzes), hogy soha
@@ -30,7 +30,10 @@
 //               (belso pullup tartja magasan, nyomaskor GND-re huz)
 //   LED       : anod (hosszabb lab) -> 220 ohm ellenallas -> GPIO18
 //               katod (rovidebb lab) -> GND
-//   Buzzer    : + -> GPIO26,  - -> GND   (passziv piezo buzzer)
+//   Buzzer    : + -> GPIO33,  - -> GND   (passziv piezo buzzer)
+//               FONTOS: a masodik vezetek GND-re valo, NEM a tapra. Amig a
+//               tapon logott, a Bluetooth-radio aramlokeseibol szarmazo
+//               taphullamzas atesett a piezon, es halkan, folyamatosan kattogott.
 //
 //   FONTOS: a "SD0/SD1/SD2/SD3/CMD/CLK" (vagy "SDD") jelolesu labak a belso
 //   flash memoriahoz tartoznak (GPIO6-11), azokra SEMMIT nem szabad kotni -
@@ -66,7 +69,26 @@ const char *DEVICE_NAME = "Hipster Gomb";
 const int STOP_BUTTON_PIN = 23;  // NAGY gomb: nyomaskor 3.3V-ra huz  (pulldown, felfuto el)
 const int PLAY_BUTTON_PIN = 25;  // KIS gomb : nyomaskor GND-re huz   (pullup,  lefuto el)
 const int LED_PIN = 18;          // piros gomb LED-je (220 ohm ellenallason at)
-const int BUZZER_PIN = 26;       // passziv piezo buzzer
+const int BUZZER_PIN = 33;       // buzzer jellaba (meressel: a 33-on szolal meg)
+
+// Ketfele buzzer letezik:
+//   - ketvezetekes passziv piezo: mi hajtjuk a hangot, nyugalomban LOW a jo
+//   - haromlabu aktiv modul (VCC/GND/jel): sajat oszcillatora van, es a legtobb
+//     ilyen FORDITOTT logikaju - akkor szol, ha a jellab ALACSONY. Ilyenkor
+//     nyugalomban HIGH-ra kell huzni, kulonben folyamatosan sziszeg/kattog.
+// FIGYELEM: ezt NE allitsd HIGH-ra. Kiprobaltuk, es a panel ujrainditasi hurokba
+// esett tole: ha a buzzer magneses (tekercses) tipusu, a tartosan magas szint
+// folyamatos aramot hajt at rajta, ami tobb, mint amit egy GPIO elbir.
+// Nyugalomban mindig LOW a helyes.
+const int BUZZER_NYUGALMI_SZINT = LOW;
+
+// Minden tobbi labat is hajtott alacsony szinten tartunk. Egy szabadon logo lab
+// felszedi a Bluetooth-radio zajat, es a ra kotott piezo attol halkan kattog -
+// pontosan ez okozta a rejtelyes kattogast. Igy akkor sem szolalhat meg
+// veletlenul, ha valamit maskepp kotunk be kesobb.
+// (A GPIO1/3 a soros port, a GPIO6-11 a belso flash, a 34-39 pedig csak bemenet.)
+const int SZABAD_LABAK[] = { 2, 4, 5, 12, 13, 14, 15, 16, 17, 19, 21, 22, 26, 27, 32 };
+const int SZABAD_LABAK_SZAMA = sizeof(SZABAD_LABAK) / sizeof(SZABAD_LABAK[0]);
 
 const unsigned long DEBOUNCE_MS = 250;  // pergesmentesites
 
@@ -129,7 +151,7 @@ void hangSzol(unsigned int frekvencia, unsigned int msHossz) {
     digitalWrite(BUZZER_PIN, LOW);
     delayMicroseconds(felPeriodusUs);
   }
-  digitalWrite(BUZZER_PIN, LOW);
+  digitalWrite(BUZZER_PIN, BUZZER_NYUGALMI_SZINT);
 }
 
 // Rovid ket hangos "ting" - ezt hallod, amikor sikerult a csatlakozas.
@@ -206,7 +228,12 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
-  digitalWrite(BUZZER_PIN, LOW);   // hajtott alacsony szint, hogy ne kattogjon
+  digitalWrite(BUZZER_PIN, BUZZER_NYUGALMI_SZINT);   // hajtott szint, hogy ne kattogjon
+
+  for (int i = 0; i < SZABAD_LABAK_SZAMA; i++) {
+    pinMode(SZABAD_LABAK[i], OUTPUT);
+    digitalWrite(SZABAD_LABAK[i], LOW);
+  }
 
   // 1) Klasszikus Bluetooth SPP a Kodular apphoz (dual-mode inditas)
   SerialBT.begin(DEVICE_NAME);
@@ -234,6 +261,9 @@ void setup() {
   Serial.printf("Elindulva. Eszkoznev: %s\n", DEVICE_NAME);
   Serial.println("NAGY gomb (GPIO23) = STOP, kis gomb (GPIO25) = PLAY");
   Serial.println("Klasszikus BT (app) + BLE (weboldal) egyszerre aktiv.");
+
+  // Indulasi hangjelzes: ebbol hallatszik, hogy a buzzer a jo labon van.
+  tingHang();
 }
 
 // ----------------------- kuldes -----------------------
