@@ -215,6 +215,11 @@
 
     leiratkozok.push(szobaHiv(kod).onSnapshot((pillanat) => {
       if (!pillanat.exists) {
+        // A Firestore először a helyi gyorsítótárból válaszol, és az még
+        // "nincs ilyen dokumentum"-ot mondhat, mielőtt a kiszolgáló felelne.
+        // Csak a kiszolgálótól jövő hiányt hisszük el — különben a frissen
+        // létrehozott szoba azonnal "megszűntnek" látszana.
+        if (pillanat.metadata && pillanat.metadata.fromCache) return;
         hibaVisszahivas(new Error('A szoba megszűnt.'));
         return;
       }

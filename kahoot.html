@@ -15,9 +15,10 @@
 <link rel="preconnect" href="https://www.youtube.com">
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/kahoot.css">
 <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
-<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}try{if(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform())document.documentElement.classList.add("is-app");}catch(e){}})();</script>
 </head>
 <body>
 
@@ -73,19 +74,6 @@
         <div class="kcard">
           <h2 class="h3" style="margin-bottom:14px">Nyilvános szobák</h2>
           <div class="kszobak" id="publikusLista"><p class="kures">Töltés…</p></div>
-        </div>
-
-        <!-- Csak az alkalmazásban látszik: ott meg kell adni, melyik kiszolgálón
-             élnek a szobák (a böngészőben ez magától az oldal címe). -->
-        <div class="kcard" id="szerverKartya" hidden>
-          <h2 class="h3" style="margin-bottom:6px">Kiszolgáló</h2>
-          <p class="lead" style="font-size:15px;margin-bottom:14px">A szobák egy közös kiszolgálón élnek. Írd be a címét — ugyanazt, amit a böngészőben is használnál.</p>
-          <div class="kfield">
-            <label for="szerverInput">Cím</label>
-            <input class="kinput" id="szerverInput" type="url" inputmode="url" placeholder="pl. http://192.168.1.69:4173" autocomplete="off" spellcheck="false">
-          </div>
-          <button class="btn btn--outline" id="szerverMentBtn" type="button">Mentés</button>
-          <p class="khiba" id="szerverHiba" role="alert"></p>
         </div>
       </div>
     </section>
@@ -293,6 +281,7 @@
 <script src="js/kahoot-firestore.js" defer></script>
 <script src="js/kahoot-vezeto.js" defer></script>
 
+<script src="js/app-shell.js" defer></script>
 <script src="js/site.js" defer></script>
 <script src="js/kahoot.js" defer></script>
 </body>

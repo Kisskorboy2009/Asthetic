@@ -31,6 +31,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/app.css">
 
 <script type="application/ld+json">
 {
@@ -58,7 +59,7 @@
 }
 </script>
 <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
-<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}try{if(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform())document.documentElement.classList.add("is-app");}catch(e){}})();</script>
 </head>
 <body>
 
@@ -302,6 +303,9 @@
   </div>
 </footer>
 
+<script src="js/vendor/capacitor.js" defer></script>
+<script src="js/config.js" defer></script>
+<script src="js/app-shell.js" defer></script>
 <script src="js/site.js" defer></script>
 </body>
 </html>

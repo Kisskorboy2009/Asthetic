@@ -1,0 +1,216 @@
+/* ═══════════════════════════════════════════════════════════════
+   ASTHETIC — alkalmazás-külső
+
+   Ez a fájl minden oldalra betöltődik, de KIZÁRÓLAG az Android alkalmazásban
+   lép életbe: a js/config.js ott teszi ki a <html> elemre az `is-app` osztályt.
+   Böngészőben egyetlen szabálya sem érvényesül, tehát a weboldal változatlan.
+
+   Amit átalakít:
+     • eltűnik a weboldalas fejléc, lábléc és a görgetéssávos olvasmány-érzet
+     • fent egy tömör alkalmazás-sáv, lent natív stílusú fülsor
+     • a kezdőlapon marketingszöveg helyett rögtön a játékmódok
+     • a telefon bevágásait (állapotsáv, gesztussáv) kikerüli a tartalom
+   ═══════════════════════════════════════════════════════════════ */
+
+.is-app,
+.is-app body {
+  /* Az alkalmazásban ne legyen böngészős gumizás és szövegkijelölés. */
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Beviteli mezőkben azért maradjon kijelölhető a szöveg. */
+.is-app input,
+.is-app textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* A weboldal kerete nem kell. A süti-tájékoztató sem: az alkalmazás nem
+   böngésző, és amúgy is rálógna az alsó fülsorra. */
+.is-app .site-header,
+.is-app .site-footer,
+.is-app .progress,
+.is-app .notice,
+.is-app .skip-link { display: none !important; }
+
+/* ───────────── felső alkalmazás-sáv ───────────── */
+
+.appSav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  padding-top: calc(6px + env(safe-area-inset-top));
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.appSav__cim {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appSav__gomb {
+  flex: none;
+  width: 42px; height: 42px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .2s;
+}
+.appSav__gomb:active { background: var(--paper-3); }
+.appSav__gomb svg { width: 22px; height: 22px; }
+.appSav__gomb[hidden] { display: none; }
+
+/* A sáv helyet foglal a tartalom elől. */
+.is-app main {
+  padding-top: calc(54px + env(safe-area-inset-top));
+  padding-bottom: calc(74px + env(safe-area-inset-bottom));
+}
+
+/* ───────────── alsó fülsor ───────────── */
+
+.appFulek {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.appFul {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 9px 4px 8px;
+  color: var(--ink-3);
+  text-decoration: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  transition: color .2s;
+}
+.appFul svg { width: 23px; height: 23px; }
+.appFul:active { color: var(--ink-2); }
+.appFul.is-aktiv { color: var(--accent); }
+
+/* ───────────── alkalmazás-kezdőlap ───────────── */
+
+.is-app .appRejt { display: none !important; }
+
+.appHome {
+  padding: 22px var(--gutter) 8px;
+  max-width: 560px;
+  margin-inline: auto;
+}
+
+.appHome__fej {
+  text-align: center;
+  margin-bottom: 26px;
+  animation: appBe .5s var(--ease) both;
+}
+.appHome__logo {
+  width: 84px; height: 84px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+/* A logó tusszínű, sötét háttéren megfordítjuk — ahogy a weboldalon is. */
+:root[data-theme="dark"] .appHome__logo { filter: invert(1); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .appHome__logo { filter: invert(1); }
+}
+.appHome__nev {
+  font-family: var(--display);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.appHome__alcim {
+  color: var(--ink-2);
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+.appCsempek { display: grid; gap: 13px; }
+
+.appCsempe {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 19px 20px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  animation: appBe .5s var(--ease) both;
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease);
+}
+.appCsempe:nth-child(1) { animation-delay: .05s; }
+.appCsempe:nth-child(2) { animation-delay: .11s; }
+.appCsempe:nth-child(3) { animation-delay: .17s; }
+.appCsempe:active { transform: scale(.975); box-shadow: none; }
+
+.appCsempe__ikon {
+  flex: none;
+  width: 52px; height: 52px;
+  border-radius: var(--r-md);
+  display: grid; place-items: center;
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+}
+.appCsempe__ikon svg { width: 26px; height: 26px; }
+.appCsempe--kviz .appCsempe__ikon { background: #E4EDE7; color: var(--sage); }
+.appCsempe--szabaly .appCsempe__ikon { background: var(--paper-3); color: var(--ink-2); }
+
+.appCsempe__cim {
+  display: block;
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 600;
+}
+.appCsempe__alcim {
+  display: block;
+  color: var(--ink-2);
+  font-size: 14px;
+  margin-top: 2px;
+  line-height: 1.35;
+}
+.appCsempe__nyil { margin-left: auto; color: var(--ink-3); flex: none; }
+
+@keyframes appBe {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* A szabályok és a jogi oldalak az alkalmazásban is olvashatók maradnak,
+   csak a felesleges díszítés nélkül. */
+.is-app .section { padding-block: 22px; }
+.is-app .section-head { margin-bottom: 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .appHome__fej, .appCsempe { animation: none; }
+}

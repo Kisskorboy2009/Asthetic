@@ -1,48 +1,48 @@
 /* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — kiszolgáló címe a Kahoot-módhoz
-   ═══════════════════════════════════════════════════════════════
+   ASTHETIC — futási környezet felismerése
 
-   A Kahoot-mód szobái közös kiszolgálón élnek (kahoot-server.js). Ez böngészőben
-   ugyanaz a gép, ahonnan az oldalt megnyitottad, ezért ott üres a cím: a relatív
-   /api/... hívások jó helyre mennek.
+   Két dolgot állapít meg, és minden más oldal ebből dolgozik:
 
-   Az Android alkalmazásban viszont a lapok a telefonon belülről töltődnek be
-   (https://localhost), ott nincs /api, ezért teljes címet kell megadni.
-   Sorrend, ahogy a beállítást keressük:
-
-     1. amit a felhasználó beírt a játékban  (localStorage: "asthetic-szerver")
-     2. az ASTHETIC_ALAP_SZERVER alább       (ide kerül majd a saját domain)
-     3. semmi -> relatív hívások (weboldal)                                    */
+     ASTHETIC.natív   — az Android alkalmazásban futunk-e (Capacitor), vagy
+                        böngészőben. Ettől függ a Bluetooth módja és az, hogy
+                        alkalmazás-külsőt kap-e az oldal.
+     ASTHETIC.szerver — a Kvízcsata saját kiszolgálójának címe. Üresen relatív
+                        hívásokat használunk (ez a helyzet a weboldalon, ha a
+                        server.js szolgálja ki). Ha nincs ilyen kiszolgáló, a
+                        játék magától Firestore-ra vált, tehát ezt sehol nem
+                        kötelező megadni.
+   ═══════════════════════════════════════════════════════════════ */
 
 (function () {
-  // Ide írd be a saját kiszolgálód címét, ha van (pl. "https://asthetic.hu").
-  // Amíg üres, az alkalmazásban a játékos maga adhatja meg.
-  const ASTHETIC_ALAP_SZERVER = '';
+  // Csak akkor kell kitölteni, ha saját kiszolgálón futtatod a Kvízcsatát
+  // (kahoot-server.js). Üresen hagyva a Firestore veszi át a szerepét.
+  const ALAP_SZERVER = '';
 
   let mentett = '';
   try {
     mentett = localStorage.getItem('asthetic-szerver') || '';
   } catch { /* privát mód: marad az alapértelmezés */ }
 
-  const cim = (mentett || ASTHETIC_ALAP_SZERVER).trim().replace(/\/+$/, '');
-
   window.ASTHETIC = window.ASTHETIC || {};
-  window.ASTHETIC.szerver = cim;
+  window.ASTHETIC.szerver = (mentett || ALAP_SZERVER).trim().replace(/\/+$/, '');
 
-  // Natív alkalmazásban fut-e? (Capacitor betöltve és nem böngésző)
-  window.ASTHETIC.natív = !!(
-    window.capacitorExports &&
-    window.capacitorExports.Capacitor &&
-    window.capacitorExports.Capacitor.isNativePlatform()
-  );
+  // A Capacitor natív hídja mindig kiteszi a window.Capacitor objektumot, még
+  // mielőtt a mi szkriptjeink lefutnának — ez a megbízható forrás. A böngészőbe
+  // töltött capacitorExports csak tartalék.
+  function natívE() {
+    try {
+      if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function') {
+        return window.Capacitor.isNativePlatform();
+      }
+      const cap = window.capacitorExports && window.capacitorExports.Capacitor;
+      return !!(cap && cap.isNativePlatform && cap.isNativePlatform());
+    } catch { return false; }
+  }
 
-  // Az alkalmazásban kötelező a cím, különben nincs mihez csatlakozni.
-  window.ASTHETIC.szerverKell = window.ASTHETIC.natív && !cim;
+  window.ASTHETIC.natív = natívE();
 
-  window.ASTHETIC.szerverMent = function (ujCim) {
-    const tiszta = String(ujCim || '').trim().replace(/\/+$/, '');
-    try { localStorage.setItem('asthetic-szerver', tiszta); } catch { /* nem baj */ }
-    window.ASTHETIC.szerver = tiszta;
-    window.ASTHETIC.szerverKell = window.ASTHETIC.natív && !tiszta;
-  };
+  // Az alkalmazásban a lap a telefonon belülről töltődik be — a böngészős
+  // fejléc, lábléc és a görgethető weboldal-érzet ott idegen. Ezt az osztályt
+  // a css/app.css használja, hogy alkalmazás-külsőt adjon a felületnek.
+  if (window.ASTHETIC.natív) document.documentElement.classList.add('is-app');
 })();

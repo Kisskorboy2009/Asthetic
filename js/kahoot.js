@@ -187,7 +187,9 @@ async function csatlakozStream() {
         if (uj.host) window.AstheticVezeto.indit(munkamenet.kod);
         kirajzol();
       },
-      () => kapcsolatElveszett('A kapcsolat megszakadt, vagy a szoba megszűnt.'),
+      (hiba) => kapcsolatElveszett(
+        hiba && hiba.message ? hiba.message : 'A kapcsolat megszakadt, vagy a szoba megszűnt.',
+      ),
     );
     return;
   }
@@ -525,48 +527,9 @@ async function publikusFrissit() {
     });
   } catch {
     $('publikusLista').innerHTML =
-      '<p class="kures">A szobalista most nem érhető el — add meg lent a kiszolgáló címét.</p>';
-    // A kiszolgáló nélkül nincs Kvízcsata: mutassuk meg a beállítómezőt.
-    // (A weboldal statikus tárhelyen is így fut, ahol nincs /api.)
-    szerverKartyaMutat();
+      '<p class="kures">A szobalista most nem érhető el.</p>';
   }
 }
-
-// ───────────────────────── kiszolgáló beállítása (csak az alkalmazásban) ─────────────────────────
-
-// Előhozza a kiszolgáló-beállító kártyát. Az alkalmazásban mindig látszik,
-// a weboldalon csak akkor, ha a /api nem érhető el (pl. statikus tárhelyen).
-function szerverKartyaMutat() {
-  const kartya = $('szerverKartya');
-  if (!kartya) return;
-  kartya.hidden = false;
-  $('szerverInput').value = (window.ASTHETIC && window.ASTHETIC.szerver) || '';
-}
-
-function szerverKartyaBeallit() {
-  const kartya = $('szerverKartya');
-  if (!kartya) return;
-
-  if (window.ASTHETIC && window.ASTHETIC.natív) {
-    szerverKartyaMutat();
-    if (window.ASTHETIC.szerverKell) {
-      hibaKiir('szerverHiba', 'Add meg a kiszolgáló címét, különben nem látod a szobákat.');
-    }
-  }
-
-  $('szerverMentBtn').addEventListener('click', () => {
-    const cim = $('szerverInput').value.trim();
-    if (cim && !/^https?:\/\/.+/i.test(cim)) {
-      hibaKiir('szerverHiba', 'A címnek http:// vagy https:// előtaggal kell kezdődnie.');
-      return;
-    }
-    window.ASTHETIC.szerverMent(cim);
-    hibaKiir('szerverHiba', '');
-    publikusFrissit();
-  });
-}
-
-szerverKartyaBeallit();
 
 // ───────────────────────── indulás ─────────────────────────
 
