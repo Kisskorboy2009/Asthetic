@@ -24,6 +24,10 @@ const MASOLANDO = [
   'assets',
   'robots.txt',
   'sitemap.xml',
+  // A Firestore-os játékban a szobavezető böngészője állítja elő a kérdéseket,
+  // ezért a daladatbázisnak is ki kell kerülnie a weboldalra.
+  'adatbazis/songs.json',
+  'adatbazis/question_engine.js',
 ];
 
 function torol(cel) {
@@ -36,6 +40,8 @@ function masol(honnan, hova) {
     fs.mkdirSync(hova, { recursive: true });
     for (const nev of fs.readdirSync(honnan)) masol(path.join(honnan, nev), path.join(hova, nev));
   } else {
+    // A másolandók között almappás útvonal is lehet (pl. adatbazis/songs.json).
+    fs.mkdirSync(path.dirname(hova), { recursive: true });
     fs.copyFileSync(honnan, hova);
   }
 }

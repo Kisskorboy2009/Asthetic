@@ -223,4 +223,12 @@ function pickType(enabledTypes, rng) {
   return pick(list, rng);
 }
 
-module.exports = { generateQuestion, pickType, makeRng, shuffle, normalize };
+// Node-ban és böngészőben is használjuk: a Firestore-os játékban a szobavezető
+// böngészője állítja elő a kérdéseket, ezért ott globálisként kell elérni.
+const KIFELE = { generateQuestion, pickType, makeRng, shuffle, normalize };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = KIFELE;
+} else {
+  (typeof globalThis !== 'undefined' ? globalThis : this).AstheticKerdesek = KIFELE;
+}

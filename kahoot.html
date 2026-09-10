@@ -279,8 +279,20 @@
   </div>
 </footer>
 
+<!-- Firebase: kiszolgáló nélküli játék a Kvízcsatához (Firestore + anonim belépés) -->
+<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js" defer></script>
+
 <script src="js/vendor/capacitor.js" defer></script>
 <script src="js/config.js" defer></script>
+
+<!-- A kérdésgenerátor és a pontozás — ugyanaz a kód fut itt, mint a kiszolgálón -->
+<script src="adatbazis/question_engine.js" defer></script>
+<script src="js/jatekmotor.js" defer></script>
+<script src="js/kahoot-firestore.js" defer></script>
+<script src="js/kahoot-vezeto.js" defer></script>
+
 <script src="js/site.js" defer></script>
 <script src="js/kahoot.js" defer></script>
 </body>

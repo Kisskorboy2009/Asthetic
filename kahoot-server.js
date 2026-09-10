@@ -8,21 +8,13 @@
 
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
-const { generateQuestion, pickType, makeRng } = require('./adatbazis/question_engine.js');
+const motor = require('./js/jatekmotor.js');
 
 const songs = JSON.parse(fs.readFileSync(path.join(__dirname, 'adatbazis', 'songs.json'), 'utf8'));
 
 // ───────────────────────── alapertelmezett szobabeallitasok ─────────────────────────
 
-const ALAP_BEALLITAS = {
-  korokSzama: 10,        // hany dal legyen egy jatekban
-  valaszIdoMp: 30,       // ennyi ideig szol a dal / lehet valaszolni
-  kezdesMp: 45,          // a dal hanyadik masodperctol induljon
-  tipusok: ['year', 'artist', 'title'],
-  publikus: false,
-  alappont: 1000,        // helyes valaszert jaro maximum
-};
+const ALAP_BEALLITAS = motor.ALAP_BEALLITAS;
 
 const SZOBA_ELAVUL_MS = 4 * 60 * 60 * 1000; // 4 ora utan takaritunk
 
@@ -31,41 +23,15 @@ const SZOBA_ELAVUL_MS = 4 * 60 * 60 * 1000; // 4 ora utan takaritunk
 const szobak = new Map();
 
 function ujKod() {
-  // Osszetevesztheto karakterek (0/O, 1/I) kihagyva
-  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let kod;
-  do {
-    kod = Array.from({ length: 4 }, () => abc[crypto.randomInt(abc.length)]).join('');
-  } while (szobak.has(kod));
-  return kod;
+  return motor.ujKod((kod) => szobak.has(kod));
 }
 
 function ujAzonosito() {
-  return crypto.randomBytes(9).toString('base64url');
+  return motor.ujAzonosito();
 }
 
-function tisztitBeallitas(be = {}) {
-  const b = { ...ALAP_BEALLITAS };
-
-  const korok = Number(be.korokSzama);
-  if (Number.isFinite(korok)) b.korokSzama = Math.min(50, Math.max(1, Math.round(korok)));
-
-  const ido = Number(be.valaszIdoMp);
-  if (Number.isFinite(ido)) b.valaszIdoMp = Math.min(120, Math.max(5, Math.round(ido)));
-
-  const kezdes = Number(be.kezdesMp);
-  if (Number.isFinite(kezdes)) b.kezdesMp = Math.min(300, Math.max(0, Math.round(kezdes)));
-
-  const alappont = Number(be.alappont);
-  if (Number.isFinite(alappont)) b.alappont = Math.min(5000, Math.max(100, Math.round(alappont)));
-
-  if (Array.isArray(be.tipusok)) {
-    const engedett = be.tipusok.filter((t) => ['year', 'artist', 'title'].includes(t));
-    if (engedett.length) b.tipusok = engedett;
-  }
-
-  b.publikus = Boolean(be.publikus);
-  return b;
+function tisztitBeallitas(be) {
+  return motor.tisztitBeallitas(be);
 }
 
 // ───────────────────────── szoba letrehozas / csatlakozas ─────────────────────────
@@ -97,8 +63,7 @@ function szobaLetrehoz(hostNev, beallitas) {
 }
 
 function tisztitNev(nev) {
-  const n = String(nev || '').trim().replace(/\s+/g, ' ').slice(0, 20);
-  return n || 'Névtelen';
+  return motor.tisztitNev(nev);
 }
 
 function szobaCsatlakozas(kod, nev) {
@@ -137,26 +102,13 @@ function kovetkezoKor(szoba) {
   if (jeloltek.length === 0) return jatekVege(szoba);
 
   szoba.kor++;
-  const dal = jeloltek[crypto.randomInt(jeloltek.length)];
-  szoba.hasznaltDalok.add(dal.id);
 
-  // A seed a szoba kodjabol es a kor sorszamabol all -> minden kliens ugyanazt latja,
-  // es ugyanaz a jatek ujrajatszva is ugyanazt adna.
-  const seed = hashSeed(szoba.kod + ':' + szoba.kor + ':' + dal.id);
-  const rng = makeRng(seed);
-  const tipus = pickType(szoba.beallitas.tipusok, rng);
+  const kizart = new Set([...szoba.hasznaltDalok, ...szoba.kizartDalok]);
+  const valasztas = motor.kovetkezoKerdes(songs, szoba.beallitas, szoba.kod, szoba.kor, kizart);
+  if (!valasztas) return jatekVege(szoba);
 
-  let kerdes = generateQuestion(dal, songs, tipus, seed);
-  if (!kerdes) {
-    // Ha valamiert nem sikerult (elmeletileg nem fordulhat elo), probaljunk mas tipust
-    for (const t of ['year', 'artist', 'title']) {
-      kerdes = generateQuestion(dal, songs, t, seed);
-      if (kerdes) break;
-    }
-  }
-  if (!kerdes) return kovetkezoKor(szoba); // vegso esetben ugrunk egyet
-
-  szoba.aktualisKerdes = { ...kerdes, dal };
+  szoba.hasznaltDalok.add(valasztas.dal.id);
+  szoba.aktualisKerdes = { ...valasztas.kerdes, dal: valasztas.dal };
   szoba.allapot = 'kerdes';
   szoba.kerdesIndult = Date.now();
 
@@ -164,14 +116,6 @@ function kovetkezoKor(szoba) {
   kikuld(szoba);
 }
 
-function hashSeed(str) {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
 
 function valaszAd(szoba, jatekosId, valaszIndex) {
   if (szoba.allapot !== 'kerdes') return { hiba: 'Most nem lehet válaszolni.' };
@@ -197,38 +141,16 @@ function korKiertekel(szoba) {
   if (szoba.allapot !== 'kerdes') return;
   clearTimeout(szoba.idozito);
 
-  const helyes = szoba.aktualisKerdes.correctIndex;
-  const idoKeret = szoba.beallitas.valaszIdoMp * 1000;
-  const alappont = szoba.beallitas.alappont;
-
-  const korEredmeny = [];
-  for (const j of szoba.jatekosok.values()) {
-    const v = szoba.valaszok.get(j.id);
-    let szerzett = 0;
-    const jo = v && v.valasz === helyes;
-
-    if (jo) {
-      // Kahoot-szeru pontozas: azonnali valasz ~teljes pont, az ido vegen ~fele.
-      // Igy tobb jo valasz eseten automatikusan a gyorsabb kap tobbet.
-      const arany = Math.min(1, Math.max(0, v.mikorMs / idoKeret));
-      szerzett = Math.round(alappont * (1 - arany / 2));
-    }
-
-    j.pont += szerzett;
-    korEredmeny.push({
-      id: j.id,
-      nev: j.nev,
-      valaszolt: Boolean(v),
-      valasz: v ? v.valasz : null,
-      jo,
-      szerzett,
-      idoMs: v ? v.mikorMs : null,
-      osszpont: j.pont,
-    });
-  }
-
-  korEredmeny.sort((a, b) => b.szerzett - a.szerzett || (a.idoMs ?? 1e9) - (b.idoMs ?? 1e9));
-  szoba.korEredmeny = korEredmeny;
+  // A pontozás a közös motorban van, hogy a Firestore-os játékban is
+  // pontosan ugyanígy számoljunk.
+  const valaszok = Object.fromEntries(szoba.valaszok);
+  szoba.korEredmeny = motor.korKiertekel(
+    [...szoba.jatekosok.values()],
+    valaszok,
+    szoba.aktualisKerdes.correctIndex,
+    szoba.beallitas.valaszIdoMp * 1000,
+    szoba.beallitas.alappont,
+  );
   szoba.allapot = 'eredmeny';
   kikuld(szoba);
 }

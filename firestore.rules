@@ -1,0 +1,58 @@
+rules_version = '2';
+
+// Asthetic — Kvízcsata jogosultsági szabályok
+//
+// Alapelv: a szobát CSAK a szobavezető írhatja, a játékos kizárólag a saját
+// jelentkezését és a saját válaszát. A helyes választ és a videó azonosítóját
+// külön dokumentum tárolja, amit rajta kívül senki nem olvashat — így a kérdés
+// alatt a böngésző konzoljából sem szedhető ki.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function bejelentkezett() {
+      return request.auth != null;
+    }
+
+    function szobavezetoE(kod) {
+      return bejelentkezett()
+        && exists(/databases/$(database)/documents/szobak/$(kod))
+        && get(/databases/$(database)/documents/szobak/$(kod)).data.hostUid == request.auth.uid;
+    }
+
+    match /szobak/{kod} {
+      // A szobák állapotát bárki olvashatja, aki be van jelentkezve: ebből áll
+      // össze a nyilvános szobalista, és ezt látják a játékosok a játék alatt.
+      // Titkot nem tartalmaz.
+      allow get, list: if bejelentkezett();
+
+      // Szobát csak saját magának nyithat valaki.
+      allow create: if bejelentkezett()
+        && request.resource.data.hostUid == request.auth.uid;
+
+      // A játék menetét kizárólag a szobavezető írhatja.
+      allow update, delete: if bejelentkezett()
+        && resource.data.hostUid == request.auth.uid;
+
+      // Videó azonosítója + helyes válasz — csak a szobavezetőnek.
+      match /titkos/{doc} {
+        allow read, write: if szobavezetoE(kod);
+      }
+
+      // Jelentkezés belépésre: mindenki csak a sajátját hozhatja létre.
+      match /jelentkezok/{jelentkezoUid} {
+        allow create: if bejelentkezett() && jelentkezoUid == request.auth.uid;
+        allow read, delete: if szobavezetoE(kod)
+          || (bejelentkezett() && jelentkezoUid == request.auth.uid);
+      }
+
+      // Válaszok: a dokumentum azonosítója maga a felhasználó azonosítója,
+      // így egyetlen összehasonlítással eldönthető, hogy a sajátját írja-e.
+      // Más válaszát senki nem láthatja — csak a szobavezető, a kiértékeléshez.
+      match /valaszok/{valaszUid} {
+        allow read, write: if bejelentkezett() && valaszUid == request.auth.uid;
+        allow read, delete: if szobavezetoE(kod);
+      }
+    }
+  }
+}

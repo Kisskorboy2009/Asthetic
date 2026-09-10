@@ -34,15 +34,74 @@ function apiBazis() {
   return (window.ASTHETIC && window.ASTHETIC.szerver) || '';
 }
 
+/* A Kvízcsata két úton működhet, ugyanazzal a felülettel:
+     'szerver'   — saját gépen/hálózaton futó server.js (SSE + /api)
+     'firestore' — kiszolgáló nélkül, a Firebase ingyenes csomagján
+   Indításkor megnézzük, elérhető-e a saját kiszolgáló; ha nem, Firestore-ra
+   váltunk. A megjelenítő kód nem tud a különbségről: mindkét út ugyanolyan
+   alakú állapotot ad. */
+let mod = null;
+
+async function modMeghataroz() {
+  if (mod) return mod;
+
+  try {
+    const valasz = await fetch(apiBazis() + '/api/szobak', { cache: 'no-store' });
+    if (valasz.ok) { mod = 'szerver'; return mod; }
+  } catch { /* nincs saját kiszolgáló — jöhet a Firestore */ }
+
+  if (!window.AstheticFirestore) throw new Error('A Kvízcsata most nem érhető el.');
+  await window.AstheticFirestore.init();
+  mod = 'firestore';
+  return mod;
+}
+
 async function hivas(ut, torzs) {
+  return (await modMeghataroz()) === 'firestore'
+    ? firestoreHivas(ut, torzs || {})
+    : szerverHivas(ut, torzs || {});
+}
+
+async function szerverHivas(ut, torzs) {
   const valasz = await fetch(apiBazis() + '/api/' + ut, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(torzs || {}),
+    body: JSON.stringify(torzs),
   });
   const adat = await valasz.json().catch(() => ({}));
   if (!valasz.ok) throw new Error(adat.hiba || 'Ismeretlen hiba');
   return adat;
+}
+
+async function firestoreHivas(ut, torzs) {
+  const FS = window.AstheticFirestore;
+  const vezeto = window.AstheticVezeto;
+
+  switch (ut) {
+    case 'szoba/letrehoz': {
+      const eredmeny = await FS.szobaLetrehoz(torzs.nev, torzs.beallitas);
+      vezeto.indit(eredmeny.kod);        // innentől ez a böngésző vezeti a játékot
+      return eredmeny;
+    }
+    case 'szoba/csatlakoz':
+      return FS.csatlakozas(torzs.kod, torzs.nev);
+    case 'indit':
+      await vezeto.jatekIndit(torzs.kod); return { ok: true };
+    case 'kovetkezo':
+      await vezeto.kovetkezoKor(torzs.kod); return { ok: true };
+    case 'kiertekel':
+      await vezeto.korKiertekel(torzs.kod); return { ok: true };
+    case 'kihagy':
+      await vezeto.dalKidob(torzs.kod); return { ok: true };
+    case 'valasz':
+      await FS.valaszAd(torzs.kod, torzs.jatekosId, torzs.valasz); return { ok: true };
+    case 'kilep':
+      vezeto.leallit();
+      await FS.kilep(torzs.kod, torzs.jatekosId);
+      return { ok: true };
+    default:
+      throw new Error('Ismeretlen művelet: ' + ut);
+  }
 }
 
 function hibaKiir(elemId, uzenet) {
@@ -96,9 +155,42 @@ function zeneLeallit() {
 
 // ───────────────────────── valós idejű kapcsolat ─────────────────────────
 
-function csatlakozStream() {
+let firestoreLeiratkozas = null;
+
+function kapcsolatBont() {
+  if (forras) { forras.close(); forras = null; }
+  if (firestoreLeiratkozas) { firestoreLeiratkozas(); firestoreLeiratkozas = null; }
+}
+
+function kapcsolatElveszett(uzenet) {
+  kapcsolatBont();
+  munkamenetTorol();
+  munkamenet = null;
+  nezet('menu');
+  hibaKiir('menuHiba', uzenet);
+}
+
+async function csatlakozStream() {
   if (!munkamenet) return;
-  if (forras) forras.close();
+  kapcsolatBont();
+
+  if ((await modMeghataroz()) === 'firestore') {
+    const FS = window.AstheticFirestore;
+
+    firestoreLeiratkozas = FS.figyel(
+      munkamenet.kod,
+      munkamenet.jatekosId,
+      (uj) => {
+        allapot = uj;
+        // Oldalfrissítés után a szobavezetőnek újra át kell vennie a
+        // játékvezetést, különben senki nem léptetné a köröket.
+        if (uj.host) window.AstheticVezeto.indit(munkamenet.kod);
+        kirajzol();
+      },
+      () => kapcsolatElveszett('A kapcsolat megszakadt, vagy a szoba megszűnt.'),
+    );
+    return;
+  }
 
   forras = new EventSource(`${apiBazis()}/api/stream?kod=${encodeURIComponent(munkamenet.kod)}&jatekos=${encodeURIComponent(munkamenet.jatekosId)}`);
 
@@ -109,11 +201,8 @@ function csatlakozStream() {
 
   forras.onerror = () => {
     // Az EventSource magától újrapróbálkozik; ha a szoba megszűnt, visszadobjuk a menübe.
-    if (forras.readyState === EventSource.CLOSED) {
-      munkamenetTorol();
-      munkamenet = null;
-      nezet('menu');
-      hibaKiir('menuHiba', 'A kapcsolat megszakadt, vagy a szoba megszűnt.');
+    if (forras && forras.readyState === EventSource.CLOSED) {
+      kapcsolatElveszett('A kapcsolat megszakadt, vagy a szoba megszűnt.');
     }
   };
 }
@@ -393,7 +482,7 @@ $('ujJatekBtn').addEventListener('click', kilepes);
 
 async function kilepes() {
   try { if (munkamenet) await hivas('kilep', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId }); } catch { /* mindegy */ }
-  if (forras) forras.close();
+  kapcsolatBont();
   munkamenetTorol();
   munkamenet = null;
   allapot = null;
@@ -406,8 +495,9 @@ async function kilepes() {
 
 async function publikusFrissit() {
   try {
-    const valasz = await fetch(apiBazis() + '/api/szobak');
-    const adat = await valasz.json();
+    const adat = (await modMeghataroz()) === 'firestore'
+      ? await window.AstheticFirestore.publikusSzobak()
+      : await (await fetch(apiBazis() + '/api/szobak', { cache: 'no-store' })).json();
     const lista = $('publikusLista');
 
     if (!adat.szobak.length) {
