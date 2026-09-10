@@ -79,8 +79,9 @@
 .appSav__gomb svg { width: 22px; height: 22px; }
 .appSav__gomb[hidden] { display: none; }
 
-/* A sáv helyet foglal a tartalom elől. */
-.is-app main {
+/* A rögzített sávok helyet kapnak a törzsön, nem a <main>-en: a <main> több
+   oldalon maga is .section, és annak a kitöltése felülírná ezt. */
+.is-app body {
   padding-top: calc(54px + env(safe-area-inset-top));
   padding-bottom: calc(74px + env(safe-area-inset-bottom));
 }
@@ -207,10 +208,77 @@
 }
 
 /* A szabályok és a jogi oldalak az alkalmazásban is olvashatók maradnak,
-   csak a felesleges díszítés nélkül. */
-.is-app .section { padding-block: 22px; }
+   csak a felesleges díszítés nélkül. A <main>-t szándékosan kihagyjuk: annak a
+   kitöltése a törzsről jön, a rögzített sávok miatt. */
+.is-app .section:not(main) { padding-block: 20px; }
+.is-app main.section { padding-block: 0; }
 .is-app .section-head { margin-bottom: 18px; }
 
 @media (prefers-reduced-motion: reduce) {
   .appHome__fej, .appCsempe { animation: none; }
+}
+
+/* ═══════════════════════════════════════════
+   Alkalmazás-finomítások
+   ═══════════════════════════════════════════ */
+
+/* A görgetésre előúszó animációk a weboldalon szépek, az alkalmazásban viszont
+   azonnal elárulják, hogy weblap. Ott minden rögtön a helyén van. */
+.is-app .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Ne legyen dupla koppintásra nagyítás — az alkalmazásban zavaró. */
+.is-app a,
+.is-app button,
+.is-app label,
+.is-app .kvalasz,
+.is-app .appFul { touch-action: manipulation; }
+
+/* A <main> saját belső kerete nem kell még egyszer a törzs kitöltése mellé. */
+.is-app main.section--tight > .container { padding-block: 0; }
+
+/* ───────────── kör eredménye: férjen ki keskeny kijelzőn ───────────── */
+
+.is-app .ktabla { table-layout: fixed; width: 100%; }
+.is-app .ktabla th,
+.is-app .ktabla td { padding: 11px 6px; font-size: 14px; }
+/* A fejlécszöveg (pl. "ÖSSZESEN") keskeny kijelzőn nem fér ki egy sorban,
+   ezért kisebb, ritkítás nélküli, és tördelhető. */
+.is-app .ktabla th {
+  font-size: 10.5px;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+.is-app .ktabla th:nth-child(1) { width: 30%; }
+.is-app .ktabla th:nth-child(2) { width: 32%; }
+.is-app .ktabla th:nth-child(3) { width: 16%; }
+.is-app .ktabla th:nth-child(4) { width: 22%; }
+.is-app .ktabla td { overflow-wrap: anywhere; }
+
+/* ───────────── Bluetooth-gomb a kártyás módban ───────────── */
+
+/* Az alkalmazásban ez fontos, gyakran használt kapcsoló — legyen rendes,
+   teljes szélességű gomb, ne egy apró jelvény a sarokban. */
+.is-app .btConnect,
+.is-app #btConnect {
+  width: 100%;
+  justify-content: center;
+  padding-block: 13px;
+  font-size: 15px;
+}
+
+/* ───────────── görgetés ───────────── */
+
+.is-app main { -webkit-overflow-scrolling: touch; }
+
+/* Sötét módban a rögzített sávok kapjanak enyhe elválasztást a tartalomtól. */
+:root[data-theme="dark"] .appSav,
+:root[data-theme="dark"] .appFulek { background: var(--paper-2); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .appSav,
+  :root:not([data-theme="light"]) .appFulek { background: var(--paper-2); }
 }

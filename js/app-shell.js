@@ -18,6 +18,7 @@
     kartya: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M7.5 9.5h4M7.5 13h7"/>',
     kviz: '<circle cx="12" cy="12" r="8.5"/><path d="M9.4 9.6a2.7 2.7 0 1 1 3.4 2.6v1.4"/><circle cx="12.2" cy="16.6" r=".9" fill="currentColor" stroke="none"/>',
     szabaly: '<path d="M6 3.5h8.5L19 8v12.5H6z"/><path d="M14 3.5V8h4.5M9 12.5h6M9 16h4"/>',
+    otthon: '<path d="M4 10.5 12 4l8 6.5V20h-5.5v-5h-5v5H4z"/>',
     nyil: '<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>',
     nap: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/>',
   };
@@ -72,7 +73,7 @@
   const fulek = [
     { azon: 'kartya', cim: 'Kártya', hivatkozas: 'jatek.html', ikon: ikon.kartya },
     { azon: 'kviz', cim: 'Kvízcsata', hivatkozas: 'kahoot.html', ikon: ikon.kviz },
-    { azon: 'kezdo', cim: 'Kezdőlap', hivatkozas: 'index.html', ikon: ikon.szabaly },
+    { azon: 'kezdo', cim: 'Kezdőlap', hivatkozas: 'index.html', ikon: ikon.otthon },
   ];
 
   const fulSor = document.createElement('nav');
@@ -84,6 +85,16 @@
       </a>`)
     .join('');
   document.body.appendChild(fulSor);
+
+  /* ───────────── keskeny kijelző: rövidebb oszlopnevek ───────────── */
+
+  // A "Összesen" fejléc nem fér ki egy sorban telefonon, és csúnyán törik.
+  // A weboldalon marad a teljes szó, itt rövidítjük.
+  const ROVID = { 'Összesen': 'Össz.', 'Játékos': 'Név' };
+  document.querySelectorAll('.ktabla th').forEach((cella) => {
+    const rovid = ROVID[cella.textContent.trim()];
+    if (rovid) cella.textContent = rovid;
+  });
 
   /* ───────────── kezdőlap: alkalmazás-menü a marketingszöveg helyett ───────────── */
 
