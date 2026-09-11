@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://asthetic.kisskorboy.hu/sitemap.xml
+Sitemap: https://asthetic.hu/sitemap.xml
