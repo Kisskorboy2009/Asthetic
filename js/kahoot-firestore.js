@@ -197,8 +197,9 @@
         szoveg: k.szoveg,
         valaszok: k.valaszok,
         hatralevoMs: Math.max(0, szoba.beallitas.valaszIdoMp * 1000 - eltelt),
-        // A videoId csak a szobavezetőnél van meg — nála szól a zene.
-        videoId: hostE && titkos ? titkos.videoId : null,
+        // A szobavezető a titkos dokumentumból kapja meg; a többiek csak akkor,
+        // ha a szoba úgy van beállítva, hogy mindenki készülékén szóljon a dal.
+        videoId: (hostE && titkos ? titkos.videoId : null) || k.videoId || null,
         kezdesMp: szoba.beallitas.kezdesMp,
       };
     }

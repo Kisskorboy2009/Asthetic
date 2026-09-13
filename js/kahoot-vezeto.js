@@ -145,6 +145,9 @@
         szoveg: kerdes.kerdes,
         valaszok: kerdes.options,
         indultMs: Date.now(),
+        // Csak akkor kerul a nyilvanos allapotba, ha a szoba ugy van beallitva,
+        // hogy mindenki keszuleken szoljon a dal.
+        videoId: szoba.beallitas.mindenkiHallja ? dal.videoId : null,
       },
       indult: FS().most(),
       eredmeny: null,

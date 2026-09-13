@@ -264,3 +264,11 @@
 @media (prefers-reduced-motion: reduce) {
   .kview.is-active, .kplayer, .kdobogo__hely, .keredmeny__dal { animation: none; }
 }
+
+/* Tartalék, ha a böngésző nem engedi magától elindulni a hangot (mobil).
+   Csak akkor jelenik meg, ha 1,6 másodperc után sem szól a dal. */
+.kHangGomb {
+  display: block;
+  margin: 0 auto 16px;
+}
+.kHangGomb[hidden] { display: none; }

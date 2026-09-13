@@ -7,7 +7,15 @@ const { generateQuestion, normalize } = require('./question_engine.js');
 
 const songs = JSON.parse(fs.readFileSync(path.join(__dirname, 'songs.json'), 'utf8'));
 
-let hibak = [];
+const hibak = [];
+
+// Eloadonev a kozremukodok nelkul - ugyanaz a szabaly, mint a generatorban.
+function foEloado(nev) {
+  return normalize(String(nev || '').replace(/\s*(?:feat\.?|ft\.?|featuring|vs\.?|&|,|\bx\b|\bés\b)\s+.*$/i, ''));
+}
+
+// Melyik eloado melyik nyelvi korbe tartozik.
+const nyelvSzerint = new Map(songs.map((d) => [d.artist, d.nyelv]));
 const stat = {
   year: { ok: 0, nincs: 0 },
   artist: { ok: 0, nincs: 0 },
@@ -57,10 +65,18 @@ for (const song of songs) {
 
     if (type === 'artist') {
       if (q.options[q.correctIndex] !== song.artist) hibak.push(`#${song.id} artist: nem a dal eloadoja a helyes valasz`);
-      // egyik elterito sem lehet ugyanaz az eloado
-      const others = q.options.filter((_, i) => i !== q.correctIndex);
-      for (const o of others) {
-        if (normalize(o) === normalize(song.artist)) hibak.push(`#${song.id} artist: elterito megegyezik a helyessel`);
+      // egyik elterito sem lehet ugyanaz az eloado - a kozremukodos valtozatai sem,
+      // kulonben mind a negy valasz ugyanaz az eloado lehetne
+      const fok = q.options.map(foEloado);
+      if (new Set(fok).size !== 4) {
+        hibak.push(`#${song.id} artist: ugyanaz a fo eloado tobbszor -> ${JSON.stringify(q.options)}`);
+      }
+      // nyelvi kor: angol dal melle ne kerulhessen magyar eloado (es forditva)
+      for (const o of q.options) {
+        const ny = nyelvSzerint.get(o);
+        if (ny && song.nyelv && ny !== song.nyelv) {
+          hibak.push(`#${song.id} artist: mas nyelvi korbol valo elterito (${o} = ${ny}, a dal = ${song.nyelv})`);
+        }
       }
     }
 

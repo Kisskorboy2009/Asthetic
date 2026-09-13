@@ -149,9 +149,20 @@ window.onYouTubeIframeAPIReady = () => {
         lejatszoKesz = true;
         if (varakozoVideo) { zeneIndit(varakozoVideo.videoId, varakozoVideo.kezdes); varakozoVideo = null; }
       },
+      onStateChange: (e) => {
+        // 1 = PLAYING: ha megszolalt, nem kell a tartalek gomb.
+        if (e.data === 1) hangGombMutat(false);
+      },
     },
   });
 };
+
+let hangEllenorzo = null;
+
+function hangGombMutat(mutasd) {
+  const gomb = $('qHangGomb');
+  if (gomb) gomb.hidden = !mutasd;
+}
 
 function zeneIndit(videoId, kezdesMp) {
   if (!lejatszo || !lejatszoKesz) { varakozoVideo = { videoId, kezdes: kezdesMp }; return; }
@@ -159,9 +170,20 @@ function zeneIndit(videoId, kezdesMp) {
     lejatszo.loadVideoById({ videoId, startSeconds: kezdesMp || 0 });
     lejatszo.playVideo();
   } catch { /* a lejátszó még nem áll készen */ }
+
+  // Mobilon a böngésző letilthatja a hang automatikus indítását. Ha rövid időn
+  // belül nem szól, felajánljuk a koppintást — egy érintés után már engedi.
+  clearTimeout(hangEllenorzo);
+  hangEllenorzo = setTimeout(() => {
+    let jatszik = false;
+    try { jatszik = lejatszo.getPlayerState() === 1; } catch { /* nem tudjuk */ }
+    hangGombMutat(!jatszik);
+  }, 1600);
 }
 
 function zeneLeallit() {
+  clearTimeout(hangEllenorzo);
+  hangGombMutat(false);
   if (lejatszo && lejatszoKesz) { try { lejatszo.pauseVideo(); } catch { /* nem baj */ } }
 }
 
@@ -288,7 +310,9 @@ function rajzolKerdes() {
       gomb.addEventListener('click', () => valaszKuld(Number(gomb.dataset.index)));
     });
 
-    if (allapot.host && k.videoId) zeneIndit(k.videoId, k.kezdesMp);
+    // A videoId-t vagy csak a szobavezeto kapja meg, vagy - ha a szoba ugy van
+    // beallitva - minden jatekos. Ahol megvan, ott szoljon.
+    if (k.videoId) zeneIndit(k.videoId, k.kezdesMp);
     document.body.classList.add('is-szol');
     visszaszamlalIndit(k.hatralevoMs);
   }
@@ -447,6 +471,7 @@ $('letrehozBtn').addEventListener('click', async () => {
         kezdesMp: Number($('kezdesInput').value),
         alappont: Number($('pontInput').value),
         publikus: $('publikusInput').checked,
+        mindenkiHallja: $('mindenkiHalljaInput').checked,
         tipusok,
       },
     });
@@ -484,6 +509,11 @@ $('inditBtn').addEventListener('click', async () => {
 $('kovetkezoBtn').addEventListener('click', async () => {
   try { await hivas('kovetkezo', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId }); }
   catch (e) { $('eVarunk').textContent = e.message; }
+});
+
+$('qHangGomb').addEventListener('click', () => {
+  hangGombMutat(false);
+  try { lejatszo.playVideo(); } catch { /* nincs mit tenni */ }
 });
 
 $('kihagyBtn').addEventListener('click', async () => {

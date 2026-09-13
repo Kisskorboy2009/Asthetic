@@ -25,6 +25,7 @@
     kezdesMp: 45,          // a dal hányadik másodperctől induljon
     tipusok: ['year', 'artist', 'title'],
     publikus: false,
+    mindenkiHallja: false,  // szoljon-e a dal minden jatekos keszuleken
     alappont: 1000,        // helyes válaszért járó maximum
   };
 
@@ -103,6 +104,7 @@
     }
 
     b.publikus = Boolean(be.publikus);
+    b.mindenkiHallja = Boolean(be.mindenkiHallja);
     return b;
   }
 

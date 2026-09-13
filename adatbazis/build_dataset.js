@@ -12,6 +12,7 @@ const { readSheet } = require('./lib/parse_xlsx.js');
 
 const FORRAS = process.argv[2] || 'D:/Hister/KESZ_LINKES.xlsx';
 const KIMENET = path.join(__dirname, 'songs.json');
+const { nyelvvelKiegeszit } = require('./nyelv_felismeres.js');
 
 // --- videoazonosito kinyerese barmilyen YouTube-linkbol ---
 function extractVideoId(url) {
@@ -97,7 +98,11 @@ function main() {
   songs.sort((a, b) => a.year - b.year || a.artist.localeCompare(a.artist, 'hu'));
   songs.forEach((s, i) => { s.id = i + 1; });
 
-  fs.writeFileSync(KIMENET, JSON.stringify(songs, null, 2), 'utf8');
+  // Nyelvi besorolas: a kvizben az elterelo valaszok csak azonos nyelvi korbol
+  // johetnek, kulonben egy angol dal magyar nevu valaszai elarulnak a megfejtest.
+  const besorolt = nyelvvelKiegeszit(songs);
+
+  fs.writeFileSync(KIMENET, JSON.stringify(besorolt, null, 2), 'utf8');
 
   // --- statisztika ---
   const years = songs.map((s) => s.year);

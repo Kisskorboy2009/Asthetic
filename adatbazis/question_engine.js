@@ -42,6 +42,16 @@ function normalize(s) {
     .trim();
 }
 
+// ---------- nyelvi szures ----------
+// A dalokhoz tartozik egy 'nyelv' mezo ('hu' vagy 'egyeb'), amit az
+// adatbazis epitesekor az adatbazis/nyelv_felismeres.js allapit meg eloadonkent.
+// Ha valamiert hianyzik, nem szurunk - jobb egy vegyes kerdes, mint semmilyen.
+function azonosNyelv(song, songs) {
+  if (!song.nyelv) return songs;
+  const szurt = songs.filter((s) => s.nyelv === song.nyelv);
+  return szurt.length >= 8 ? szurt : songs;
+}
+
 // ---------- 1) EVSZAM ----------
 // A 4 evszam ugy all elo, hogy a szomszedos ertekek 5-10 ev tavolsagra legyenek egymastol,
 // es a helyes valasz veletlenszeru helyen alljon a sorban.
@@ -103,19 +113,32 @@ function buildYears(correctYear, correctSlot, gaps) {
   return { options: years.map(String), correctIndex: correctSlot };
 }
 
+// A kozremukodoket levagva kapjuk a "fo eloadot". Enelkul a "Peller Karoly" es a
+// "Peller Karoly feat. Szendy Szilvy" kulon eloadonak szamitana, es mind a negy
+// valasz ugyanaz az eloado lehetne - ertelmetlen kerdes.
+function foEloado(nev) {
+  const csonkolt = String(nev || '')
+    .replace(/\s*(?:feat\.?|ft\.?|featuring|vs\.?|&|,|\bx\b|\bés\b)\s+.*$/i, '');
+  return normalize(csonkolt);
+}
+
 // ---------- 2) ELOADO ----------
 // Hasonlo korszakbol valo eloadok: elobb szuk (+-8 ev), majd tagabb ablakkal probalkozunk.
 function artistOptions(song, songs, rng) {
-  const correctNorm = normalize(song.artist);
+  const correctNorm = foEloado(song.artist);
   const windows = [8, 15, 25, 100];
   let candidates = [];
+
+  // Csak azonos nyelvi korbol valaszthatunk elteritot: egy angol dal mellett
+  // harom magyar nev azonnal elarulna a helyes valaszt (es forditva).
+  const jeloltDalok = azonosNyelv(song, songs);
 
   for (const w of windows) {
     const seen = new Set([correctNorm]);
     candidates = [];
-    for (const s of songs) {
+    for (const s of jeloltDalok) {
       if (Math.abs(s.year - song.year) > w) continue;
-      const n = normalize(s.artist);
+      const n = foEloado(s.artist);
       if (seen.has(n)) continue;
       seen.add(n);
       candidates.push(s.artist);
@@ -151,9 +174,10 @@ function titleOptions(song, songs, rng) {
 
   if (distractors.length < 3) {
     // feltoltes hasonlo korszakbol (mas eloadotol)
+    const jeloltDalok = azonosNyelv(song, songs);
     for (const w of [10, 20, 40, 200]) {
       const pool = [];
-      for (const s of songs) {
+      for (const s of jeloltDalok) {
         if (Math.abs(s.year - song.year) > w) continue;
         if (normalize(s.artist) === correctArtist) continue;
         const n = normalize(s.title);

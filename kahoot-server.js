@@ -213,8 +213,11 @@ function allapotNezet(szoba, jatekosId) {
       szoveg: k.kerdes,
       valaszok: k.options,
       hatralevoMs: Math.max(0, szoba.beallitas.valaszIdoMp * 1000 - (Date.now() - szoba.kerdesIndult)),
-      // A videoId-t csak a szobavezeto kapja meg - nala szol a zene.
-      videoId: nezet.host ? k.dal.videoId : null,
+      // Alapbol csak a szobavezeto kapja meg a videoId-t - nala szol a zene.
+      // Ha a szoba beallitasaban be van kapcsolva, mindenki megkapja, es minden
+      // keszuleken szol. Ilyenkor a videoId elmeletileg kiolvashato a bongeszobol,
+      // de a dal maga ugyis hallhato - a helyes valasz tovabbra sem kerul ki.
+      videoId: nezet.host || szoba.beallitas.mindenkiHallja ? k.dal.videoId : null,
       kezdesMp: szoba.beallitas.kezdesMp,
     };
   }
