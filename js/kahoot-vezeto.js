@@ -133,6 +133,9 @@
       videoId: dal.videoId,
       correctIndex: kerdes.correctIndex,
       correctAnswer: kerdes.correctAnswer,
+      // "Csak szinek" modban innen olvassa ki a szobavezeto a kerdest.
+      szoveg: kerdes.kerdes,
+      valaszok: kerdes.options,
       dal: { id: dal.id, eloado: dal.artist, cim: dal.title, ev: dal.year, videoId: dal.videoId },
     });
 
@@ -142,8 +145,11 @@
       hasznaltDalok: [...(szoba.hasznaltDalok || []), dal.id],
       kerdes: {
         tipus: kerdes.type,
-        szoveg: kerdes.kerdes,
-        valaszok: kerdes.options,
+        // "Csak szinek" modban a szoveg es a valaszok nem kerulnek a nyilvanos
+        // dokumentumba - csak a titkosba, amit egyedul a szobavezeto olvashat.
+        csakSzinek: Boolean(szoba.beallitas.csakSzinek),
+        szoveg: szoba.beallitas.csakSzinek ? null : kerdes.kerdes,
+        valaszok: szoba.beallitas.csakSzinek ? null : kerdes.options,
         indultMs: Date.now(),
         // Csak akkor kerul a nyilvanos allapotba, ha a szoba ugy van beallitva,
         // hogy mindenki keszuleken szoljon a dal.
@@ -185,7 +191,9 @@
 
     FS().szobaHiv(kod).update({ valaszoltakSzama: db }).catch(() => {});
 
-    if (szoba.allapot === 'kerdes' && db >= (szoba.jatekosok || []).length) {
+    if (szoba.beallitas.mindenkiUtanTovabb
+        && szoba.allapot === 'kerdes'
+        && db >= (szoba.jatekosok || []).length) {
       clearTimeout(aktiv.idozito);
       aktiv.idozito = setTimeout(() => korKiertekel(kod), SZUNET_KIERTEKELES_MS);
     }
@@ -236,8 +244,11 @@
       eredmeny: {
         helyesIndex: titkos.correctIndex,
         helyesValasz: titkos.correctAnswer,
-        valaszok: szoba.kerdes.valaszok,
-        szoveg: szoba.kerdes.szoveg,
+        // A kiertekeleskor mar mindenki lathatja a valaszokat, ezert itt a
+        // titkos dokumentumbol vesszuk - "csak szinek" modban a nyilvanosban
+        // nincsenek is benne.
+        valaszok: titkos.valaszok || szoba.kerdes.valaszok,
+        szoveg: titkos.szoveg || szoba.kerdes.szoveg,
         dal: titkos.dal,
         korEredmeny,
         utolsoKor: szoba.kor >= szoba.beallitas.korokSzama,

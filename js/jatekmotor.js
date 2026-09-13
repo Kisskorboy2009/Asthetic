@@ -25,7 +25,9 @@
     kezdesMp: 45,          // a dal hányadik másodperctől induljon
     tipusok: ['year', 'artist', 'title'],
     publikus: false,
-    mindenkiHallja: false,  // szoljon-e a dal minden jatekos keszuleken
+    mindenkiHallja: false,      // szoljon-e a dal minden jatekos keszuleken
+    mindenkiUtanTovabb: true,   // ha mindenki valaszolt, ugorjunk az eredmenyre
+    csakSzinek: false,          // a kerdes csak a szobavezeto kepernyojen latszik
     alappont: 1000,        // helyes válaszért járó maximum
   };
 
@@ -105,6 +107,10 @@
 
     b.publikus = Boolean(be.publikus);
     b.mindenkiHallja = Boolean(be.mindenkiHallja);
+    // Ez alapertelmezetten BE van kapcsolva, ezert csak akkor kapcsoljuk ki,
+    // ha kifejezetten hamisat kaptunk.
+    b.mindenkiUtanTovabb = be.mindenkiUtanTovabb === undefined ? true : Boolean(be.mindenkiUtanTovabb);
+    b.csakSzinek = Boolean(be.csakSzinek);
     return b;
   }
 

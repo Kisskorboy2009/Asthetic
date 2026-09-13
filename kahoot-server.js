@@ -127,8 +127,10 @@ function valaszAd(szoba, jatekosId, valaszIndex) {
 
   szoba.valaszok.set(jatekosId, { valasz: idx, mikorMs: Date.now() - szoba.kerdesIndult });
 
-  // Ha mindenki valaszolt, ne varjunk feleslegesen az idozitore
-  if (szoba.valaszok.size >= szoba.jatekosok.size) {
+  // Ha mindenki valaszolt, ne varjunk feleslegesen az idozitore.
+  // A szoba beallitasa szerint ez ki is kapcsolhato: olyankor mindig kitelik
+  // a teljes valaszido, akkor is, ha mar mindenki dontott.
+  if (szoba.beallitas.mindenkiUtanTovabb && szoba.valaszok.size >= szoba.jatekosok.size) {
     clearTimeout(szoba.idozito);
     setTimeout(() => korKiertekel(szoba), 400); // rovid szunet, hogy latszodjon a "megvan"
   } else {
@@ -208,10 +210,14 @@ function allapotNezet(szoba, jatekosId) {
 
   if (szoba.allapot === 'kerdes' && szoba.aktualisKerdes) {
     const k = szoba.aktualisKerdes;
+    // "Csak szinek" modban a kerdes szovege es a valaszok CSAK a szobavezetohoz
+    // jutnak el - a tobbiek keszuleken meg a bongeszo konzoljabol sem olvashatok.
+    const csakSzinek = szoba.beallitas.csakSzinek && !nezet.host;
     nezet.kerdes = {
       tipus: k.type,
-      szoveg: k.kerdes,
-      valaszok: k.options,
+      csakSzinek,
+      szoveg: csakSzinek ? null : k.kerdes,
+      valaszok: csakSzinek ? null : k.options,
       hatralevoMs: Math.max(0, szoba.beallitas.valaszIdoMp * 1000 - (Date.now() - szoba.kerdesIndult)),
       // Alapbol csak a szobavezeto kapja meg a videoId-t - nala szol a zene.
       // Ha a szoba beallitasaban be van kapcsolva, mindenki megkapja, es minden

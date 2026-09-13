@@ -192,10 +192,14 @@
     if (szoba.allapot === 'kerdes' && szoba.kerdes) {
       const k = szoba.kerdes;
       const eltelt = k.indultMs ? Date.now() - k.indultMs : 0;
+      // "Csak szinek" modban a szoveg es a valaszok a titkos dokumentumban
+      // vannak - oda csak a szobavezeto lat bele.
+      const csakSzinek = Boolean(k.csakSzinek) && !hostE;
       nezet.kerdes = {
         tipus: k.tipus,
-        szoveg: k.szoveg,
-        valaszok: k.valaszok,
+        csakSzinek,
+        szoveg: csakSzinek ? null : (k.szoveg || (titkos && titkos.szoveg) || null),
+        valaszok: csakSzinek ? null : (k.valaszok || (titkos && titkos.valaszok) || null),
         hatralevoMs: Math.max(0, szoba.beallitas.valaszIdoMp * 1000 - eltelt),
         // A szobavezető a titkos dokumentumból kapja meg; a többiek csak akkor,
         // ha a szoba úgy van beállítva, hogy mindenki készülékén szóljon a dal.

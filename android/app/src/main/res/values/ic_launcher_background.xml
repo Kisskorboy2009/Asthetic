@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Az adaptív ikon háttere: ugyanaz a sötét alap, mint a weboldalon. -->
-    <color name="ic_launcher_background">#1A1D21</color>
+    <!-- Az adaptív ikon háttere: világos papírszín, hogy a telefon főoldalán
+         jól elkülönüljön. A logó tusszíne rajzolódik ki rajta. -->
+    <color name="ic_launcher_background">#F7F5F1</color>
 </resources>

@@ -272,3 +272,17 @@
   margin: 0 auto 16px;
 }
 .kHangGomb[hidden] { display: none; }
+
+/* "Csak színek" mód: a válaszgombokon nincs szöveg, ezért nagyobb, négyzetesebb
+   felületek — messziről is jól célozhatók, és kitöltik a képernyőt. */
+.kvalaszok--szinek { grid-template-columns: 1fr 1fr; gap: 14px; }
+.kvalaszok--szinek .kvalasz {
+  min-height: 118px;
+  justify-content: center;
+  padding: 18px;
+}
+.kvalaszok--szinek .kvalasz__jel {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  font-size: 24px;
+}

@@ -291,18 +291,25 @@ function rajzolKerdes() {
   if (!k) return;
 
   $('qKor').textContent = `${allapot.kor}. kör / ${allapot.korokSzama}`;
-  $('qSzoveg').textContent = k.szoveg;
+  // "Csak színek" módban a kérdés szövege el sem jut hozzánk — a szobavezető
+  // képernyőjén kell nézni, mi a kérdés.
+  $('qSzoveg').textContent = k.csakSzinek
+    ? 'Nézd a szobavezető képernyőjét, és válassz színt!'
+    : k.szoveg;
   $('kihagyBtn').hidden = !allapot.host;
 
   // Új kör: gombok újrarajzolása és a zene indítása (csak a szobavezetőnél)
   if (elozoAllapotNev !== 'kerdes' || elozoKor !== allapot.kor) {
     const doboz = $('qValaszok');
-    doboz.className = 'kvalaszok';
-    doboz.innerHTML = k.valaszok
+    doboz.className = 'kvalaszok' + (k.csakSzinek ? ' kvalaszok--szinek' : '');
+    // "Csak színek" módban nincs válaszszöveg, csak a négy jelölt gomb.
+    const valaszok = k.valaszok || [null, null, null, null];
+    doboz.innerHTML = valaszok
       .map((v, i) => `
-        <button class="kvalasz kvalasz--${i}" type="button" data-index="${i}">
+        <button class="kvalasz kvalasz--${i}" type="button" data-index="${i}"
+                aria-label="${'ABCD'[i]} válasz">
           <span class="kvalasz__jel">${'ABCD'[i]}</span>
-          <span>${szoveg(v)}</span>
+          ${k.csakSzinek ? '' : `<span>${szoveg(v)}</span>`}
         </button>`)
       .join('');
 
@@ -472,6 +479,8 @@ $('letrehozBtn').addEventListener('click', async () => {
         alappont: Number($('pontInput').value),
         publikus: $('publikusInput').checked,
         mindenkiHallja: $('mindenkiHalljaInput').checked,
+        mindenkiUtanTovabb: $('mindenkiUtanInput').checked,
+        csakSzinek: $('csakSzinekInput').checked,
         tipusok,
       },
     });

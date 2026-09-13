@@ -14,7 +14,7 @@ const GYOKER = path.join(__dirname, '..');
 const RES = path.join(GYOKER, 'android', 'app', 'src', 'main', 'res');
 const FORRAS = path.join(GYOKER, 'assets', 'asthetic-logo.png');
 
-const HATTER = [0x1a, 0x1d, 0x21, 255];  // --night
+const HATTER = [0xf7, 0xf5, 0xf1, 255];  // --paper: vilagos alap, jobban latszik a telefon fooldalan
 
 /* ───────────────────────── PNG olvasás ───────────────────────── */
 
