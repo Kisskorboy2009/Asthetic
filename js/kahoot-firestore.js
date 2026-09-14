@@ -101,7 +101,12 @@
             beallitas,
             allapot: 'lobby',
             kor: 0,
-            jatekosok: [{ id: hostId, uid, nev: motor.tisztitNev(nev), pont: 0, host: true }],
+            // Ha a szobavezeto csak levezeti a jatekot (pl. kivetiti), nezokent
+            // kerul be: nem szamit a letszamba, nem kap pontot, nem valaszolhat.
+            jatekosok: [{
+              id: hostId, uid, nev: motor.tisztitNev(nev), pont: 0,
+              host: true, nezo: !beallitas.vezetoJatszik,
+            }],
             kerdes: null,
             eredmeny: null,
             vegeredmeny: null,
@@ -183,15 +188,22 @@
       korokSzama: szoba.beallitas.korokSzama,
       beallitas: szoba.beallitas,
       host: hostE,
+      nezo: Boolean(en && en.nezo),
       jatekosId,
-      jatekosok: jatekosok.map((j) => ({ id: j.id, nev: j.nev, pont: j.pont, host: j.host })),
+      jatekosok: jatekosok.map((j) => ({
+        id: j.id, nev: j.nev, pont: j.pont, host: j.host, nezo: Boolean(j.nezo),
+      })),
       valaszoltakSzama: szoba.valaszoltakSzama || 0,
       sajatValasz: sajatValasz === undefined ? null : sajatValasz,
     };
 
     if (szoba.allapot === 'kerdes' && szoba.kerdes) {
       const k = szoba.kerdes;
-      const eltelt = k.indultMs ? Date.now() - k.indultMs : 0;
+      // FONTOS: a hatralevo idot NEM a szobavezeto orajabol szamoljuk.
+      // A keszulekek oraja percekkel is elterhet, ezert a kivetitett kep es a
+      // telefon visszaszamlaloja elcsuszna. Helyette a teljes idot kuldjuk, es
+      // minden keszulek attol kezdve szamol, amikor megkapta a kerdest - igy az
+      // elteres csak a halozati keslekedes, nem az oraallitas.
       // "Csak szinek" modban a szoveg es a valaszok a titkos dokumentumban
       // vannak - oda csak a szobavezeto lat bele.
       const csakSzinek = Boolean(k.csakSzinek) && !hostE;
@@ -200,7 +212,9 @@
         csakSzinek,
         szoveg: csakSzinek ? null : (k.szoveg || (titkos && titkos.szoveg) || null),
         valaszok: csakSzinek ? null : (k.valaszok || (titkos && titkos.valaszok) || null),
-        hatralevoMs: Math.max(0, szoba.beallitas.valaszIdoMp * 1000 - eltelt),
+        valaszNyitva: k.valaszNyitva !== false,
+        hallgatasHatraMs: k.valaszNyitva === false ? (szoba.beallitas.elobbZeneMp || 0) * 1000 : 0,
+        hatralevoMs: szoba.beallitas.valaszIdoMp * 1000,
         // A szobavezető a titkos dokumentumból kapja meg; a többiek csak akkor,
         // ha a szoba úgy van beállítva, hogy mindenki készülékén szóljon a dal.
         videoId: (hostE && titkos ? titkos.videoId : null) || k.videoId || null,

@@ -247,6 +247,7 @@ async function csatlakozStream() {
 
 let elozoAllapotNev = null;
 let elozoKor = null;
+let elozoValaszNyitva = null;
 
 function kirajzol() {
   if (!allapot) return;
@@ -285,6 +286,11 @@ function rajzolLobby() {
 }
 
 // --- kérdés ---
+/** Hányan játszanak ténylegesen — a csak levezető szobavezető nem számít. */
+function jatszokSzama() {
+  return (allapot.jatekosok || []).filter((j) => !j.nezo).length;
+}
+
 function rajzolKerdes() {
   nezet('kerdes');
   const k = allapot.kerdes;
@@ -297,9 +303,24 @@ function rajzolKerdes() {
     ? 'Nézd a szobavezető képernyőjét, és válassz színt!'
     : k.szoveg;
   $('kihagyBtn').hidden = !allapot.host;
+  // A szobavezető, aki csak levezeti a játékot, nem válaszol — nála a "kilépés"
+  // helyett a szoba bezárása a természetes művelet.
+  $('kilepKerdesBtn').textContent = allapot.host ? 'Szoba bezárása' : 'Kilépés';
 
-  // Új kör: gombok újrarajzolása és a zene indítása (csak a szobavezetőnél)
-  if (elozoAllapotNev !== 'kerdes' || elozoKor !== allapot.kor) {
+  const hallgatas = k.valaszNyitva === false;
+  const nezoVagyok = Boolean(allapot.nezo);
+
+  $('qValaszok').hidden = hallgatas || nezoVagyok;
+  $('qHallgatas').hidden = !hallgatas;
+  $('qNezo').hidden = !(nezoVagyok && !hallgatas);
+
+  // Új kör VAGY a hallgatási szakasz vége: ilyenkor kell újrarajzolni és a
+  // visszaszámlálót újraindítani.
+  const ujKor = elozoAllapotNev !== 'kerdes' || elozoKor !== allapot.kor;
+  const valaszokMostNyiltak = elozoValaszNyitva === false && k.valaszNyitva !== false;
+  elozoValaszNyitva = k.valaszNyitva !== false;
+
+  if (ujKor || valaszokMostNyiltak) {
     const doboz = $('qValaszok');
     doboz.className = 'kvalaszok' + (k.csakSzinek ? ' kvalaszok--szinek' : '');
     // "Csak színek" módban nincs válaszszöveg, csak a négy jelölt gomb.
@@ -319,9 +340,10 @@ function rajzolKerdes() {
 
     // A videoId-t vagy csak a szobavezeto kapja meg, vagy - ha a szoba ugy van
     // beallitva - minden jatekos. Ahol megvan, ott szoljon.
-    if (k.videoId) zeneIndit(k.videoId, k.kezdesMp);
+    // A dal csak új körnél induljon újra — a válaszok megnyitásakor szóljon tovább.
+    if (ujKor && k.videoId) zeneIndit(k.videoId, k.kezdesMp);
     document.body.classList.add('is-szol');
-    visszaszamlalIndit(k.hatralevoMs);
+    visszaszamlalIndit(hallgatas ? k.hallgatasHatraMs : k.hatralevoMs, hallgatas);
   }
 
   // Ha már válaszoltunk, jelöljük és tiltsuk a gombokat
@@ -330,9 +352,9 @@ function rajzolKerdes() {
       g.disabled = true;
       g.classList.toggle('is-valasztott', i === allapot.sajatValasz);
     });
-    $('qStatusz').textContent = `Válaszod elküldve. Eddig ${allapot.valaszoltakSzama}/${allapot.jatekosok.length} játékos válaszolt.`;
+    $('qStatusz').textContent = `Válaszod elküldve. Eddig ${allapot.valaszoltakSzama}/${jatszokSzama()} játékos válaszolt.`;
   } else {
-    $('qStatusz').textContent = `${allapot.valaszoltakSzama}/${allapot.jatekosok.length} játékos válaszolt`;
+    $('qStatusz').textContent = `${allapot.valaszoltakSzama}/${jatszokSzama()} játékos válaszolt`;
   }
 }
 
@@ -350,9 +372,11 @@ async function valaszKuld(index) {
 
 // --- visszaszámláló ---
 let visszaszamlaloId = null;
-function visszaszamlalIndit(hatralevoMs) {
+function visszaszamlalIndit(hatralevoMs, hallgatasE) {
   clearInterval(visszaszamlaloId);
-  const teljes = (allapot.beallitas.valaszIdoMp || 30) * 1000;
+  const teljes = hallgatasE
+    ? Math.max(1, (allapot.beallitas.elobbZeneMp || 1) * 1000)
+    : (allapot.beallitas.valaszIdoMp || 30) * 1000;
   const vege = Date.now() + hatralevoMs;
 
   const frissit = () => {
@@ -395,6 +419,7 @@ function rajzolEredmeny() {
     .join('');
 
   $('kovetkezoBtn').hidden = !allapot.host;
+  $('kilepEredmenyBtn').textContent = allapot.host ? 'Szoba bezárása' : 'Kilépés';
   $('kovetkezoBtn').textContent = e.utolsoKor ? 'Végeredmény' : 'Következő kör';
   $('eVarunk').textContent = allapot.host ? '' : 'Várunk a szobavezetőre…';
 }
@@ -481,6 +506,8 @@ $('letrehozBtn').addEventListener('click', async () => {
         mindenkiHallja: $('mindenkiHalljaInput').checked,
         mindenkiUtanTovabb: $('mindenkiUtanInput').checked,
         csakSzinek: $('csakSzinekInput').checked,
+        vezetoJatszik: $('vezetoJatszikInput').checked,
+        elobbZeneMp: Number($('elobbZeneInput').value),
         tipusok,
       },
     });
@@ -532,6 +559,8 @@ $('kihagyBtn').addEventListener('click', async () => {
 
 $('kilepBtn').addEventListener('click', kilepes);
 $('ujJatekBtn').addEventListener('click', kilepes);
+$('kilepKerdesBtn').addEventListener('click', kilepes);
+$('kilepEredmenyBtn').addEventListener('click', kilepes);
 
 async function kilepes() {
   try { if (munkamenet) await hivas('kilep', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId }); } catch { /* mindegy */ }

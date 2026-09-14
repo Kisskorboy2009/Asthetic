@@ -144,6 +144,19 @@
 
           <div class="kfield" style="margin-bottom:6px">
             <label class="ktoggle" style="flex:1 1 100%">
+              <input type="checkbox" id="vezetoJatszikInput" checked>
+              <span class="ktoggle__box" aria-hidden="true"></span>
+              <span class="ktoggle__label">A szobavezető is játszik — ha kikapcsolod, csak levezeti (kivetítéshez)</span>
+            </label>
+          </div>
+
+          <div class="kfield">
+            <label for="elobbZeneInput">Előbb csak a dal szóljon (mp) — 0 = rögtön jöhetnek a válaszok</label>
+            <input class="kinput" id="elobbZeneInput" type="number" min="0" max="60" value="0" inputmode="numeric">
+          </div>
+
+          <div class="kfield" style="margin-bottom:6px">
+            <label class="ktoggle" style="flex:1 1 100%">
               <input type="checkbox" id="csakSzinekInput">
               <span class="ktoggle__box" aria-hidden="true"></span>
               <span class="ktoggle__label">A kérdés csak a szobavezető képernyőjén — a többiek csak a négy színt látják</span>
@@ -225,10 +238,21 @@
 
         <div class="kvalaszok" id="qValaszok"></div>
 
+        <div class="kJelzes" id="qHallgatas" hidden>
+          <strong>Figyelj a dalra!</strong>
+          <span>A válaszok mindjárt megjelennek.</span>
+        </div>
+
+        <div class="kJelzes" id="qNezo" hidden>
+          <strong>Te vezeted a játékot</strong>
+          <span>Nem válaszolsz és nem kapsz pontot — a többiek tippelnek.</span>
+        </div>
+
         <p class="kvarunk" id="qStatusz"></p>
 
         <div class="krow" style="justify-content:center;margin-top:18px">
           <button class="btn btn--ghost" id="kihagyBtn" type="button" hidden>Ez a dal nem jó — kihagyom</button>
+          <button class="btn btn--ghost" id="kilepKerdesBtn" type="button">Kilépés</button>
         </div>
 
         <div class="kvideo" aria-hidden="true"><div id="kYtFrame"></div></div>
@@ -251,6 +275,7 @@
           </table>
           <div class="krow" style="margin-top:18px">
             <button class="btn btn--accent btn--lg" id="kovetkezoBtn" type="button" hidden>Következő kör</button>
+            <button class="btn btn--ghost" id="kilepEredmenyBtn" type="button">Kilépés</button>
             <span class="kvarunk" id="eVarunk" style="align-self:center"></span>
           </div>
         </div>

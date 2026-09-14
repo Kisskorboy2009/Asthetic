@@ -164,10 +164,15 @@
 .kvalasz:active:not(:disabled) { transform: translateY(0) scale(.985); }
 .kvalasz:disabled { cursor: default; }
 
-.kvalasz--0 { background: #B0603A; }
-.kvalasz--1 { background: #4C6B58; }
-.kvalasz--2 { background: #8E4A2B; }
-.kvalasz--3 { background: #3D4753; }
+/* A négy válasz élesen eltérő SZÍNÁRNYALATOT kap (piros / kék / borostyán /
+   zöld), nem csak eltérő árnyalatú földszínt — a korábbi terrakotta-barna-zsálya
+   hármas ránézésre összemosódott. Mindegyik legalább 5:1 kontrasztot ad fehér
+   szöveggel. A színek mellé forma is jár (lásd .kvalasz__jel), hogy pusztán
+   színre se kelljen hagyatkozni — ez a színtévesztőknek is segít. */
+.kvalasz--0 { background: #C0392B; }
+.kvalasz--1 { background: #1E6FA8; }
+.kvalasz--2 { background: #9A6407; }
+.kvalasz--3 { background: #2E7D52; }
 
 .kvalasz__jel {
   flex: none; width: 34px; height: 34px; border-radius: 10px;
@@ -286,3 +291,40 @@
   border-radius: 14px;
   font-size: 24px;
 }
+
+/* ───────────── forma a szín mellé ───────────── */
+
+/* A jelölésben a FORMA látszik, a betű csak a képernyőolvasóknak marad meg —
+   egymásra rajzolva mindkettő olvashatatlan lenne. */
+.kvalasz__jel { font-size: 0; }
+.kvalasz__jel::before {
+  content: "";
+  display: block;
+  width: 18px; height: 18px;
+  background: currentColor;
+}
+.kvalasz--0 .kvalasz__jel::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }         /* háromszög */
+.kvalasz--1 .kvalasz__jel::before { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); } /* rombusz */
+.kvalasz--2 .kvalasz__jel::before { border-radius: 50%; }                                   /* kör */
+.kvalasz--3 .kvalasz__jel::before { border-radius: 3px; }                                   /* négyzet */
+
+.kvalaszok--szinek .kvalasz__jel::before { width: 30px; height: 30px; }
+
+/* ───────────── jelzőtábla: hallgatás / szobavezető ───────────── */
+
+.kJelzes {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  padding: 26px 20px;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-lg);
+  background: var(--paper-2);
+}
+.kJelzes strong {
+  font-family: var(--display);
+  font-size: clamp(19px, 3.5vw, 24px);
+  font-weight: 600;
+}
+.kJelzes span { color: var(--ink-2); font-size: 15px; }
+.kJelzes[hidden] { display: none; }

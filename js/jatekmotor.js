@@ -28,6 +28,8 @@
     mindenkiHallja: false,      // szoljon-e a dal minden jatekos keszuleken
     mindenkiUtanTovabb: true,   // ha mindenki valaszolt, ugorjunk az eredmenyre
     csakSzinek: false,          // a kerdes csak a szobavezeto kepernyojen latszik
+    vezetoJatszik: true,        // a szobavezeto jatszik-e, vagy csak levezeti
+    elobbZeneMp: 0,             // ennyi mp-ig csak szol a dal, aztan jonnek a valaszok
     alappont: 1000,        // helyes válaszért járó maximum
   };
 
@@ -111,6 +113,11 @@
     // ha kifejezetten hamisat kaptunk.
     b.mindenkiUtanTovabb = be.mindenkiUtanTovabb === undefined ? true : Boolean(be.mindenkiUtanTovabb);
     b.csakSzinek = Boolean(be.csakSzinek);
+    // Ez is alapertelmezetten BE van kapcsolva.
+    b.vezetoJatszik = be.vezetoJatszik === undefined ? true : Boolean(be.vezetoJatszik);
+
+    const elobb = Number(be.elobbZeneMp);
+    b.elobbZeneMp = Number.isFinite(elobb) ? Math.min(60, Math.max(0, Math.round(elobb))) : 0;
     return b;
   }
 
@@ -166,10 +173,16 @@
    * @param valaszok   { [jatekosId]: {valasz, mikorMs} }
    * @returns a kör eredménylistája, gyorsaság szerint rendezve
    */
+  /** Csak azok szamitanak jatekosnak, akik nem pusztan nezok (szobavezeto,
+      aki kivetit). A letszam-ellenorzesek es a pontozas is ezt hasznalja. */
+  function jatszok(jatekosok) {
+    return (jatekosok || []).filter((j) => !j.nezo);
+  }
+
   function korKiertekel(jatekosok, valaszok, helyesIndex, idoKeretMs, alappont) {
     const korEredmeny = [];
 
-    for (const j of jatekosok) {
+    for (const j of jatszok(jatekosok)) {
       const v = valaszok[j.id];
       const jo = Boolean(v) && v.valasz === helyesIndex;
       const szerzett = jo ? pontSzamit(v.mikorMs, idoKeretMs, alappont) : 0;
@@ -193,6 +206,7 @@
 
   return {
     ALAP_BEALLITAS,
+    jatszok,
     ujKod,
     ujAzonosito,
     tisztitNev,

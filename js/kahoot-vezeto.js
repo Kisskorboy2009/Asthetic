@@ -28,7 +28,7 @@
     leallit();
 
     const hiv = FS().szobaHiv(kod);
-    aktiv = { kod, leiratkozok: [], idozito: null, eletjel: null, szoba: null, valaszok: {} };
+    aktiv = { kod, leiratkozok: [], idozito: null, nyitasIdozito: null, eletjel: null, szoba: null, valaszok: {} };
 
     // 1) A szoba állapotát követjük — ebből tudjuk, mikor kell értékelni.
     aktiv.leiratkozok.push(hiv.onSnapshot((pillanat) => {
@@ -63,6 +63,7 @@
     if (!aktiv) return;
     aktiv.leiratkozok.forEach((f) => { try { f(); } catch { /* mindegy */ } });
     clearTimeout(aktiv.idozito);
+    clearTimeout(aktiv.nyitasIdozito);
     clearInterval(aktiv.eletjel);
     aktiv = null;
   }
@@ -145,6 +146,8 @@
       hasznaltDalok: [...(szoba.hasznaltDalok || []), dal.id],
       kerdes: {
         tipus: kerdes.type,
+        // "Elobb a zene" mod: a valaszok csak a hallgatas utan nyilnak meg.
+        valaszNyitva: (szoba.beallitas.elobbZeneMp || 0) === 0,
         // "Csak szinek" modban a szoveg es a valaszok nem kerulnek a nyilvanos
         // dokumentumba - csak a titkosba, amit egyedul a szobavezeto olvashat.
         csakSzinek: Boolean(szoba.beallitas.csakSzinek),
@@ -158,6 +161,34 @@
       indult: FS().most(),
       eredmeny: null,
       valaszoltakSzama: 0,
+      frissitve: FS().most(),
+    });
+
+    // Ha van hallgatasi szakasz, annak vegen nyitjuk meg a valaszokat.
+    const hallgatasMs = (szoba.beallitas.elobbZeneMp || 0) * 1000;
+    if (hallgatasMs > 0) {
+      clearTimeout(aktiv && aktiv.nyitasIdozito);
+      if (aktiv) {
+        aktiv.nyitasIdozito = setTimeout(() => valaszokatNyit(kod), hallgatasMs);
+      }
+    }
+  }
+
+  /** A hallgatasi szakasz vege: innentol lehet valaszolni, es indul a valaszido. */
+  async function valaszokatNyit(kod) {
+    const hiv = FS().szobaHiv(kod);
+    const pillanat = await hiv.get();
+    if (!pillanat.exists) return;
+
+    const szoba = pillanat.data();
+    if (szoba.allapot !== 'kerdes' || !szoba.kerdes) return;
+    if (szoba.kerdes.valaszNyitva) return;
+
+    await hiv.update({
+      'kerdes.valaszNyitva': true,
+      'kerdes.indultMs': Date.now(),
+      // A pontozas a valaszok megnyitasatol szamit, nem a dal kezdetetol.
+      indult: FS().most(),
       frissitve: FS().most(),
     });
   }
@@ -179,6 +210,9 @@
     const szoba = aktiv.szoba;
     if (szoba.allapot !== 'kerdes' || !szoba.kerdes) return;
 
+    // Amig tart a hallgatasi szakasz, meg nem indul a valaszido.
+    if (szoba.kerdes.valaszNyitva === false) return;
+
     const eltelt = Date.now() - (szoba.kerdes.indultMs || Date.now());
     const hatra = Math.max(0, szoba.beallitas.valaszIdoMp * 1000 - eltelt);
     aktiv.idozito = setTimeout(() => korKiertekel(aktiv.kod), hatra);
@@ -193,7 +227,7 @@
 
     if (szoba.beallitas.mindenkiUtanTovabb
         && szoba.allapot === 'kerdes'
-        && db >= (szoba.jatekosok || []).length) {
+        && db >= motor().jatszok(szoba.jatekosok).length) {
       clearTimeout(aktiv.idozito);
       aktiv.idozito = setTimeout(() => korKiertekel(kod), SZUNET_KIERTEKELES_MS);
     }
@@ -258,7 +292,7 @@
   }
 
   async function jatekVege(kod, szoba) {
-    const vegeredmeny = (szoba.jatekosok || [])
+    const vegeredmeny = motor().jatszok(szoba.jatekosok)
       .map((j) => ({ id: j.id, nev: j.nev, pont: j.pont }))
       .sort((a, b) => b.pont - a.pont);
 

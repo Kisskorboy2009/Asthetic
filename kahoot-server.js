@@ -57,7 +57,16 @@ function szobaLetrehoz(hostNev, beallitas) {
     idozito: null,
   };
 
-  szoba.jatekosok.set(hostId, { id: hostId, nev: tisztitNev(hostNev), pont: 0, host: true, csatlakozott: Date.now() });
+  // Ha a szobavezeto csak levezeti a jatekot (pl. kivetiti), nezokent kerul be:
+  // nem szamit a letszamba, nem kap pontot, es nem is valaszolhat.
+  szoba.jatekosok.set(hostId, {
+    id: hostId,
+    nev: tisztitNev(hostNev),
+    pont: 0,
+    host: true,
+    nezo: !szoba.beallitas.vezetoJatszik,
+    csatlakozott: Date.now(),
+  });
   szobak.set(kod, szoba);
   return { szoba, jatekosId: hostId };
 }
@@ -112,6 +121,25 @@ function kovetkezoKor(szoba) {
   szoba.allapot = 'kerdes';
   szoba.kerdesIndult = Date.now();
 
+  // "Elobb a zene" mod: a megadott ideig csak szol a dal, a valaszok meg nem
+  // lathatok. A valaszido CSAK ezutan indul, tehat a hallgatas nem eszi el.
+  const hallgatasMs = (szoba.beallitas.elobbZeneMp || 0) * 1000;
+  szoba.valaszNyitva = hallgatasMs === 0;
+  szoba.valaszIndult = szoba.kerdesIndult + hallgatasMs;
+
+  if (hallgatasMs > 0) {
+    szoba.idozito = setTimeout(() => valaszokatNyit(szoba), hallgatasMs);
+  } else {
+    szoba.idozito = setTimeout(() => korKiertekel(szoba), szoba.beallitas.valaszIdoMp * 1000);
+  }
+  kikuld(szoba);
+}
+
+/** A hallgatasi szakasz vege: innentol lehet valaszolni, es indul a valaszido. */
+function valaszokatNyit(szoba) {
+  if (szoba.allapot !== 'kerdes') return;
+  szoba.valaszNyitva = true;
+  szoba.valaszIndult = Date.now();
   szoba.idozito = setTimeout(() => korKiertekel(szoba), szoba.beallitas.valaszIdoMp * 1000);
   kikuld(szoba);
 }
@@ -119,18 +147,21 @@ function kovetkezoKor(szoba) {
 
 function valaszAd(szoba, jatekosId, valaszIndex) {
   if (szoba.allapot !== 'kerdes') return { hiba: 'Most nem lehet válaszolni.' };
+  if (!szoba.valaszNyitva) return { hiba: 'Előbb hallgasd meg a dalt!' };
   if (!szoba.jatekosok.has(jatekosId)) return { hiba: 'Nem vagy a szobában.' };
+  if (szoba.jatekosok.get(jatekosId).nezo) return { hiba: 'Te vezeted a játékot, nem játszol.' };
   if (szoba.valaszok.has(jatekosId)) return { hiba: 'Már válaszoltál.' };
 
   const idx = Number(valaszIndex);
   if (!Number.isInteger(idx) || idx < 0 || idx > 3) return { hiba: 'Érvénytelen válasz.' };
 
-  szoba.valaszok.set(jatekosId, { valasz: idx, mikorMs: Date.now() - szoba.kerdesIndult });
+  szoba.valaszok.set(jatekosId, { valasz: idx, mikorMs: Date.now() - szoba.valaszIndult });
 
   // Ha mindenki valaszolt, ne varjunk feleslegesen az idozitore.
   // A szoba beallitasa szerint ez ki is kapcsolhato: olyankor mindig kitelik
   // a teljes valaszido, akkor is, ha mar mindenki dontott.
-  if (szoba.beallitas.mindenkiUtanTovabb && szoba.valaszok.size >= szoba.jatekosok.size) {
+  const jatszokSzama = motor.jatszok([...szoba.jatekosok.values()]).length;
+  if (szoba.beallitas.mindenkiUtanTovabb && szoba.valaszok.size >= jatszokSzama) {
     clearTimeout(szoba.idozito);
     setTimeout(() => korKiertekel(szoba), 400); // rovid szunet, hogy latszodjon a "megvan"
   } else {
@@ -200,9 +231,10 @@ function allapotNezet(szoba, jatekosId) {
     korokSzama: szoba.beallitas.korokSzama,
     beallitas: szoba.beallitas,
     host: jatekos ? jatekos.host : false,
+    nezo: jatekos ? Boolean(jatekos.nezo) : false,
     jatekosId,
     jatekosok: [...szoba.jatekosok.values()]
-      .map((j) => ({ id: j.id, nev: j.nev, pont: j.pont, host: j.host }))
+      .map((j) => ({ id: j.id, nev: j.nev, pont: j.pont, host: j.host, nezo: Boolean(j.nezo) }))
       .sort((a, b) => b.pont - a.pont),
     valaszoltakSzama: szoba.valaszok.size,
     sajatValasz: szoba.valaszok.has(jatekosId) ? szoba.valaszok.get(jatekosId).valasz : null,
@@ -218,7 +250,12 @@ function allapotNezet(szoba, jatekosId) {
       csakSzinek,
       szoveg: csakSzinek ? null : k.kerdes,
       valaszok: csakSzinek ? null : k.options,
-      hatralevoMs: Math.max(0, szoba.beallitas.valaszIdoMp * 1000 - (Date.now() - szoba.kerdesIndult)),
+      valaszNyitva: Boolean(szoba.valaszNyitva),
+      // Amig tart a hallgatas, ezt mutatjuk visszaszamlalasnak.
+      hallgatasHatraMs: szoba.valaszNyitva ? 0 : Math.max(0, szoba.valaszIndult - Date.now()),
+      hatralevoMs: szoba.valaszNyitva
+        ? Math.max(0, szoba.beallitas.valaszIdoMp * 1000 - (Date.now() - szoba.valaszIndult))
+        : szoba.beallitas.valaszIdoMp * 1000,
       // Alapbol csak a szobavezeto kapja meg a videoId-t - nala szol a zene.
       // Ha a szoba beallitasaban be van kapcsolva, mindenki megkapja, es minden
       // keszuleken szol. Ilyenkor a videoId elmeletileg kiolvashato a bongeszobol,
@@ -242,7 +279,7 @@ function allapotNezet(szoba, jatekosId) {
   }
 
   if (szoba.allapot === 'vege') {
-    nezet.vegeredmeny = [...szoba.jatekosok.values()]
+    nezet.vegeredmeny = motor.jatszok([...szoba.jatekosok.values()])
       .map((j) => ({ id: j.id, nev: j.nev, pont: j.pont }))
       .sort((a, b) => b.pont - a.pont);
   }
