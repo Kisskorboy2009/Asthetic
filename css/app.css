@@ -253,10 +253,20 @@
   white-space: nowrap;
   vertical-align: bottom;
 }
-.is-app .ktabla th:nth-child(1) { width: 30%; }
-.is-app .ktabla th:nth-child(2) { width: 32%; }
-.is-app .ktabla th:nth-child(3) { width: 16%; }
-.is-app .ktabla th:nth-child(4) { width: 22%; }
+/* A két táblázatnak külön oszlopszélesség kell: a kör eredményének négy,
+   a végeredménynek három oszlopa van. Amíg közösek voltak, a végeredmény
+   "Pont" oszlopa a négyoszlopos 16%-ot kapta, és a pontszám kettétört
+   (a 15895-ből "1589 / 5" lett). */
+.is-app .ktabla--kor th:nth-child(1) { width: 30%; }
+.is-app .ktabla--kor th:nth-child(2) { width: 32%; }
+.is-app .ktabla--kor th:nth-child(3) { width: 16%; }
+.is-app .ktabla--kor th:nth-child(4) { width: 22%; }
+
+.is-app .ktabla--vege th:nth-child(1) { width: 14%; }
+.is-app .ktabla--vege th:nth-child(2) { width: 56%; }
+.is-app .ktabla--vege th:nth-child(3) { width: 30%; }
+
+/* A hosszú nevek törhetnek — a számok nem (lásd css/kahoot.css). */
 .is-app .ktabla td { overflow-wrap: anywhere; }
 
 /* ───────────── Bluetooth-gomb a kártyás módban ───────────── */
