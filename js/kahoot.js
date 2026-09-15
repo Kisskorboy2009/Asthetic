@@ -275,8 +275,11 @@ function rajzolLobby() {
 
   const b = allapot.beallitas;
   const tipusNev = { year: 'évszám', artist: 'előadó', title: 'cím' };
+  // Az évtartományt csak akkor írjuk ki, ha a szobavezető tényleg szűkítette.
+  // (A teljes skála a beállításokban 1900–2100, az nem mond semmit.)
+  const korszak = (b.evTol > 1900 || b.evIg < 2100) ? ` · ${b.evTol}–${b.evIg}` : '';
   $('lobbyBeallitas').textContent =
-    `${b.korokSzama} kör · ${b.valaszIdoMp} mp válaszidő · ${b.kezdesMp}. mp-től · ` +
+    `${b.korokSzama} kör · ${b.valaszIdoMp} mp válaszidő · ${b.kezdesMp}. mp-től${korszak} · ` +
     `tippelhető: ${b.tipusok.map((t) => tipusNev[t]).join(', ')}${b.publikus ? ' · nyilvános' : ''}`;
 
   $('inditBtn').hidden = !allapot.host;
@@ -359,6 +362,12 @@ function rajzolKerdes() {
 }
 
 async function valaszKuld(index) {
+  // Aki csak levezeti a jatekot, nem valaszol. Es amig csak a dal szol, meg
+  // senki nem valaszolhat. (A gombok ilyenkor rejtve is vannak, de a
+  // billentyuzet vagy egy ottragadt kattintas igy sem kuldhet valaszt.)
+  if (!allapot || allapot.nezo) return;
+  if (allapot.kerdes && allapot.kerdes.valaszNyitva === false) return;
+
   document.querySelectorAll('.kvalasz').forEach((g, i) => {
     g.disabled = true;
     g.classList.toggle('is-valasztott', i === index);
@@ -436,10 +445,14 @@ function rajzolVege() {
   $('vDobogo').innerHTML = dobogoSorrend
     .filter((i) => v[i])
     .map((i) => `
-      <div class="kdobogo__hely kdobogo__hely--${i + 1}">
-        <div class="kdobogo__helyszam">${i + 1}.</div>
-        <div class="kdobogo__nev">${szoveg(v[i].nev)}</div>
-        <div class="kdobogo__pont">${v[i].pont} pont</div>
+      <div class="kdobogo__oszlop">
+        <div class="kdobogo__fej">
+          <div class="kdobogo__nev">${szoveg(v[i].nev)}</div>
+          <div class="kdobogo__pont">${v[i].pont} pont</div>
+        </div>
+        <div class="kdobogo__hely kdobogo__hely--${i + 1}">
+          <span class="kdobogo__helyszam">${i + 1}.</span>
+        </div>
       </div>`)
     .join('');
 
@@ -460,16 +473,101 @@ function szoveg(s) {
   })[c]);
 }
 
+// ───────────────────────── évtartomány-csúszka ─────────────────────────
+
+/* Két egymásra fektetett range-mező adja a két fogantyút (natív dupla csúszka
+   nincs). A fogantyúk nem mehetnek át egymáson: mindkettő a másikig mozoghat. */
+
+let dalEvek = null;        // rendezett évszámlista a songs.json-ból
+let evSavKesz = false;
+
+async function evSavElokeszit() {
+  if (evSavKesz) return;
+
+  try {
+    const valasz = await fetch('adatbazis/songs.json', { cache: 'force-cache' });
+    if (!valasz.ok) throw new Error('nem toltodott be');
+    const dalok = await valasz.json();
+    dalEvek = dalok.map((d) => d.year).filter(Number.isFinite).sort((a, b) => a - b);
+    if (!dalEvek.length) throw new Error('ures');
+  } catch {
+    // A csúszka nélkül is lehet szobát nyitni — ilyenkor a teljes adatbázisból
+    // jönnek a dalok, ahogy eddig.
+    $('evSav').hidden = true;
+    evSavKesz = true;
+    return;
+  }
+
+  const min = dalEvek[0];
+  const max = dalEvek[dalEvek.length - 1];
+
+  for (const [azon, ertek] of [['evTolInput', min], ['evIgInput', max]]) {
+    const el = $(azon);
+    el.min = String(min);
+    el.max = String(max);
+    el.step = '1';
+    el.value = String(ertek);
+    el.addEventListener('input', () => evSavValtozott(azon));
+  }
+
+  evSavKesz = true;
+  evSavKirajzol();
+}
+
+function evSavValtozott(azon) {
+  const tolEl = $('evTolInput');
+  const igEl = $('evIgInput');
+  // Ne csússzanak át egymáson: mindig az épp húzott fogantyút fékezzük meg.
+  if (azon === 'evTolInput') tolEl.value = String(Math.min(Number(tolEl.value), Number(igEl.value)));
+  else igEl.value = String(Math.max(Number(igEl.value), Number(tolEl.value)));
+  evSavKirajzol();
+}
+
+function evSavErtek() {
+  if (!dalEvek) return null;
+  return { tol: Number($('evTolInput').value), ig: Number($('evIgInput').value) };
+}
+
+function evSavKirajzol() {
+  const ertek = evSavErtek();
+  if (!ertek) return;
+
+  const min = dalEvek[0];
+  const max = dalEvek[dalEvek.length - 1];
+  const szelesseg = Math.max(1, max - min);
+
+  $('evTolCimke').textContent = ertek.tol;
+  $('evIgCimke').textContent = ertek.ig;
+
+  const bal = ((ertek.tol - min) / szelesseg) * 100;
+  const jobb = ((ertek.ig - min) / szelesseg) * 100;
+  $('evKitolt').style.left = bal + '%';
+  $('evKitolt').style.width = Math.max(0, jobb - bal) + '%';
+
+  const db = dalEvek.filter((ev) => ev >= ertek.tol && ev <= ertek.ig).length;
+  const hint = $('evDarab');
+  hint.textContent = db === dalEvek.length
+    ? `A teljes adatbázis játszható — ${db} dal.`
+    : `${db} dal esik ebbe a tartományba.`;
+  // A körök számánál kevesebb dalból nem lehet végigjátszani a szobát.
+  const korok = Number($('korokInput').value) || 0;
+  hint.classList.toggle('is-keves', db < korok);
+  if (db < korok) hint.textContent = `Csak ${db} dal esik ebbe a tartományba — kevesebb, mint a ${korok} kör.`;
+}
+
 // ───────────────────────── műveletek ─────────────────────────
 
 function nevErteke() {
   return $('nevInput').value.trim();
 }
 
+$('korokInput').addEventListener('input', () => { if (evSavKesz && dalEvek) evSavKirajzol(); });
+
 $('ujSzobaBtn').addEventListener('click', () => {
   if (!nevErteke()) { hibaKiir('menuHiba', 'Előbb írd be a neved.'); $('nevInput').focus(); return; }
   hibaKiir('menuHiba', '');
   nezet('letrehoz');
+  evSavElokeszit();
 });
 
 $('csatlakozNezetBtn').addEventListener('click', () => {
@@ -493,11 +591,22 @@ $('letrehozBtn').addEventListener('click', async () => {
     return;
   }
 
+  const evek = evSavErtek();
+  if (evek) {
+    const jatszhato = dalEvek.filter((ev) => ev >= evek.tol && ev <= evek.ig).length;
+    if (jatszhato === 0) {
+      hibaKiir('letrehozHiba', 'Ebben az évtartományban egyetlen dal sincs — állíts szélesebbet.');
+      return;
+    }
+  }
+
   try {
     hibaKiir('letrehozHiba', '');
     const adat = await hivas('szoba/letrehoz', {
       nev: nevErteke(),
       beallitas: {
+        evTol: evek ? evek.tol : undefined,
+        evIg: evek ? evek.ig : undefined,
         korokSzama: Number($('korokInput').value),
         valaszIdoMp: Number($('idoInput').value),
         kezdesMp: Number($('kezdesInput').value),

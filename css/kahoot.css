@@ -147,6 +147,11 @@
 }
 
 .kvalaszok { display: grid; gap: 12px; }
+/* FONTOS: a `display: grid` erosebb, mint a bongeszo alapertelmezett
+   [hidden] { display: none } szabalya. E sor nelkul a valaszok akkor is
+   latszottak, amikor a JS elrejtette oket - pl. a "csak a dal szol" szakaszban,
+   vagy a csak levezeto szobavezetonel, aki igy bele is tudott kattintani. */
+.kvalaszok[hidden] { display: none; }
 @media (min-width: 620px) { .kvalaszok { grid-template-columns: 1fr 1fr; } }
 
 .kvalasz {
@@ -221,25 +226,87 @@
 .ktabla th, .ktabla td { padding: 13px 12px; text-align: left; border-bottom: 1px solid var(--line); }
 .ktabla th { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
 .ktabla td { font-size: 15.5px; }
-.ktabla td.szam { text-align: right; font-variant-numeric: tabular-nums; }
+/* A pontszám soha ne törjön ketté: telefonon a "15895" korábban "1589 / 5"-re
+   szakadt, mert a szűk oszlopban a szám is tördelhető volt. */
+.ktabla td.szam { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; width: 1%; }
 .ktabla tr.is-en { background: var(--accent-wash); }
 .ktabla .jo { color: #2E7D32; font-weight: 600; }
 .ktabla .rossz { color: #B3261E; }
 
-/* dobogó */
+/* dobogó
+   A név és a pontszám az oszlop FÖLÖTT van, nem a színes hasábban. Korábban
+   benne volt, és mivel csak `min-height` allt rajta, egy ket sorba toro hosszu
+   nev magasabbra novelte a harmadik helyet, mint az elsot. A hasab magassaga
+   most fix: a helyezes latvanya nem fugghet a nev hosszatol. */
 .kdobogo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: end; margin-bottom: 26px; }
+.kdobogo__oszlop { display: flex; flex-direction: column; justify-content: flex-end; min-width: 0; }
+.kdobogo__fej { text-align: center; padding: 0 4px 10px; }
 .kdobogo__hely {
   border-radius: var(--r-md) var(--r-md) 0 0;
-  padding: 16px 10px; text-align: center; color: #fff;
+  display: grid; place-items: center; color: #fff;
   animation: knovekszik .7s var(--ease) both;
 }
 @keyframes knovekszik { from { transform: scaleY(.4); opacity: 0; transform-origin: bottom; } to { transform: none; opacity: 1; } }
-.kdobogo__hely--1 { background: var(--accent); min-height: 150px; }
-.kdobogo__hely--2 { background: var(--ink-2); min-height: 118px; animation-delay: .1s; }
-.kdobogo__hely--3 { background: var(--ink-3); min-height: 96px; animation-delay: .2s; }
-.kdobogo__nev { font-family: var(--display); font-size: 17px; font-weight: 500; margin-top: 6px; word-break: break-word; }
-.kdobogo__pont { font-size: 14px; opacity: .85; font-variant-numeric: tabular-nums; }
-.kdobogo__helyszam { font-family: var(--display); font-size: 26px; font-weight: 600; }
+.kdobogo__hely--1 { background: var(--accent); height: 132px; }
+.kdobogo__hely--2 { background: var(--ink-2); height: 100px; animation-delay: .1s; }
+.kdobogo__hely--3 { background: var(--ink-3); height: 76px; animation-delay: .2s; }
+.kdobogo__nev {
+  font-family: var(--display); font-size: 17px; font-weight: 500;
+  overflow-wrap: anywhere; line-height: 1.25;
+}
+.kdobogo__pont {
+  font-size: 14px; color: var(--ink-2); margin-top: 2px;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.kdobogo__helyszam { font-family: var(--display); font-size: 30px; font-weight: 600; }
+
+/* ───────────── évtartomány-csúszka ─────────────
+   Két egymásra fektetett range-mező adja a két fogantyút: natív dupla csúszka
+   nincs a HTML-ben. A sávok átlátszók, a látható vonalat és a kitöltést a
+   .kevsav__vonal rajzolja — így a két mező fogantyúja szabadon mozog egymás
+   fölött. A felső mező csak a fogantyúk közelében fogad kattintást
+   (pointer-events), különben eltakarná az alsót. */
+
+.kevsav__ertek {
+  display: flex; align-items: baseline; gap: 10px;
+  font-family: var(--display); font-size: 21px; font-weight: 600;
+  font-variant-numeric: tabular-nums; margin-bottom: 10px;
+}
+.kevsav__nyil { color: var(--ink-3); font-size: 16px; }
+
+.kevsav__csuszkak { position: relative; height: 34px; }
+
+.kevsav__vonal {
+  position: absolute; left: 10px; right: 10px; top: 15px; height: 5px;
+  border-radius: 3px; background: var(--line);
+}
+.kevsav__kitolt { position: absolute; top: 0; height: 100%; border-radius: 3px; background: var(--accent); }
+
+.kevsav__csuszkak input[type="range"] {
+  position: absolute; left: 0; top: 0; width: 100%; height: 34px; margin: 0;
+  -webkit-appearance: none; appearance: none;
+  background: transparent; pointer-events: none;
+}
+.kevsav__csuszkak input[type="range"]:focus { outline: none; }
+.kevsav__csuszkak input[type="range"]::-webkit-slider-runnable-track { background: transparent; height: 34px; }
+.kevsav__csuszkak input[type="range"]::-moz-range-track { background: transparent; height: 34px; }
+
+.kevsav__csuszkak input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; pointer-events: auto;
+  width: 22px; height: 22px; margin-top: 6px; border-radius: 50%;
+  background: var(--paper); border: 3px solid var(--accent);
+  box-shadow: var(--shadow-sm); cursor: grab;
+}
+.kevsav__csuszkak input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--accent);
+  background: var(--paper); box-shadow: var(--shadow-sm); cursor: grab;
+}
+.kevsav__csuszkak input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--ink); outline-offset: 2px; }
+.kevsav__csuszkak input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.kevsav__hint { font-size: 14px; color: var(--ink-3); margin-top: 8px; }
+.kevsav__hint.is-keves { color: #B3261E; }
 
 /* ───────────── publikus szobák ───────────── */
 

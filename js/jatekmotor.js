@@ -31,7 +31,15 @@
     vezetoJatszik: true,        // a szobavezeto jatszik-e, vagy csak levezeti
     elobbZeneMp: 0,             // ennyi mp-ig csak szol a dal, aztan jonnek a valaszok
     alappont: 1000,        // helyes válaszért járó maximum
+    // Melyik korszakbol johetnek a dalok. Az alapertek szandekosan tagabb a
+    // valosagos adatbazisnal: igy a regi, evtartomany nelkul letrehozott
+    // szobakban semmi nem valtozik.
+    evTol: 1900,
+    evIg: 2100,
   };
+
+  const EV_MIN = 1900;
+  const EV_MAX = 2100;
 
   const KOD_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';  // 0/O és 1/I kihagyva
 
@@ -118,7 +126,23 @@
 
     const elobb = Number(be.elobbZeneMp);
     b.elobbZeneMp = Number.isFinite(elobb) ? Math.min(60, Math.max(0, Math.round(elobb))) : 0;
+
+    // Evtartomany. Ha a ket veg fel van cserelve, megfordituk - igy a csuszka
+    // fogantyuinak atcsuszasa sem tud ures tartomanyt eloallitani.
+    const tol = Number(be.evTol);
+    const ig = Number(be.evIg);
+    if (Number.isFinite(tol)) b.evTol = Math.min(EV_MAX, Math.max(EV_MIN, Math.round(tol)));
+    if (Number.isFinite(ig)) b.evIg = Math.min(EV_MAX, Math.max(EV_MIN, Math.round(ig)));
+    if (b.evTol > b.evIg) { const csere = b.evTol; b.evTol = b.evIg; b.evIg = csere; }
+
     return b;
+  }
+
+  /** A szoba evtartomanyaba eso dalok. Evszam nelkuli dal nincs, de ovatosak vagyunk. */
+  function tartomanybanVan(dal, beallitas) {
+    const tol = Number.isFinite(beallitas.evTol) ? beallitas.evTol : EV_MIN;
+    const ig = Number.isFinite(beallitas.evIg) ? beallitas.evIg : EV_MAX;
+    return Number.isFinite(dal.year) && dal.year >= tol && dal.year <= ig;
   }
 
   /** Determinisztikus seed: ugyanaz a szoba + kör + dal mindig ugyanazt a kérdést adja. */
@@ -137,19 +161,38 @@
    */
   function kovetkezoKerdes(songs, beallitas, kod, korSorszam, kizartIdk) {
     const kizart = kizartIdk instanceof Set ? kizartIdk : new Set(kizartIdk || []);
-    const jeloltek = songs.filter((s) => !kizart.has(s.id));
+
+    // A szoba evtartomanyaba eso, meg nem jatszott dalok.
+    const korszakbeli = songs.filter((s) => tartomanybanVan(s, beallitas));
+    const jeloltek = korszakbeli.filter((s) => !kizart.has(s.id));
     if (jeloltek.length === 0) return null;
+
+    // Az elterito valaszok is a szoba korszakabol jojjenek. Kulonben egy
+    // "csak a 80-as evek" szobaban harom hetvenes evekbeli dalcim mellett a
+    // negyedik magatol elarulna magat. Ha a korszak tul szuk ahhoz, hogy
+    // legyen mibol valogatni, marad a teljes adatbazis.
+    const elteritoKeszlet = korszakbeli.length >= 20 ? korszakbeli : songs;
+    const evAblak = { min: beallitas.evTol, max: beallitas.evIg };
 
     const dal = jeloltek[veletlenEgesz(jeloltek.length)];
     const seed = hashSeed(kod + ':' + korSorszam + ':' + dal.id);
     const rng = makeRng(seed);
     const tipus = pickType(beallitas.tipusok, rng);
 
-    let kerdes = generateQuestion(dal, songs, tipus, seed);
+    let kerdes = generateQuestion(dal, elteritoKeszlet, tipus, seed, evAblak);
     if (!kerdes) {
       // Elméletileg nem fordulhat elő; ha mégis, próbáljunk másik típust.
       for (const t of ['year', 'artist', 'title']) {
-        kerdes = generateQuestion(dal, songs, t, seed);
+        kerdes = generateQuestion(dal, elteritoKeszlet, t, seed, evAblak);
+        if (kerdes) break;
+      }
+    }
+    // Vegso menedek: ha a szuk korszakbol nem jott ossze kerdes, a teljes
+    // adatbazisbol probaljuk meg - jobb egy vegyes elteritokkel allo kerdes,
+    // mint egy kimarado kor.
+    if (!kerdes && elteritoKeszlet !== songs) {
+      for (const t of [tipus, 'year', 'artist', 'title']) {
+        kerdes = generateQuestion(dal, songs, t, seed, evAblak);
         if (kerdes) break;
       }
     }
@@ -206,6 +249,9 @@
 
   return {
     ALAP_BEALLITAS,
+    EV_MIN,
+    EV_MAX,
+    tartomanybanVan,
     jatszok,
     ujKod,
     ujAzonosito,

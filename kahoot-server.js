@@ -98,7 +98,9 @@ function jatekIndit(szoba) {
 }
 
 function valaszthatoDalok(szoba) {
-  return songs.filter((s) => !szoba.hasznaltDalok.has(s.id) && !szoba.kizartDalok.has(s.id));
+  return songs.filter((s) => motor.tartomanybanVan(s, szoba.beallitas)
+    && !szoba.hasznaltDalok.has(s.id)
+    && !szoba.kizartDalok.has(s.id));
 }
 
 function kovetkezoKor(szoba) {

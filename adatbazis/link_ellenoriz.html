@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asthetic — YouTube link-ellenőrzés (böngészős)</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; padding: 22px; max-width: 900px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  .sug { color: #666; margin: 0 0 18px; }
+  .sor { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  button { font: inherit; padding: 9px 16px; border-radius: 8px; border: 1px solid #888; background: #f3f3f3; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  #allas { font-weight: 600; margin: 12px 0; }
+  .jatszok { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .jatszok > div { width: 150px; height: 92px; background: #111; border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ddd; }
+  textarea { width: 100%; height: 160px; font: 12px/1.5 ui-monospace, Consolas, monospace; }
+  .fig { background: #fff6e0; border: 1px solid #e3c979; border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; color: #000; }
+</style>
+</head>
+<body>
+
+<h1>YouTube link-ellenőrzés — böngészős</h1>
+<p class="sug">
+  Ez az oldal ugyanúgy, ugyanabban a lejátszóban indítja el a dalokat, mint a Kvízcsata.
+  Amit itt nem sikerül lejátszani, azt élesben sem fogja. A <code>link_ellenoriz.js</code>
+  szerveroldali ellenőrzése a törölt és az országkorlátos videókat találja meg — ez az oldal
+  emellett a beágyazási hibákat is.
+</p>
+
+<div class="fig">
+  <b>Fontos:</b> hagyd az ablakot előtérben, amíg fut. Ha a lap háttérbe kerül, a böngésző
+  felfüggeszti a videókat, és minden dal hibásnak látszana. Kb. 10–20 perc az egész adatbázis.
+  Megszakítható: a részeredmény megmarad, és az <b>Indítás</b> onnan folytatja.
+</div>
+
+<div class="sor">
+  <button id="start" type="button">Indítás</button>
+  <button id="szunet" type="button" disabled>Szünet</button>
+  <button id="nullaz" type="button">Előzmény törlése</button>
+</div>
+
+<div id="allas">Készen áll.</div>
+<div class="jatszok" id="jatszok"></div>
+
+<h2 style="font-size:17px">Hibás dalok (<span id="hibaDb">0</span>)</h2>
+<table><thead><tr><th>Előadó</th><th>Cím</th><th>Év</th><th>videoId</th><th>Hiba</th></tr></thead>
+<tbody id="hibaTabla"></tbody></table>
+
+<h2 style="font-size:17px">Beilleszthető lista a tiltott_videok.json-hoz</h2>
+<textarea id="kimenet" readonly placeholder="A futás végén ide kerül a JSON."></textarea>
+
+<script>
+'use strict';
+
+const PARHUZAM = 3;
+const VARAKOZAS_MS = 9000;   // ennyit adunk egy videónak, hogy elinduljon
+const TAROLO = 'asthetic-linkteszt';
+
+// A YouTube lejátszó hibakódjai. 101 és 150 ugyanaz: a feltöltő nem engedi
+// beágyazva lejátszani (vagy az országodban nem elérhető).
+const HIBA_SZOVEG = {
+  2: 'hibás videóazonosító',
+  5: 'a lejátszó nem tudja lejátszani',
+  100: 'törölt vagy privát videó',
+  101: 'beágyazás tiltva / itt nem elérhető',
+  150: 'beágyazás tiltva / itt nem elérhető',
+  nemindul: 'nem indult el (időtúllépés)',
+};
+
+let dalok = [];
+let sorban = [];
+let eredmeny = {};
+let mutato = 0;
+let keszDb = 0;
+let fut = false;
+
+const $ = (id) => document.getElementById(id);
+
+function ment() {
+  try { localStorage.setItem(TAROLO, JSON.stringify(eredmeny)); } catch (e) { /* tele van */ }
+}
+
+function betolt() {
+  try { return JSON.parse(localStorage.getItem(TAROLO) || '{}'); } catch (e) { return {}; }
+}
+
+function hibasak() {
+  return dalok.filter((d) => eredmeny[d.videoId] && eredmeny[d.videoId].hiba !== null);
+}
+
+function kirajzol() {
+  const osszesKesz = Object.keys(eredmeny).length;
+  $('allas').textContent = `${osszesKesz} / ${dalok.length} ellenőrizve · ${hibasak().length} hibás`;
+
+  const lista = hibasak();
+  $('hibaDb').textContent = lista.length;
+  $('hibaTabla').innerHTML = lista.map((d) => {
+    const h = eredmeny[d.videoId].hiba;
+    return `<tr><td>${szoveg(d.artist)}</td><td>${szoveg(d.title)}</td><td>${d.year}</td>`
+      + `<td><a href="https://www.youtube.com/watch?v=${d.videoId}" target="_blank" rel="noopener">${d.videoId}</a></td>`
+      + `<td>${szoveg(HIBA_SZOVEG[h] || String(h))}</td></tr>`;
+  }).join('');
+
+  $('kimenet').value = JSON.stringify(lista.map((d) => ({
+    videoId: d.videoId,
+    eloado: d.artist,
+    cim: d.title,
+    indok: 'bongeszos-teszt',
+    reszlet: HIBA_SZOVEG[eredmeny[d.videoId].hiba] || String(eredmeny[d.videoId].hiba),
+    felvitel: new Date().toISOString().slice(0, 10),
+  })), null, 2);
+}
+
+function szoveg(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[c]);
+}
+
+function Ellenorzo(index) {
+  const azon = 'p' + index;
+  const doboz = document.createElement('div');
+  doboz.id = azon;
+  $('jatszok').appendChild(doboz);
+
+  let aktualis = null;
+  let idozito = null;
+  let lejatszo = null;
+
+  const lezar = (hiba) => {
+    if (!aktualis) return;
+    clearTimeout(idozito);
+    eredmeny[aktualis] = { hiba };
+    aktualis = null;
+    keszDb++;
+    ment();
+    kirajzol();
+    setTimeout(kovetkezo, 80);
+  };
+
+  const kovetkezo = () => {
+    if (!fut) return;
+    if (mutato >= sorban.length) { vege(); return; }
+    aktualis = sorban[mutato++];
+    try {
+      // Ugyanonnan indítjuk, ahonnan a játék is: a beállított kezdő másodperctől.
+      lejatszo.loadVideoById({ videoId: aktualis, startSeconds: 45 });
+    } catch (e) { lezar('nemindul'); return; }
+    idozito = setTimeout(() => {
+      let allapot = -99;
+      try { allapot = lejatszo.getPlayerState(); } catch (e) { /* mindegy */ }
+      lezar(allapot === 1 ? null : 'nemindul');
+    }, VARAKOZAS_MS);
+  };
+
+  lejatszo = new YT.Player(azon, {
+    width: 150, height: 92,
+    playerVars: { controls: 0, disablekb: 1, modestbranding: 1, rel: 0, playsinline: 1, origin: location.origin },
+    events: {
+      onReady: () => { try { lejatszo.mute(); } catch (e) { /* mindegy */ } kovetkezo(); },
+      onError: (e) => lezar(e.data),
+      // 1 = tényleg játszik. A pufferelés önmagában még nem bizonyíték.
+      onStateChange: (e) => { if (e.data === 1) lezar(null); },
+    },
+  });
+}
+
+function vege() {
+  if (keszDb < sorban.length) return;
+  fut = false;
+  $('start').disabled = false;
+  $('szunet').disabled = true;
+  $('allas').textContent += ' — kész.';
+}
+
+let elokeszitve = false;
+
+$('start').addEventListener('click', async () => {
+  $('start').disabled = true;
+  $('szunet').disabled = false;
+  fut = true;
+
+  if (!elokeszitve) {
+    const valasz = await fetch('songs.json', { cache: 'no-store' });
+    dalok = await valasz.json();
+    eredmeny = betolt();
+    elokeszitve = true;
+  }
+
+  sorban = dalok.map((d) => d.videoId).filter((id) => !(id in eredmeny));
+  mutato = 0;
+  keszDb = 0;
+  kirajzol();
+
+  if (!sorban.length) { vege(); return; }
+  if (!$('jatszok').children.length) {
+    for (let i = 0; i < PARHUZAM; i++) Ellenorzo(i);
+  }
+});
+
+$('szunet').addEventListener('click', () => {
+  fut = false;
+  $('start').disabled = false;
+  $('szunet').disabled = true;
+  $('allas').textContent += ' — szünet.';
+});
+
+$('nullaz').addEventListener('click', () => {
+  localStorage.removeItem(TAROLO);
+  eredmeny = {};
+  kirajzol();
+});
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>

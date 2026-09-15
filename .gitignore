@@ -25,3 +25,7 @@ Thumbs.db
 # Firebase helyi gyorsítótár
 .firebase/
 firebase-debug.log
+
+# A link-ellenőrzés futásonként újragenerált jelentése
+# (a tartós eredmény az adatbazis/tiltott_videok.json)
+adatbazis/link_jelentes.json

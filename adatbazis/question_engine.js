@@ -215,13 +215,27 @@ const KERDES_SZOVEG = {
  * @param {Array}  songs     a teljes dallista (elteritokhoz)
  * @param {string} type      'year' | 'artist' | 'title'
  * @param {number} seed      ugyanaz a seed = ugyanaz a kerdes minden jatekosnal
+ * @param {{min:number,max:number}} [evAblak]
+ *        A szoba evtartomanya. Ha meg van adva es eleg szeles ahhoz, hogy negy
+ *        evszam elferjen benne, az evszam-kerdes elteritoi is ezen belul
+ *        maradnak. Kulonben egy szuk tartomanyu szobaban a tartomanyon kivul
+ *        eso evszamok magukat zarnak ki, es elarulnak a helyes valaszt.
  */
-function generateQuestion(song, songs, type, seed) {
+function generateQuestion(song, songs, type, seed, evAblak) {
   const rng = makeRng(seed);
   let res = null;
 
-  if (type === 'year') res = yearOptions(song.year, rng);
-  else if (type === 'artist') res = artistOptions(song, songs, rng);
+  // Negy evszam 5-10 eves lepesekkel legalabb 15, a biztonsag kedveert 30 ev
+  // szelessegu ablakot igenyel. Ennel szukebb szobanal marad a teljes skala.
+  const ablakJo = evAblak
+    && Number.isFinite(evAblak.min) && Number.isFinite(evAblak.max)
+    && evAblak.max - evAblak.min >= 30;
+
+  if (type === 'year') {
+    res = ablakJo
+      ? yearOptions(song.year, rng, Math.max(ERV_MIN, evAblak.min), Math.min(ERV_MAX, evAblak.max))
+      : yearOptions(song.year, rng);
+  } else if (type === 'artist') res = artistOptions(song, songs, rng);
   else if (type === 'title') res = titleOptions(song, songs, rng);
   else throw new Error('Ismeretlen kerdestipus: ' + type);
 

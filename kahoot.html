@@ -107,6 +107,21 @@
             </div>
           </div>
 
+          <div class="kfield">
+            <label for="evTolInput">Melyik korszakból jöjjenek a dalok?</label>
+            <div class="kevsav" id="evSav">
+              <div class="kevsav__ertek">
+                <span id="evTolCimke">–</span><span class="kevsav__nyil" aria-hidden="true">→</span><span id="evIgCimke">–</span>
+              </div>
+              <div class="kevsav__csuszkak">
+                <div class="kevsav__vonal" aria-hidden="true"><div class="kevsav__kitolt" id="evKitolt"></div></div>
+                <input type="range" id="evTolInput" aria-label="Legkorábbi évszám">
+                <input type="range" id="evIgInput" aria-label="Legkésőbbi évszám">
+              </div>
+              <p class="kevsav__hint" id="evDarab"></p>
+            </div>
+          </div>
+
           <div class="krow">
             <div class="kfield">
               <label for="kezdesInput">A dal hányadik mp-től szóljon</label>

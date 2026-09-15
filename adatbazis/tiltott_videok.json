@@ -1,0 +1,125 @@
+{
+  "leiras": "Nem hasznalhato YouTube-videok. A build_dataset.js es a takarits.js kihagyja oket.",
+  "videok": [
+    {
+      "videoId": "-SvridcLD-I",
+      "eloado": "Inner Circle",
+      "cim": "Sweat (A La La La La Long)",
+      "indok": "orszagkorlat",
+      "reszlet": "14 orszagban erheto el, HU nincs kozte",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "3zra9k3eykM",
+      "eloado": "Busted",
+      "cim": "Year 3000",
+      "indok": "orszagkorlat",
+      "reszlet": "3 orszagban erheto el, HU nincs kozte",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "5FNMXM1bvR8",
+      "eloado": "MC Hawer és Tekknő",
+      "cim": "Börtön ablakában",
+      "indok": "orszagkorlat",
+      "reszlet": "248 orszagban erheto el, HU nincs kozte",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "9AjkUyX0rVw",
+      "eloado": "U.S.A. For Africa",
+      "cim": "We Are The World",
+      "indok": "orszagkorlat",
+      "reszlet": "10 orszagban erheto el, HU nincs kozte",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "9EHAo6rEuas",
+      "eloado": "Bryan Adams",
+      "cim": "Please Forgive Me",
+      "indok": "nem-beagyazhato",
+      "reszlet": "oEmbed 401",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "ARP8FJotqLg",
+      "eloado": "Révész Sándor",
+      "cim": "Nem tudtam, hogy így fáj",
+      "indok": "nem-beagyazhato",
+      "reszlet": "oEmbed 401",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "BEGqkaHNyhk",
+      "eloado": "Demjén Ferenc",
+      "cim": "Szerelem első vérig",
+      "indok": "nincs-ilyen-video",
+      "reszlet": "oEmbed 404",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "cfGZdatAkBM",
+      "eloado": "Apostol",
+      "cim": "Eladó, kiadó most a szíwem",
+      "indok": "nem-beagyazhato",
+      "reszlet": "oEmbed 401",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "cOeKidp-iWo",
+      "eloado": "Bruce Hornsby and the Range",
+      "cim": "The Way It Is",
+      "indok": "orszagkorlat",
+      "reszlet": "1 orszagban erheto el, HU nincs kozte",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "dcjOwHdM2dU",
+      "eloado": "Soho Party",
+      "cim": "Gyere táncolj",
+      "indok": "nem-beagyazhato",
+      "reszlet": "oEmbed 403",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "GsF05B8TFWg",
+      "eloado": "Axwell /\\ Ingrosso",
+      "cim": "More Than You Know",
+      "indok": "nincs-ilyen-video",
+      "reszlet": "oEmbed 404",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "I5BjUBM4Drw",
+      "eloado": "TNT",
+      "cim": "Kicsi gesztenye",
+      "indok": "nem-beagyazhato",
+      "reszlet": "oEmbed 403",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "MUFasKZcH_c",
+      "eloado": "LeAnn Rimes",
+      "cim": "How Do I Live",
+      "indok": "orszagkorlat",
+      "reszlet": "163 orszagban erheto el, HU nincs kozte",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "rqKxpf5z4Xw",
+      "eloado": "Apostol",
+      "cim": "Nem tudok élni nélküled",
+      "indok": "nem-beagyazhato",
+      "reszlet": "oEmbed 401",
+      "felvitel": "2026-09-15"
+    },
+    {
+      "videoId": "ZkWExJyizDQ",
+      "eloado": "Pokolgép",
+      "cim": "Adj új erőt",
+      "indok": "nincs-ilyen-video",
+      "reszlet": "oEmbed 404",
+      "felvitel": "2026-09-15"
+    }
+  ]
+}

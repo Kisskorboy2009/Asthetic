@@ -53,6 +53,22 @@ A gomb `STOP` / `PLAY` sort küld, a játék pedig `PLAYING` / `STOPPED` sorral 
 
 Az `adatbazis/` mappa építi a `songs.json`-t az Excel-táblából, és ez generálja a kvízkérdéseket is (`question_engine.js`).
 
+### Rossz YouTube-linkek kiszűrése
+
+A linkek idővel elromlanak: a videót törlik, privátra állítják, letiltják Magyarországon, vagy a feltöltő megtiltja a beágyazást. Két ellenőrző van rá.
+
+```bash
+node adatbazis/link_ellenoriz.js            # csak megnézi, jelentést ír
+node adatbazis/link_ellenoriz.js --frissit  # a találatokat a tiltólistára is felveszi
+node adatbazis/takarits.js                  # a tiltólistán lévőket kiveszi a songs.json-ból
+```
+
+A `link_ellenoriz.js` a YouTube oEmbed- és player-válaszából dolgozik: a **törölt**, a **Magyarországon letiltott** és a **beágyazást tiltó** videókat találja meg. Csak akkor jelöl meg egy dalt, ha mindkét forrás egyetért — egy elakadt hálózati kérés így nem dob ki jó dalt.
+
+Ami HTTP-szinten rendben van, az még megbukhat magában a lejátszóban. Erre való a böngészős ellenőrzés: futtasd az `npm start`-ot, és nyisd meg a <http://localhost:4173/adatbazis/link_ellenoriz.html> címet. Ez ugyanabban a YouTube-lejátszóban indítja el a dalokat, mint a játék — **hagyd a lapot előtérben**, különben a böngésző felfüggeszti a videókat, és minden hibásnak látszik.
+
+A megtalált videók a `tiltott_videok.json`-ba kerülnek. Ezt a `build_dataset.js` is figyelembe veszi, tehát az adatbázis újraépítése után sem jönnek vissza a rossz linkek.
+
 ---
 
 Az oldalt készítette: [Kisskorboy](https://kisskorboy.hu/)

@@ -12,7 +12,21 @@ const { readSheet } = require('./lib/parse_xlsx.js');
 
 const FORRAS = process.argv[2] || 'D:/Hister/KESZ_LINKES.xlsx';
 const KIMENET = path.join(__dirname, 'songs.json');
+const TILTOTT = path.join(__dirname, 'tiltott_videok.json');
 const { nyelvvelKiegeszit } = require('./nyelv_felismeres.js');
+
+// Mar bevizsgalt, hasznalhatatlan videok (torolt link, Magyarorszagon letiltva,
+// beagyazas tiltva). A listat a link_ellenoriz.js allitja elo; itt azert kell
+// beleneznunk, hogy az adatbazis ujraepitese ne hozza vissza oket.
+function tiltottVideok() {
+  if (!fs.existsSync(TILTOTT)) return new Set();
+  try {
+    const adat = JSON.parse(fs.readFileSync(TILTOTT, 'utf8'));
+    return new Set((adat.videok || []).map((v) => v.videoId));
+  } catch {
+    return new Set();
+  }
+}
 
 // --- videoazonosito kinyerese barmilyen YouTube-linkbol ---
 function extractVideoId(url) {
@@ -56,7 +70,8 @@ function main() {
 
   const songs = [];
   const seen = new Set();
-  const stats = { osszes: 0, ervenytelenLink: 0, rosszEvszam: 0, duplikatum: 0, hianyzoMezo: 0 };
+  const tiltott = tiltottVideok();
+  const stats = { osszes: 0, ervenytelenLink: 0, rosszEvszam: 0, duplikatum: 0, hianyzoMezo: 0, tiltott: 0 };
 
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
@@ -74,6 +89,7 @@ function main() {
 
     const videoId = extractVideoId(link);
     if (!videoId) { stats.ervenytelenLink++; continue; }
+    if (tiltott.has(videoId)) { stats.tiltott++; continue; }
 
     const year = parseInt(yearRaw, 10);
     if (!Number.isFinite(year) || year < 1900 || year > 2030) { stats.rosszEvszam++; continue; }
@@ -114,6 +130,7 @@ function main() {
   console.log('Beolvasott sorok        : ' + stats.osszes);
   console.log('Hianyzo eloado/cim      : ' + stats.hianyzoMezo);
   console.log('Ervenytelen videolink   : ' + stats.ervenytelenLink);
+  console.log('Tiltolistan volt        : ' + stats.tiltott);
   console.log('Rossz/hianyzo evszam    : ' + stats.rosszEvszam);
   console.log('Duplikatum              : ' + stats.duplikatum);
   console.log('--------------------------------');

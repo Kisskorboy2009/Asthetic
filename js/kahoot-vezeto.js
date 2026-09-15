@@ -218,16 +218,36 @@
     aktiv.idozito = setTimeout(() => korKiertekel(aktiv.kod), hatra);
   }
 
+  /**
+   * Csak a tenylegesen jatszo tagok valaszait vesszuk figyelembe. A csak
+   * levezeto szobavezeto (nezo) kepernyojerol is beerkezhet valasz - azt itt
+   * dobjuk el. Enelkul egyetlen kattintasa "mindenki valaszolt"-nak szamitott,
+   * es a kor azonnal lezarult a tobbiek elol.
+   */
+  function jatszokValaszai(szoba, valaszok) {
+    const jatszoIdk = new Set(motor().jatszok(szoba.jatekosok).map((j) => j.id));
+    const szurt = {};
+    for (const [kulcs, v] of Object.entries(valaszok || {})) {
+      if (v && jatszoIdk.has(v.jatekosId)) szurt[kulcs] = v;
+    }
+    return szurt;
+  }
+
   function valaszokValtoztak(kod) {
     if (!aktiv || !aktiv.szoba) return;
     const szoba = aktiv.szoba;
-    const db = Object.keys(aktiv.valaszok).length;
+    const db = Object.keys(jatszokValaszai(szoba, aktiv.valaszok)).length;
 
     FS().szobaHiv(kod).update({ valaszoltakSzama: db }).catch(() => {});
 
+    // Ha egyetlen jatszo sincs (a szobavezeto csak levezet, es meg senki nem
+    // lepett be), ne ugorjunk azonnal - kulonben vegigperegnenek a korok.
+    const jatszokSzama = motor().jatszok(szoba.jatekosok).length;
+
     if (szoba.beallitas.mindenkiUtanTovabb
         && szoba.allapot === 'kerdes'
-        && db >= motor().jatszok(szoba.jatekosok).length) {
+        && jatszokSzama > 0
+        && db >= jatszokSzama) {
       clearTimeout(aktiv.idozito);
       aktiv.idozito = setTimeout(() => korKiertekel(kod), SZUNET_KIERTEKELES_MS);
     }
@@ -250,17 +270,21 @@
     const kezdet = szoba.indult && szoba.indult.toMillis ? szoba.indult.toMillis() : null;
     const idoKeret = szoba.beallitas.valaszIdoMp * 1000;
 
+    // Csak a jatszo tagok valaszai szamitanak - a csak levezeto szobavezetoe nem.
+    const jatszoIdk = new Set(motor().jatszok(szoba.jatekosok).map((j) => j.id));
+
     const valaszPillanat = await hiv.collection('valaszok').get();
     const valaszok = {};
     valaszPillanat.forEach((doc) => {
       const v = doc.data();
+      if (!v.jatekosId || !jatszoIdk.has(v.jatekosId)) return;
       const mikor = v.mikor && v.mikor.toMillis ? v.mikor.toMillis() : null;
       // Ha valamiért nincs kiszolgálói időbélyeg, a kör végét feltételezzük:
       // így a hiányzó adat nem hozhat előnyt senkinek.
       const mikorMs = kezdet !== null && mikor !== null
         ? Math.max(0, Math.min(idoKeret, mikor - kezdet))
         : idoKeret;
-      if (v.jatekosId) valaszok[v.jatekosId] = { valasz: v.valasz, mikorMs };
+      valaszok[v.jatekosId] = { valasz: v.valasz, mikorMs };
     });
 
     const jatekosok = (szoba.jatekosok || []).map((j) => ({ ...j }));
