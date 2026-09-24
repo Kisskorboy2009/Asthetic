@@ -1,5 +1,17 @@
 apply plugin: 'com.android.application'
 
+// Verziószám: a GitHub Actions adja át minden fordításnál (-PverzioKod=…,
+// -PverzioNev=…). A versionCode-nak minden kiadásnál nőnie kell, különben a
+// telefon nem ismeri fel az újat frissítésként.
+def verzioKod = (project.findProperty('verzioKod') ?: '1').toString().toInteger()
+def verzioNev = (project.findProperty('verzioNev') ?: '1.0').toString()
+
+// Aláíró kulcs: a GitHub-repó titkaiból jön (ANDROID_KEYSTORE_* környezeti
+// változók). Mindig UGYANAZZAL a kulccsal kell aláírni, különben az Android
+// nem engedi rátelepíteni az új verziót a régire.
+def kulcsFajl = System.getenv('ASTHETIC_KEYSTORE_FILE')
+def vanKulcs = kulcsFajl && file(kulcsFajl).exists()
+
 android {
     namespace "hu.kisskorboy.asthetic"
     compileSdk rootProject.ext.compileSdkVersion
@@ -7,8 +19,8 @@ android {
         applicationId "hu.kisskorboy.asthetic"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode verzioKod
+        versionName verzioNev
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,11 +28,29 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (vanKulcs) {
+            asthetic {
+                storeFile file(kulcsFajl)
+                storeType 'pkcs12'
+                storePassword System.getenv('ASTHETIC_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ASTHETIC_KEY_ALIAS')
+                keyPassword System.getenv('ASTHETIC_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Kulcs nélkül (pl. helyi próbafordításnál) a hibakereső kulccsal ír alá.
+            signingConfig vanKulcs ? signingConfigs.asthetic : signingConfigs.debug
         }
+    }
+    lint {
+        // A kiadás fordítását ne állítsa meg egy lint-figyelmeztetés.
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 

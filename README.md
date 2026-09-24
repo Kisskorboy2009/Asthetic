@@ -26,9 +26,26 @@ Ezután nyisd meg: <http://localhost:4173>
 
 A kamera és a Web Bluetooth csak „biztonságos kontextusban" működik, ezért nem elég a HTML-t duplán kattintani — ezen a kis kiszolgálón keresztül kell megnyitni. A Kvízcsatához a telefonok a helyi hálózatról is csatlakozhatnak (a kiszolgáló kiírja a címet induláskor).
 
-## Android APK
+## Weboldal élesítése
 
-Minden `main`-re küldött változtatásnál a GitHub Actions lefordítja az alkalmazást. Az APK a **Actions → Android APK → az adott futás → Artifacts** alatt tölthető le (`asthetic-apk`).
+```bash
+npm run deploy
+```
+
+Ez a `web/` mappába építi az oldalt (kiterjesztés nélküli linkek, tömörített HTML/CSS/JS), majd feltölti a Firebase Hostingra. A `www/` mappa az alkalmazásé (`npm run build`), azt ne töltsd fel.
+
+A tömörített változat helyben is kipróbálható: `npm run build:web`, majd `node server.js 4181 web`.
+
+## Android alkalmazás és frissítések
+
+Minden `main`-re küldött változtatásnál a GitHub Actions lefordítja és aláírja az alkalmazást, és új **kiadást** (Release) készít belőle `v1.<futásszám>` címkével. Ebből dolgozik:
+
+- a **letöltés oldal** (<https://asthetic.hu/letoltes>) — mindig a legfrissebb APK-ra mutat;
+- az alkalmazás **önfrissítője** (`js/frissites.js` + `android/…/FrissitoPlugin.java`) — induláskor megnézi a legfrissebb kiadást, és ha újabb, felajánlja a letöltést és a telepítést.
+
+Az aláíráshoz négy titok kell a repó beállításaiban (*Settings → Secrets and variables → Actions*): `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Enélkül is lefordul az APK (Artifacts alatt), de kiadás nem készül, mert egy másik kulccsal aláírt APK nem telepíthető rá a meglévőre.
+
+**A kulcstárat (`asthetic-alairo-kulcs.p12`) és a jelszavát őrizd meg** — ha elveszik, a már telepített alkalmazásokra nem lehet több frissítést telepíteni.
 
 Helyi fordításhoz Android Studio kell:
 
@@ -45,13 +62,29 @@ ESP32-WROOM, klasszikus Bluetooth és BLE egyszerre. A bekötés és a lábkiosz
 | Nagy gomb (STOP) | GPIO23, másik lába 3V3 |
 | Fehér gomb (PLAY) | GPIO25, másik lába GND |
 | Piros LED | GPIO18, 220 Ω ellenálláson át |
-| Buzzer | GPIO26 |
+| Buzzer | GPIO33, másik lába GND |
 
 A gomb `STOP` / `PLAY` sort küld, a játék pedig `PLAYING` / `STOPPED` sorral válaszol vissza — ettől világít a gomb LED-je pontosan akkor, amikor szól a zene.
 
 ## Dalok adatbázisa
 
 Az `adatbazis/` mappa építi a `songs.json`-t az Excel-táblából, és ez generálja a kvízkérdéseket is (`question_engine.js`).
+
+### Tesztek
+
+```bash
+node adatbazis/test_engine.js       # mind a ~1700 dalra legenerálja a kérdéseket
+node adatbazis/test_pontozas.js
+node adatbazis/test_evtartomany.js
+node adatbazis/test_kahoot.js       # a helyi kiszolgálós Kvízcsata végig
+```
+
+A Firestore-os Kvízcsata tesztje az éles adatbázison játszat végig öt helyzetet (szobavezető + két játékos), és a végén mindent töröl:
+
+```bash
+npm i --no-save firebase@12.4.0
+node adatbazis/test_firestore.js
+```
 
 ### Rossz YouTube-linkek kiszűrése
 

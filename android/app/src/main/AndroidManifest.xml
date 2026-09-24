@@ -43,6 +43,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Önfrissítés: a letöltött új verziót a rendszer telepítőjének adjuk át.
+         A telepítést mindig a felhasználó hagyja jóvá. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <!-- QR-kód beolvasás: a WebView kamerakérését a Capacitor futásidőben kéri el,
          de a jogosultságnak itt is szerepelnie kell. -->
     <uses-permission android:name="android.permission.CAMERA" />

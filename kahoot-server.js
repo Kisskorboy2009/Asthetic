@@ -104,6 +104,9 @@ function valaszthatoDalok(szoba) {
 }
 
 function kovetkezoKor(szoba) {
+  // Csak a varobol (jatekIndit), a kor eredmenyebol vagy dalkidobasbol lehet
+  // uj kort inditani - egy dupla kattintas ne ugorjon at egy futo kort.
+  if (szoba.allapot === 'vege') return;
   clearTimeout(szoba.idozito);
   szoba.valaszok.clear();
 
@@ -159,17 +162,26 @@ function valaszAd(szoba, jatekosId, valaszIndex) {
 
   szoba.valaszok.set(jatekosId, { valasz: idx, mikorMs: Date.now() - szoba.valaszIndult });
 
-  // Ha mindenki valaszolt, ne varjunk feleslegesen az idozitore.
-  // A szoba beallitasa szerint ez ki is kapcsolhato: olyankor mindig kitelik
-  // a teljes valaszido, akkor is, ha mar mindenki dontott.
-  const jatszokSzama = motor.jatszok([...szoba.jatekosok.values()]).length;
-  if (szoba.beallitas.mindenkiUtanTovabb && szoba.valaszok.size >= jatszokSzama) {
-    clearTimeout(szoba.idozito);
-    setTimeout(() => korKiertekel(szoba), 400); // rovid szunet, hogy latszodjon a "megvan"
-  } else {
-    kikuld(szoba);
-  }
+  if (!mindenkiValaszoltE(szoba)) kikuld(szoba);
   return {};
+}
+
+/**
+ * Ha mindenki valaszolt, ne varjunk feleslegesen az idozitore. A szoba
+ * beallitasa szerint ez ki is kapcsolhato: olyankor mindig kitelik a teljes
+ * valaszido, akkor is, ha mar mindenki dontott.
+ * @returns igaz, ha elindult a gyors kiertekeles
+ */
+function mindenkiValaszoltE(szoba) {
+  if (szoba.allapot !== 'kerdes' || !szoba.valaszNyitva) return false;
+  const jatszokSzama = motor.jatszok([...szoba.jatekosok.values()]).length;
+  if (!szoba.beallitas.mindenkiUtanTovabb || jatszokSzama === 0 || szoba.valaszok.size < jatszokSzama) return false;
+  clearTimeout(szoba.idozito);
+  // rovid szunet, hogy latszodjon a "megvan" - az idozitot is eltaroljuk,
+  // hogy egy kozben erkezo kilepes vagy kidobas le tudja allitani
+  szoba.idozito = setTimeout(() => korKiertekel(szoba), 600);
+  kikuld(szoba);
+  return true;
 }
 
 function korKiertekel(szoba) {
@@ -208,14 +220,42 @@ function dalKidob(szoba) {
 }
 
 function jatekosKilep(szoba, jatekosId) {
+  const jatekos = szoba.jatekosok.get(jatekosId);
   szoba.jatekosok.delete(jatekosId);
   szoba.valaszok.delete(jatekosId);
-  if (szoba.jatekosok.size === 0) {
-    clearTimeout(szoba.idozito);
-    szobak.delete(szoba.kod);
+
+  // A szobavezeto nelkul nincs, aki vezesse a jatekot: a szoba megszunik,
+  // es minden nyitott kapcsolatot lezarunk (a kliensek ebbol tudjak meg).
+  if (szoba.jatekosok.size === 0 || (jatekos && jatekos.host)) {
+    szobaBezar(szoba);
     return;
   }
+  // Ha o volt az utolso, akire vartunk, most mar mindenki valaszolt.
+  if (!mindenkiValaszoltE(szoba)) kikuld(szoba);
+}
+
+function szobaBezar(szoba) {
+  clearTimeout(szoba.idozito);
+  szobak.delete(szoba.kod);
+  for (const figyelo of szoba.figyelok) {
+    try { figyelo.res.end(); } catch { /* mar zarva */ }
+  }
+  szoba.figyelok.clear();
+}
+
+/** Uj menet ugyanazzal a tarsasaggal: vissza a varoba, a pontok nullazva. */
+function ujraJatszas(szoba) {
+  if (szoba.allapot !== 'vege') return { hiba: 'A játék még nem ért véget.' };
+  clearTimeout(szoba.idozito);
+  szoba.allapot = 'lobby';
+  szoba.kor = 0;
+  szoba.aktualisKerdes = null;
+  szoba.korEredmeny = null;
+  szoba.valaszok.clear();
+  for (const j of szoba.jatekosok.values()) j.pont = 0;
+  // A hasznaltDalok megmarad: az uj menetben friss dalok jonnek.
   kikuld(szoba);
+  return {};
 }
 
 // ───────────────────────── allapot kikuldese (SSE) ─────────────────────────
@@ -325,11 +365,8 @@ function publikusSzobak() {
 
 setInterval(() => {
   const most = Date.now();
-  for (const [kod, sz] of szobak) {
-    if (most - sz.letrejott > SZOBA_ELAVUL_MS) {
-      clearTimeout(sz.idozito);
-      szobak.delete(kod);
-    }
+  for (const sz of [...szobak.values()]) {
+    if (most - sz.letrejott > SZOBA_ELAVUL_MS) szobaBezar(sz);
   }
 }, 10 * 60 * 1000).unref();
 
@@ -344,6 +381,7 @@ module.exports = {
   korKiertekel,
   dalKidob,
   jatekosKilep,
+  ujraJatszas,
   figyeloHozzaad,
   allapotNezet,
   publikusSzobak,

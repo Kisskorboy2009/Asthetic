@@ -105,11 +105,13 @@ async function firestoreHivas(ut, torzs) {
       await vezeto.korKiertekel(torzs.kod); return { ok: true };
     case 'kihagy':
       await vezeto.dalKidob(torzs.kod); return { ok: true };
+    case 'ujra':
+      await vezeto.ujraJatszas(torzs.kod); return { ok: true };
     case 'valasz':
-      await FS.valaszAd(torzs.kod, torzs.jatekosId, torzs.valasz); return { ok: true };
+      await FS.valaszAd(torzs.kod, torzs.jatekosId, torzs.valasz, torzs.kor); return { ok: true };
     case 'kilep':
       vezeto.leallit();
-      await FS.kilep(torzs.kod, torzs.jatekosId);
+      await FS.kilep(torzs.kod);
       return { ok: true };
     default:
       throw new Error('Ismeretlen művelet: ' + ut);
@@ -284,8 +286,34 @@ function rajzolLobby() {
 
   $('inditBtn').hidden = !allapot.host;
   $('lobbyHint').textContent = allapot.host
-    ? 'Ezt a kódot írják be a többiek — te indítod a játékot'
+    ? 'Ezt a kódot írják be a többiek, vagy olvassák be a QR-kódot — te indítod a játékot'
     : 'Várunk a szobavezetőre, hogy elindítsa a játékot';
+
+  $('lobbyLinkBtn').hidden = false;
+  qrKirajzol(allapot.host ? meghivoLink(allapot.kod) : null);
+}
+
+/** A weboldal címe a meghívóhoz — az alkalmazásban is a nyilvános címre mutat. */
+function meghivoLink(kod) {
+  const alap = window.ASTHETIC && window.ASTHETIC.natív
+    ? 'https://asthetic.hu/kahoot'
+    : location.origin + location.pathname;
+  return alap + '?kod=' + encodeURIComponent(kod);
+}
+
+let qrUtolso = null;
+function qrKirajzol(link) {
+  const doboz = $('lobbyQr');
+  if (!link || typeof window.qrcode !== 'function') { doboz.hidden = true; return; }
+  doboz.hidden = false;
+  if (qrUtolso === link) return;
+  qrUtolso = link;
+  try {
+    const qr = window.qrcode(0, 'M');
+    qr.addData(link);
+    qr.make();
+    doboz.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true, alt: 'QR-kód: ' + link });
+  } catch { doboz.hidden = true; }
 }
 
 // --- kérdés ---
@@ -300,6 +328,7 @@ function rajzolKerdes() {
   if (!k) return;
 
   $('qKor').textContent = `${allapot.kor}. kör / ${allapot.korokSzama}`;
+  $('qSajat').textContent = sajatHelyezes();
   // "Csak színek" módban a kérdés szövege el sem jut hozzánk — a szobavezető
   // képernyőjén kell nézni, mi a kérdés.
   $('qSzoveg').textContent = k.csakSzinek
@@ -324,6 +353,8 @@ function rajzolKerdes() {
   elozoValaszNyitva = k.valaszNyitva !== false;
 
   if (ujKor || valaszokMostNyiltak) {
+    kuldesFolyamatban = false;
+    idoLejart = false;
     const doboz = $('qValaszok');
     doboz.className = 'kvalaszok' + (k.csakSzinek ? ' kvalaszok--szinek' : '');
     // "Csak színek" módban nincs válaszszöveg, csak a négy jelölt gomb.
@@ -349,33 +380,65 @@ function rajzolKerdes() {
     visszaszamlalIndit(hallgatas ? k.hallgatasHatraMs : k.hatralevoMs, hallgatas);
   }
 
-  // Ha már válaszoltunk, jelöljük és tiltsuk a gombokat
-  if (allapot.sajatValasz !== null && allapot.sajatValasz !== undefined) {
+  const valaszoltam = allapot.sajatValasz !== null && allapot.sajatValasz !== undefined;
+  if (valaszoltam) {
+    // Ha már válaszoltunk, jelöljük és tiltsuk a gombokat
+    kuldesFolyamatban = false;
     document.querySelectorAll('.kvalasz').forEach((g, i) => {
       g.disabled = true;
       g.classList.toggle('is-valasztott', i === allapot.sajatValasz);
     });
     $('qStatusz').textContent = `Válaszod elküldve. Eddig ${allapot.valaszoltakSzama}/${jatszokSzama()} játékos válaszolt.`;
   } else {
-    $('qStatusz').textContent = `${allapot.valaszoltakSzama}/${jatszokSzama()} játékos válaszolt`;
+    // Még nem válaszoltunk: a gombok csak akkor tiltottak, ha épp küldünk,
+    // vagy lejárt az idő. (Egy sikertelen küldés után így újra lehet próbálni.)
+    const tilt = kuldesFolyamatban || idoLejart;
+    document.querySelectorAll('.kvalasz').forEach((g) => {
+      g.disabled = tilt;
+      if (!kuldesFolyamatban) g.classList.remove('is-valasztott');
+    });
+    $('qStatusz').textContent = idoLejart && !nezoVagyok
+      ? 'Lejárt az idő — mindjárt jön az eredmény.'
+      : `${allapot.valaszoltakSzama}/${jatszokSzama()} játékos válaszolt`;
   }
+}
+
+let kuldesFolyamatban = false;
+let idoLejart = false;
+
+/** "1340 pont · 2. hely" — a saját állásunk a kérdés fejlécében. */
+function sajatHelyezes() {
+  if (allapot.nezo) return '';
+  const jatszok = (allapot.jatekosok || []).filter((j) => !j.nezo);
+  const i = jatszok.findIndex((j) => j.id === allapot.jatekosId);
+  if (i < 0) return '';
+  return `${jatszok[i].pont} pont · ${i + 1}. hely`;
 }
 
 async function valaszKuld(index) {
   // Aki csak levezeti a jatekot, nem valaszol. Es amig csak a dal szol, meg
   // senki nem valaszolhat. (A gombok ilyenkor rejtve is vannak, de a
   // billentyuzet vagy egy ottragadt kattintas igy sem kuldhet valaszt.)
-  if (!allapot || allapot.nezo) return;
+  if (!allapot || allapot.nezo || allapot.allapot !== 'kerdes') return;
   if (allapot.kerdes && allapot.kerdes.valaszNyitva === false) return;
+  if (kuldesFolyamatban || idoLejart) return;
+  if (allapot.sajatValasz !== null && allapot.sajatValasz !== undefined) return;
 
+  kuldesFolyamatban = true;
   document.querySelectorAll('.kvalasz').forEach((g, i) => {
     g.disabled = true;
     g.classList.toggle('is-valasztott', i === index);
   });
+  if (navigator.vibrate) { try { navigator.vibrate(30); } catch { /* nem baj */ } }
   try {
-    await hivas('valasz', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId, valasz: index });
+    await hivas('valasz', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId, valasz: index, kor: allapot.kor });
   } catch (e) {
-    $('qStatusz').textContent = e.message;
+    kuldesFolyamatban = false;
+    document.querySelectorAll('.kvalasz').forEach((g) => {
+      g.disabled = idoLejart;
+      g.classList.remove('is-valasztott');
+    });
+    $('qStatusz').textContent = (e && e.message ? e.message : 'Nem sikerült elküldeni.') + ' Próbáld újra!';
   }
 }
 
@@ -396,7 +459,14 @@ function visszaszamlalIndit(hatralevoMs, hallgatasE) {
     idoEl.classList.toggle('is-keves', mp <= 10 && mp > 5);
     idoEl.classList.toggle('is-veszely', mp <= 5);
     $('qSav').style.width = Math.max(0, (maradt / teljes) * 100) + '%';
-    if (maradt <= 0) clearInterval(visszaszamlaloId);
+    if (maradt <= 0) {
+      clearInterval(visszaszamlaloId);
+      // A válaszidő végén a gombok lezárulnak — a hallgatási szakasz végén nem.
+      if (!hallgatasE && allapot && allapot.allapot === 'kerdes' && !idoLejart) {
+        idoLejart = true;
+        kirajzol();
+      }
+    }
   };
 
   frissit();
@@ -412,6 +482,19 @@ function rajzolEredmeny() {
 
   const e = allapot.eredmeny;
   if (!e) return;
+
+  const sajat = (e.korEredmeny || []).find((r) => r.id === allapot.jatekosId);
+  const sajatEl = $('eSajat');
+  if (sajat && !allapot.nezo) {
+    const helyezes = (allapot.jatekosok || []).filter((j) => !j.nezo).findIndex((j) => j.id === allapot.jatekosId) + 1;
+    sajatEl.hidden = false;
+    sajatEl.className = 'ksajat ' + (sajat.jo ? 'ksajat--jo' : 'ksajat--rossz');
+    sajatEl.innerHTML = sajat.jo
+      ? `<strong>Eltaláltad! +${sajat.szerzett}</strong><span>${sajat.osszpont} pont · ${helyezes}. hely</span>`
+      : `<strong>${sajat.valaszolt ? 'Most nem talált' : 'Kimaradt ez a kör'}</strong><span>${sajat.osszpont} pont · ${helyezes}. hely</span>`;
+  } else {
+    sajatEl.hidden = true;
+  }
 
   $('eDalCim').textContent = `${e.dal.eloado} — ${e.dal.cim}`;
   $('eDalMeta').textContent = `${e.dal.ev}`;
@@ -455,6 +538,12 @@ function rajzolVege() {
         </div>
       </div>`)
     .join('');
+
+  $('ujraBtn').hidden = !allapot.host;
+  $('ujJatekBtn').textContent = allapot.host ? 'Szoba bezárása' : 'Kilépés';
+  $('vVarunk').textContent = allapot.host
+    ? 'Ugyanezzel a társasággal új menetet indíthatsz — a már lejátszott dalok nem jönnek újra.'
+    : 'Ha a szobavezető új menetet indít, maradj itt: magától indul.';
 
   $('vTabla').innerHTML = v
     .map((j, i) => `
@@ -557,6 +646,8 @@ function evSavKirajzol() {
 
 // ───────────────────────── műveletek ─────────────────────────
 
+const NEV_KULCS = 'asthetic-nev';
+
 function nevErteke() {
   return $('nevInput').value.trim();
 }
@@ -573,6 +664,7 @@ $('ujSzobaBtn').addEventListener('click', () => {
 $('csatlakozNezetBtn').addEventListener('click', () => {
   if (!nevErteke()) { hibaKiir('menuHiba', 'Előbb írd be a neved.'); $('nevInput').focus(); return; }
   hibaKiir('menuHiba', '');
+  $('csatlakozNevMezo').hidden = true;   // a nevet már a menüben megadta
   nezet('csatlakoz');
   $('kodInput').focus();
 });
@@ -591,7 +683,10 @@ $('letrehozBtn').addEventListener('click', async () => {
     return;
   }
 
-  const evek = evSavErtek();
+  let evek = evSavErtek();
+  // Ha a csúszka a teljes skálán áll, nem szűkítünk — így a váróban sem
+  // jelenik meg feleslegesen az évtartomány.
+  if (evek && evek.tol <= dalEvek[0] && evek.ig >= dalEvek[dalEvek.length - 1]) evek = null;
   if (evek) {
     const jatszhato = dalEvek.filter((ev) => ev >= evek.tol && ev <= evek.ig).length;
     if (jatszhato === 0) {
@@ -600,6 +695,10 @@ $('letrehozBtn').addEventListener('click', async () => {
     }
   }
 
+  const gomb = $('letrehozBtn');
+  if (gomb.disabled) return;
+  gomb.disabled = true;
+  try { localStorage.setItem(NEV_KULCS, nevErteke()); } catch { /* privát mód */ }
   try {
     hibaKiir('letrehozHiba', '');
     const adat = await hivas('szoba/letrehoz', {
@@ -623,47 +722,127 @@ $('letrehozBtn').addEventListener('click', async () => {
     munkamenet = { kod: adat.kod, jatekosId: adat.jatekosId, nev: nevErteke() };
     munkamenetMent(munkamenet);
     csatlakozStream();
+    ebrenTart();
   } catch (e) {
     hibaKiir('letrehozHiba', e.message);
+  } finally {
+    gomb.disabled = false;
   }
 });
 
 $('csatlakozBtn').addEventListener('click', csatlakozas);
 $('kodInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') csatlakozas(); });
-
+$('csatlakozNevInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') csatlakozas(); });
 async function csatlakozas(kodParam) {
   const kod = (typeof kodParam === 'string' ? kodParam : $('kodInput').value).trim().toUpperCase();
-  if (kod.length !== 4) { hibaKiir('csatlakozHiba', 'A szobakód 4 karakter hosszú.'); return; }
+  const hibaHely = $('kv-csatlakoz').classList.contains('is-active') ? 'csatlakozHiba' : 'menuHiba';
+  if (kod.length !== 4) { hibaKiir(hibaHely, 'A szobakód 4 karakter hosszú.'); return; }
+
+  // A QR-kódról érkezők itt adják meg a nevüket.
+  if (!$('csatlakozNevMezo').hidden) {
+    const nev = $('csatlakozNevInput').value.trim();
+    if (!nev) { hibaKiir('csatlakozHiba', 'Előbb írd be a neved.'); $('csatlakozNevInput').focus(); return; }
+    $('nevInput').value = nev;
+  }
+  if (!nevErteke()) { hibaKiir(hibaHely, 'Előbb írd be a neved.'); return; }
+  try { localStorage.setItem(NEV_KULCS, nevErteke()); } catch { /* privát mód */ }
+
+  const gomb = $('csatlakozBtn');
+  if (csatlakozasFolyik) return;
+  csatlakozasFolyik = true;
+  gomb.disabled = true;
+  hibaKiir(hibaHely, '');
+  $('csatlakozAllapot').textContent = 'Csatlakozás… a szobavezető most vesz fel.';
 
   try {
-    hibaKiir('csatlakozHiba', '');
     const adat = await hivas('szoba/csatlakoz', { kod, nev: nevErteke() });
     munkamenet = { kod: adat.kod, jatekosId: adat.jatekosId, nev: nevErteke() };
     munkamenetMent(munkamenet);
     csatlakozStream();
+    ebrenTart();
+    // A meghívó link kódja ne maradjon a címsorban.
+    if (location.search) history.replaceState(null, '', location.pathname);
   } catch (e) {
-    hibaKiir('csatlakozHiba', e.message);
+    hibaKiir(hibaHely, e.message);
+  } finally {
+    csatlakozasFolyik = false;
+    gomb.disabled = false;
+    $('csatlakozAllapot').textContent = '';
   }
 }
 
-$('inditBtn').addEventListener('click', async () => {
+let csatlakozasFolyik = false;
+
+// A játék alatt ne aludjon el a képernyő (ahol a böngésző engedi).
+let ebrenTarto = null;
+async function ebrenTart() {
+  if (!('wakeLock' in navigator) || ebrenTarto || document.visibilityState !== 'visible') return;
+  try {
+    ebrenTarto = await navigator.wakeLock.request('screen');
+    ebrenTarto.addEventListener('release', () => { ebrenTarto = null; });
+  } catch { /* nem támogatott vagy nem engedélyezett */ }
+}
+
+/** A gomb a művelet idejére letiltva — egy dupla koppintás ne indítson két kört. */
+async function gombbal(gomb, muvelet) {
+  if (gomb.disabled) return;
+  gomb.disabled = true;
+  try { await muvelet(); } finally { gomb.disabled = false; }
+}
+
+$('inditBtn').addEventListener('click', () => gombbal($('inditBtn'), async () => {
+  hibaKiir('lobbyHiba', '');
   try { await hivas('indit', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId }); }
   catch (e) { hibaKiir('lobbyHiba', e.message); }
-});
+}));
 
-$('kovetkezoBtn').addEventListener('click', async () => {
+$('kovetkezoBtn').addEventListener('click', () => gombbal($('kovetkezoBtn'), async () => {
   try { await hivas('kovetkezo', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId }); }
   catch (e) { $('eVarunk').textContent = e.message; }
-});
+}));
 
 $('qHangGomb').addEventListener('click', () => {
   hangGombMutat(false);
   try { lejatszo.playVideo(); } catch { /* nincs mit tenni */ }
 });
 
-$('kihagyBtn').addEventListener('click', async () => {
+$('kihagyBtn').addEventListener('click', () => gombbal($('kihagyBtn'), async () => {
   try { await hivas('kihagy', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId }); }
   catch (e) { $('qStatusz').textContent = e.message; }
+}));
+
+$('ujraBtn').addEventListener('click', () => gombbal($('ujraBtn'), async () => {
+  hibaKiir('vegeHiba', '');
+  try { await hivas('ujra', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId }); }
+  catch (e) { hibaKiir('vegeHiba', e.message); }
+}));
+
+$('lobbyLinkBtn').addEventListener('click', async () => {
+  if (!allapot) return;
+  const link = meghivoLink(allapot.kod);
+  const gomb = $('lobbyLinkBtn');
+  try {
+    if (navigator.share && window.ASTHETIC && window.ASTHETIC.natív) {
+      await navigator.share({ title: 'Asthetic Kvízcsata', text: 'Gyere játszani! Szobakód: ' + allapot.kod, url: link });
+      return;
+    }
+    await navigator.clipboard.writeText(link);
+    gomb.textContent = 'Link kimásolva ✓';
+  } catch {
+    gomb.textContent = link;
+  }
+  setTimeout(() => { gomb.textContent = 'Meghívó link másolása'; }, 2500);
+});
+
+// Billentyűzet: 1–4 vagy A–D a válaszokhoz (gépen, kivetítés mellett kényelmes).
+document.addEventListener('keydown', (e) => {
+  if (!allapot || allapot.allapot !== 'kerdes') return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const idx = { 1: 0, 2: 1, 3: 2, 4: 3, a: 0, b: 1, c: 2, d: 3 }[String(e.key).toLowerCase()];
+  if (idx === undefined) return;
+  const gomb = document.querySelector(`.kvalasz[data-index="${idx}"]`);
+  if (gomb && !gomb.disabled && !$('qValaszok').hidden) { e.preventDefault(); gomb.click(); }
 });
 
 $('kilepBtn').addEventListener('click', kilepes);
@@ -672,6 +851,8 @@ $('kilepKerdesBtn').addEventListener('click', kilepes);
 $('kilepEredmenyBtn').addEventListener('click', kilepes);
 
 async function kilepes() {
+  if (allapot && allapot.host && allapot.allapot !== 'vege'
+      && !window.confirm('Biztosan bezárod a szobát? A játék mindenkinek véget ér.')) return;
   try { if (munkamenet) await hivas('kilep', { kod: munkamenet.kod, jatekosId: munkamenet.jatekosId }); } catch { /* mindegy */ }
   kapcsolatBont();
   munkamenetTorol();
@@ -722,11 +903,34 @@ async function publikusFrissit() {
 
 // ───────────────────────── indulás ─────────────────────────
 
+// A név megmarad a következő alkalomra is — ne kelljen mindig beírni.
+try {
+  const mentettNev = localStorage.getItem(NEV_KULCS);
+  if (mentettNev && !$('nevInput').value) $('nevInput').value = mentettNev;
+} catch { /* privát mód */ }
+$('nevInput').addEventListener('change', () => {
+  try { localStorage.setItem(NEV_KULCS, nevErteke()); } catch { /* privát mód */ }
+});
+
+document.addEventListener('visibilitychange', () => { if (munkamenet) ebrenTart(); });
+
 // Ha frissítettük az oldalt egy futó játék közben, visszakapcsolódunk.
+const linkKod = (new URLSearchParams(location.search).get('kod') || '').trim().toUpperCase();
 if (munkamenet && munkamenet.kod && munkamenet.jatekosId) {
   $('nevInput').value = munkamenet.nev || '';
   csatlakozStream();
+  ebrenTart();
 } else {
   publikusFrissit();
   setInterval(() => { if (!munkamenet) publikusFrissit(); }, 8000);
+
+  // Meghívó linkről (QR-kódról) érkeztünk: a kód már ki van töltve, csak a
+  // nevet kell megadni.
+  if (/^[A-Z0-9]{4}$/.test(linkKod)) {
+    $('kodInput').value = linkKod;
+    $('csatlakozNevInput').value = nevErteke();
+    $('csatlakozNevMezo').hidden = false;
+    nezet('csatlakoz');
+    $('csatlakozNevInput').focus();
+  }
 }

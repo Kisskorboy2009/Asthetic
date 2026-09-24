@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Asthetic Game — zenei kártyajáték QR-kóddal és villámgombbal</title>
-<meta name="description" content="Az Asthetic Game zenei társasjáték: olvasd be a kártya QR-kódját, szól a dal a 45. másodperctől 30 másodpercig, és aki elsőként üti a Bluetooth-gombot, az tippelhet. Négy játékmód, kártyák, pontozókorongok.">
+<title>Asthetic Game — zenei kvíz és kártyajáték, telefonon és az asztalon</title>
+<meta name="description" content="Az Asthetic zenei társasjáték: Kvízcsata szobákkal és gyorsasági pontozással, vagy QR-kódos kártyák és egy nagy piros gomb. Több mint 1700 dal, böngészőben és Android alkalmazásban.">
 <link rel="canonical" href="https://asthetic.hu/">
 <meta name="robots" content="index, follow">
 <meta name="author" content="Kisskorboy">
@@ -14,14 +14,14 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Asthetic Game">
 <meta property="og:locale" content="hu_HU">
-<meta property="og:title" content="Asthetic Game — zenei kártyajáték QR-kóddal">
-<meta property="og:description" content="Szól a dal 30 másodpercig. Aki elsőként üti a gombot, az tippelhet. Négy játékmód egy társasjátékban.">
+<meta property="og:title" content="Asthetic Game — találd ki a dalt 30 másodperc alatt">
+<meta property="og:description" content="Kvízcsata a barátaiddal vagy kártyás játék a fizikai gombbal. Böngészőben és Android alkalmazásban.">
 <meta property="og:url" content="https://asthetic.hu/">
 <meta property="og:image" content="https://asthetic.hu/assets/asthetic-logo.png">
 <meta property="og:image:alt" content="Az Asthetic Game logója">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Asthetic Game — zenei kártyajáték QR-kóddal">
-<meta name="twitter:description" content="Szól a dal 30 másodpercig. Aki elsőként üti a gombot, az tippelhet.">
+<meta name="twitter:title" content="Asthetic Game — találd ki a dalt 30 másodperc alatt">
+<meta name="twitter:description" content="Kvízcsata a barátaiddal vagy kártyás játék a fizikai gombbal.">
 <meta name="twitter:image" content="https://asthetic.hu/assets/asthetic-logo.png">
 
 <link rel="icon" href="assets/asthetic-logo.png" sizes="any">
@@ -40,18 +40,26 @@
     {
       "@type":"Game",
       "name":"Asthetic Game",
-      "description":"Zenei kártyajáték: QR-kódos kártyák, 30 másodperces dalrészletek és fizikai Bluetooth-gomb. Négy játékmódban játszható.",
+      "description":"Zenei társasjáték: Kvízcsata szobákkal és gyorsasági pontozással, vagy QR-kódos kártyák 30 másodperces dalrészletekkel és fizikai Bluetooth-gombbal.",
       "url":"https://asthetic.hu/",
       "inLanguage":"hu",
-      "numberOfPlayers":{"@type":"QuantitativeValue","minValue":2,"maxValue":12},
+      "numberOfPlayers":{"@type":"QuantitativeValue","minValue":2,"maxValue":40},
       "author":{"@type":"Person","name":"Kisskorboy","url":"https://kisskorboy.hu/"}
+    },
+    {
+      "@type":"SoftwareApplication",
+      "name":"Asthetic",
+      "operatingSystem":"Android 6.0+",
+      "applicationCategory":"GameApplication",
+      "url":"https://asthetic.hu/letoltes",
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"HUF"}
     },
     {
       "@type":"FAQPage",
       "mainEntity":[
         {"@type":"Question","name":"Kell hozzá internet?","acceptedAnswer":{"@type":"Answer","text":"Igen. A dalok a YouTube-ról szólnak, ezért a játékhoz internetkapcsolat szükséges."}},
+        {"@type":"Question","name":"Kell alkalmazást telepíteni?","acceptedAnswer":{"@type":"Answer","text":"Nem kötelező: minden a böngészőben is fut. Androidra van alkalmazás is, ami magától frissül, és natív Bluetooth-tal kapcsolódik a gombhoz."}},
         {"@type":"Question","name":"Muszáj a fizikai gomb?","acceptedAnswer":{"@type":"Answer","text":"Nem. A gomb a Villám-Rablás módban teszi izgalmasabbá a játékot, de minden mód játszható a képernyőn lévő Szünet gombbal is."}},
-        {"@type":"Question","name":"Miért nem látszik a videó?","acceptedAnswer":{"@type":"Answer","text":"Szándékosan takarva van, hogy a kép ne árulja el a dalt. Egy gombnyomással bármikor felfedhető."}},
         {"@type":"Question","name":"Melyik böngészőben működik a gomb?","acceptedAnswer":{"@type":"Answer","text":"A fizikai gomb Web Bluetooth-t használ, ami Chrome és Edge böngészőben érhető el asztali gépen és Androidon. iPhone-on és Safariban nem támogatott."}}
       ]
     }
@@ -76,9 +84,11 @@
     <ul class="nav__links" id="navLinks">
       <li><a href="#hogyan">Hogyan működik</a></li>
       <li><a href="kahoot.html">Kvízcsata</a></li>
-      <li><a href="#modok">Játékmódok</a></li>
+      <li><a href="jatek.html">Kártyás játék</a></li>
       <li><a href="szabalyok.html">Szabályok</a></li>
-      <li><a href="#gyik">GYIK</a></li>
+      <li><a class="nav__app" href="letoltes.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+        Android app</a></li>
     </ul>
 
     <div class="nav__cta">
@@ -86,7 +96,7 @@
         <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/></svg>
         <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"/></svg>
       </button>
-      <a class="btn btn--accent btn--sm" href="jatek.html">Játék indítása</a>
+      <a class="btn btn--accent btn--sm" href="kahoot.html">Játék indítása</a>
       <button class="nav-toggle" id="navToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
@@ -100,11 +110,12 @@
   <section class="hero">
     <div class="hero__glow" aria-hidden="true"></div>
     <div class="container hero__inner">
-      <div>
+      <div class="hero__text">
+        <p class="hero__badge"><span class="hero__badgeDot" aria-hidden="true"></span><span data-dalszam>1736</span> dal · 1913-tól napjainkig</p>
         <h1 data-split data-em-from="5">Találd ki a dalt, mielőtt lejár a 30 másodperc.</h1>
         <p class="lead hero__lead">
-          Kétféleképpen játszhatjátok: kártyákkal és a fizikai gombbal, vagy
-          <b>Kvízcsatában</b> — szoba, négy válasz, és a gyorsabb kap több pontot.
+          Nyiss egy <b>Kvízcsata</b>-szobát a barátaidnak, vagy tegyétek az asztalra a
+          kártyákat és a nagy piros gombot. Böngészőben és Android alkalmazásban is.
         </p>
         <div class="hero__actions">
           <a class="btn btn--accent btn--lg" href="kahoot.html">
@@ -113,17 +124,46 @@
           </a>
           <a class="btn btn--outline btn--lg" href="jatek.html">Kártyás játék</a>
         </div>
-
-        <dl class="hero__meta">
-          <div><dt>Dalok</dt><dd>1751</dd></div>
-          <div><dt>Játékidő</dt><dd>30 mp</dd></div>
-          <div><dt>Játékmódok</dt><dd>4 db</dd></div>
-        </dl>
+        <a class="hero__app" href="letoltes.html">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 9.5 19.3 6.6a.5.5 0 0 0-.9-.5l-1.7 3a10.6 10.6 0 0 0-9.4 0l-1.7-3a.5.5 0 1 0-.9.5l1.7 2.9A9.6 9.6 0 0 0 2 17h20a9.6 9.6 0 0 0-4.4-7.5ZM7.5 14.2a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm9 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>
+          <span>Android alkalmazás — <b>ingyenes, magától frissül</b></span>
+          <svg class="hero__appNyil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </a>
       </div>
 
-      <div class="hero__logo">
-        <img src="assets/asthetic-logo.png" width="1536" height="941"
-             alt="Az Asthetic Game logója: geometrikus A betű, benne lejátszás gombbal" fetchpriority="high">
+      <!-- Illusztráció: a Kvízcsata egy kérdése telefonon, körülötte a kártya és a pontszám -->
+      <div class="hero__visual" aria-hidden="true">
+        <div class="phone">
+          <div class="phone__notch"></div>
+          <div class="phone__screen">
+            <div class="pq__top"><span>3. kör / 10</span><b>18</b></div>
+            <div class="pq__bar"><i></i></div>
+            <div class="pq__eq"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i></div>
+            <p class="pq__q">Melyik évben jelent meg?</p>
+            <div class="pq__answers">
+              <span class="pq__a pq__a--0"><i></i>1979</span>
+              <span class="pq__a pq__a--1"><i></i>1984</span>
+              <span class="pq__a pq__a--2"><i></i>1991</span>
+              <span class="pq__a pq__a--3"><i></i>1987</span>
+            </div>
+            <p class="pq__foot">3/4 játékos válaszolt</p>
+          </div>
+        </div>
+
+        <div class="floatcard floatcard--qr">
+          <img src="assets/qr-letoltes.svg" alt="" width="64" height="64">
+          <span><b>Kártya beolvasva</b><small>45. mp-től szól</small></span>
+        </div>
+
+        <div class="floatcard floatcard--score">
+          <span class="floatcard__pont">+870</span>
+          <span><b>Eltaláltad!</b><small>Anna · 1. hely</small></span>
+        </div>
+
+        <div class="floatdial">
+          <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27"/><circle class="floatdial__val" cx="32" cy="32" r="27"/></svg>
+          <b>30</b>
+        </div>
       </div>
     </div>
   </section>
@@ -131,35 +171,128 @@
   <!-- ════ Futószalag ════ -->
   <div class="marquee" aria-hidden="true">
     <div class="marquee__track">
-      <span>Zenei kártyajáték</span><span>QR-kódos kártyák</span><span>Villámgomb</span><span>Négy játékmód</span><span>2–12 játékos</span>
-      <span>Zenei kártyajáték</span><span>QR-kódos kártyák</span><span>Villámgomb</span><span>Négy játékmód</span><span>2–12 játékos</span>
+      <span>Kvízcsata</span><span>QR-kódos kártyák</span><span>Villámgomb</span><span>Négy játékmód</span><span>Kivetítős mód</span><span>Android app</span>
+      <span>Kvízcsata</span><span>QR-kódos kártyák</span><span>Villámgomb</span><span>Négy játékmód</span><span>Kivetítős mód</span><span>Android app</span>
     </div>
   </div>
 
+  <!-- ════ Két játék ════ -->
+  <section class="section" id="jatekok">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <p class="kicker">Két játék, egy zenetár</p>
+        <h2 class="h2">Válaszd, ahogy ma este kedvetek van</h2>
+        <p class="lead">Mindkettő ugyanazt a több mint 1700 dalt használja, a 45. másodperctől — ott, ahol már felismerhető.</p>
+      </div>
+
+      <div class="duo">
+        <a class="duo__card duo__card--kviz reveal" style="--i:0" href="kahoot.html">
+          <div class="duo__art" aria-hidden="true">
+            <span class="duo__tile duo__tile--0"></span><span class="duo__tile duo__tile--1"></span>
+            <span class="duo__tile duo__tile--2"></span><span class="duo__tile duo__tile--3"></span>
+          </div>
+          <p class="duo__tag">Telefonnal · 2–40 játékos</p>
+          <h3 class="duo__title">Kvízcsata</h3>
+          <p class="duo__text">Szoba négybetűs kóddal vagy QR-kóddal, négy válasz, és aki gyorsabb, több pontot kap. Kivetítve az egész társaság egyszerre játszhat.</p>
+          <ul class="duo__list">
+            <li>Évszám, előadó vagy dalcím</li>
+            <li>Választható korszak és körszám</li>
+            <li>Dobogó és újrajátszás a végén</li>
+          </ul>
+          <span class="duo__go">Szoba nyitása
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+
+        <a class="duo__card duo__card--kartya reveal" style="--i:1" href="jatek.html">
+          <div class="duo__art" aria-hidden="true">
+            <span class="duo__ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26"/><circle class="duo__ringVal" cx="32" cy="32" r="26"/></svg><b>30</b></span>
+            <span class="duo__card3"></span><span class="duo__card2"></span>
+          </div>
+          <p class="duo__tag">Az asztalon · 2–12 játékos</p>
+          <h3 class="duo__title">Kártyás játék</h3>
+          <p class="duo__text">Olvasd be a kártya QR-kódját, és 30 másodpercig szól a dal. A Bluetooth-gombbal aki elsőként csap le, az tippelhet.</p>
+          <ul class="duo__list">
+            <li>Négy játékmód egy pakliból</li>
+            <li>Rejtett videó — csak a zene számít</li>
+            <li>Fizikai villámgomb vagy képernyős gomb</li>
+          </ul>
+          <span class="duo__go">Kártya beolvasása
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- ════ Hogyan működik ════ -->
-  <section class="section" id="hogyan">
+  <section class="section section--paper2" id="hogyan">
     <div class="container">
       <div class="section-head reveal">
         <p class="kicker">Hogyan működik</p>
         <h2 class="h2">Három lépés, és már szól is a zene</h2>
-        <p class="lead">Nem kell hozzá se applikáció-telepítés, se regisztráció — elég egy böngésző és a kártyapakli.</p>
+        <p class="lead">Nincs regisztráció. Elég egy böngésző — vagy az Android alkalmazás.</p>
       </div>
 
       <div class="steps">
         <article class="step reveal" style="--i:0">
           <div class="step__n" aria-hidden="true"></div>
-          <h3 class="h3">Olvasd be a kártyát</h3>
-          <p>A telefon kamerájával ráirányítasz a kártyán lévő QR-kódra. A játék felismeri, melyik dal következik.</p>
+          <h3 class="h3">Nyiss szobát, vagy olvass be egy kártyát</h3>
+          <p>A Kvízcsatában a többiek a négybetűs kóddal vagy a képernyőn lévő QR-kóddal lépnek be. A kártyás játékban a telefon kamerája felismeri, melyik dal következik.</p>
         </article>
         <article class="step reveal" style="--i:1">
           <div class="step__n" aria-hidden="true"></div>
           <h3 class="h3">Szól a részlet</h3>
-          <p>A dal a 45. másodperctől indul — ott, ahol már felismerhető —, és pontosan 30 másodpercig szól. A képet elrejtjük, hogy ne árulja el a megfejtést.</p>
+          <p>A dal a 45. másodperctől indul, és pontosan 30 másodpercig szól. A képet elrejtjük, hogy ne árulja el a megfejtést.</p>
         </article>
         <article class="step reveal" style="--i:2">
           <div class="step__n" aria-hidden="true"></div>
-          <h3 class="h3">Csapj a gombra</h3>
-          <p>A fizikai Bluetooth-gomb egyetlen ütésre megállítja a zenét. Aki elsőként ér oda, az tippelhet.</p>
+          <h3 class="h3">Tippelj — gyorsan</h3>
+          <p>A Kvízcsatában a gyorsabb jó válasz több pontot ér. Az asztalnál a fizikai gombbal állítjátok meg a zenét: aki elsőként csap le, az mondhatja.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Kvízcsata részletei ════ -->
+  <section class="section" id="kvizcsata">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="kicker">Kvízcsata</p>
+        <h2 class="h2">Minden beállítás a szobavezető kezében</h2>
+        <p class="lead">Baráti társaság, osztálykirándulás vagy céges buli — a szobát a helyzethez igazítod.</p>
+      </div>
+
+      <div class="features">
+        <article class="feature reveal" style="--i:0">
+          <span class="feature__ikon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span>
+          <h3>Kivetítős mód</h3>
+          <p>A szobavezető csak levezet: a kérdés a nagy képernyőn, a telefonokon csak a négy szín.</p>
+        </article>
+        <article class="feature reveal" style="--i:1">
+          <span class="feature__ikon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/></svg></span>
+          <h3>Gyorsasági pontozás</h3>
+          <p>Az azonnali jó válasz majdnem a teljes pontot éri, az utolsó pillanatban adott a felét.</p>
+        </article>
+        <article class="feature reveal" style="--i:2">
+          <span class="feature__ikon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span>
+          <h3>Választható korszak</h3>
+          <p>Csak a 80-as évek? Két fogantyús csúszkával szűkítheted az évtartományt.</p>
+        </article>
+        <article class="feature reveal" style="--i:3">
+          <span class="feature__ikon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span>
+          <h3>Előbb csak a zene</h3>
+          <p>A válaszok csak pár másodperc hallgatás után jelennek meg — nem a gyorsabb olvasó nyer.</p>
+        </article>
+        <article class="feature reveal" style="--i:4">
+          <span class="feature__ikon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg></span>
+          <h3>Még egy menet</h3>
+          <p>A végén egy koppintással újraindul a játék ugyanazzal a társasággal, friss dalokkal.</p>
+        </article>
+        <article class="feature reveal" style="--i:5">
+          <span class="feature__ikon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM18 14h2M14 18v2"/></svg></span>
+          <h3>Belépés QR-kóddal</h3>
+          <p>A szobavezető képernyőjén QR-kód jelenik meg: beolvasás, név, és már bent is vagy.</p>
         </article>
       </div>
     </div>
@@ -169,7 +302,7 @@
   <section class="section section--paper2" id="modok">
     <div class="container">
       <div class="section-head section-head--center reveal">
-        <p class="kicker">Játékmódok</p>
+        <p class="kicker">Kártyás játékmódok</p>
         <h2 class="h2">Egy pakli, négyféle este</h2>
         <p class="lead">Ugyanazokkal a kártyákkal négy teljesen más játékot játszhattok — a nyugodt idővonal-építéstől a fejvesztett buzzerezésig.</p>
       </div>
@@ -210,8 +343,33 @@
     </div>
   </section>
 
+  <!-- ════ Android alkalmazás ════ -->
+  <section class="section" id="app">
+    <div class="container">
+      <div class="appband reveal">
+        <div class="appband__text">
+          <p class="kicker kicker--light">Android alkalmazás</p>
+          <h2>Az Asthetic a zsebedben</h2>
+          <p>Ugyanaz a játék, alkalmazásként: nagy csempés kezdőképernyő, natív Bluetooth a gombhoz, és <b>automatikus frissítés</b> — ha új verzió jön, egy koppintással telepítheted.</p>
+          <div class="appband__actions">
+            <a class="btn btn--lg appband__btn" href="https://github.com/Kisskorboy2009/Asthetic/releases/latest/download/asthetic.apk" data-app-letoltes>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+              APK letöltése
+            </a>
+            <a class="appband__more" href="letoltes.html">Telepítési útmutató</a>
+          </div>
+          <p class="appband__meta" data-app-meta>Android 6.0 vagy újabb · ingyenes</p>
+        </div>
+        <div class="appband__qr">
+          <img src="assets/qr-letoltes.svg" alt="QR-kód a letöltés oldalhoz" width="160" height="160">
+          <span>Gépen nézed? Olvasd be a telefonoddal.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ════ GYIK ════ -->
-  <section class="section" id="gyik">
+  <section class="section section--tight" id="gyik">
     <div class="container">
       <div class="section-head section-head--center reveal">
         <p class="kicker">Gyakori kérdések</p>
@@ -224,24 +382,24 @@
           <div class="faq__a" id="faq-1" role="region"><div><p>Igen. A dalok a YouTube-ról szólnak, ezért a játék internetkapcsolatot igényel. Sávszélességből viszont keveset eszik, egy mobilnet is bőven elég hozzá.</p></div></div>
         </div>
         <div class="faq__item">
-          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-2">Muszáj a fizikai gomb?</button></h3>
-          <div class="faq__a" id="faq-2" role="region"><div><p>Nem. A gomb a Villám-Rablás módban adja meg az igazi hangulatot, de minden játékmód végigjátszható a képernyőn lévő Szünet gombbal — vagy a szóköz billentyűvel — is.</p></div></div>
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-2">Kell alkalmazást telepíteni?</button></h3>
+          <div class="faq__a" id="faq-2" role="region"><div><p>Nem kötelező: minden játék fut a böngészőben is. Androidra viszont van <a href="letoltes.html">alkalmazás</a>, ami kényelmesebb, natív Bluetooth-tal kapcsolódik a gombhoz, és magától szól, ha új verzió érhető el.</p></div></div>
         </div>
         <div class="faq__item">
-          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-3">Miért nem látszik a videó?</button></h3>
-          <div class="faq__a" id="faq-3" role="region"><div><p>Mert a kép azonnal elárulná a dalt. Ezért alapból letakarjuk, és csak a hang megy. Ha mégis látni szeretnétek — például a megfejtés után —, a „Videó felfedése” gombbal egy pillanat alatt előhívható.</p></div></div>
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-3">Hányan játszhatnak a Kvízcsatában?</button></h3>
+          <div class="faq__a" id="faq-3" role="region"><div><p>Egy szobába legfeljebb 40-en léphetnek be, mindenki a saját telefonjáról. A szobavezető böngészője vezeti a játékot, ezért neki a játék végéig nyitva kell tartania az oldalt.</p></div></div>
         </div>
         <div class="faq__item">
-          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-4">Melyik böngészőben működik a gomb?</button></h3>
-          <div class="faq__a" id="faq-4" role="region"><div><p>A fizikai gomb Web Bluetooth-on keresztül kapcsolódik, amit a Chrome és az Edge támogat asztali gépen és Androidon. iPhone-on és Safariban ez a technológia nem érhető el, ott a képernyős gombot érdemes használni.</p></div></div>
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-4">Muszáj a fizikai gomb?</button></h3>
+          <div class="faq__a" id="faq-4" role="region"><div><p>Nem. A gomb a Villám-Rablás módban adja meg az igazi hangulatot, de minden játékmód végigjátszható a képernyőn lévő Szünet gombbal — vagy a szóköz billentyűvel — is.</p></div></div>
         </div>
         <div class="faq__item">
-          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-5">Mi történik, ha nem működik a kamera?</button></h3>
-          <div class="faq__a" id="faq-5" role="region"><div><p>A játékban van egy „Link beillesztése” lehetőség: ide bemásolhatod a kártyához tartozó YouTube-linket, és ugyanúgy elindul a 30 másodperces részlet.</p></div></div>
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-5">Melyik böngészőben működik a gomb?</button></h3>
+          <div class="faq__a" id="faq-5" role="region"><div><p>A fizikai gomb Web Bluetooth-on keresztül kapcsolódik, amit a Chrome és az Edge támogat asztali gépen és Androidon. iPhone-on és Safariban ez a technológia nem érhető el, ott a képernyős gombot érdemes használni. Az Android alkalmazásban mindig működik.</p></div></div>
         </div>
         <div class="faq__item">
-          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-6">Hány játékos játszhatja?</button></h3>
-          <div class="faq__a" id="faq-6" role="region"><div><p>Kettőtől nagyjából tizenkettőig. A csapatmódokhoz érdemes legalább négyen lenni, a Bingo pedig annál jobb, minél többen ülnek az asztal körül.</p></div></div>
+          <h3><button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-6">Mi történik, ha nem működik a kamera?</button></h3>
+          <div class="faq__a" id="faq-6" role="region"><div><p>A kártyás játékban van egy „Link beillesztése” lehetőség: ide bemásolhatod a kártyához tartozó YouTube-linket, és ugyanúgy elindul a 30 másodperces részlet.</p></div></div>
         </div>
       </div>
     </div>
@@ -252,11 +410,14 @@
     <div class="container">
       <div class="cta-band reveal">
         <h2>Kezdődhet a zenei kvíz?</h2>
-        <p>Nincs telepítés, nincs regisztráció. Nyisd meg a játékot, olvasd be az első kártyát, és már szól is.</p>
-        <a class="btn btn--lg" href="jatek.html">
-          Játék indítása
-          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        <p>Nincs regisztráció. Nyiss egy szobát, küldd el a kódot a többieknek, és már szól is az első dal.</p>
+        <div class="cta-band__actions">
+          <a class="btn btn--lg" href="kahoot.html">
+            Kvízcsata indítása
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn--lg cta-band__second" href="jatek.html">Kártyás játék</a>
+        </div>
       </div>
     </div>
   </section>
@@ -270,7 +431,7 @@
           <span class="logo__mark" aria-hidden="true"></span>
           <span class="logo__text">Asthetic</span>
         </a>
-        <p>Zenei kártyajáték QR-kódos kártyákkal, 30 másodperces dalrészletekkel és egy nagy piros gombbal.</p>
+        <p>Zenei társasjáték Kvízcsatával, QR-kódos kártyákkal, 30 másodperces dalrészletekkel és egy nagy piros gombbal.</p>
       </div>
 
       <div>
@@ -279,13 +440,14 @@
           <li><a href="kahoot.html">Kvízcsata</a></li>
           <li><a href="jatek.html">Kártyás játék</a></li>
           <li><a href="szabalyok.html">Játékszabályok</a></li>
-          <li><a href="index.html#gyik">Gyakori kérdések</a></li>
+          <li><a href="letoltes.html">Android alkalmazás</a></li>
         </ul>
       </div>
 
       <div>
-        <h4>Jogi</h4>
+        <h4>Tudnivalók</h4>
         <ul>
+          <li><a href="index.html#gyik">Gyakori kérdések</a></li>
           <li><a href="adatvedelem.html">Adatvédelem</a></li>
           <li><a href="feltetelek.html">Felhasználási feltételek</a></li>
         </ul>
@@ -307,5 +469,6 @@
 <script src="js/config.js" defer></script>
 <script src="js/app-shell.js" defer></script>
 <script src="js/site.js" defer></script>
+<script src="js/frissites.js" defer></script>
 </body>
 </html>

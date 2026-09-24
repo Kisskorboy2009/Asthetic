@@ -137,7 +137,10 @@
     const meglevo = (szoba.jatekosok || []).find((j) => j.uid === uid);
     if (meglevo) return { kod, jatekosId: meglevo.id };
 
-    // A szobavezető veszi fel a játékosokat — mi csak jelentkezünk.
+    // A szobavezető veszi fel a játékosokat — mi csak jelentkezünk. Ha egy
+    // korábbi kilépésünk jelzése még ott van, előbb eltüntetjük: a meglévő
+    // dokumentumot a szabályok szerint csak létrehozni lehet, felülírni nem.
+    await szobaHiv(kod).collection('jelentkezok').doc(uid).delete().catch(() => {});
     await szobaHiv(kod).collection('jelentkezok').doc(uid).set({
       nev: motor.tisztitNev(nev),
       mikor: most(),
@@ -176,7 +179,16 @@
    * Ugyanolyan alakú állapotot ad vissza, mint a szerveres SSE — így a
    * megjelenítő kód (js/kahoot.js) változtatás nélkül működik mindkét úton.
    */
-  function nezetKeszit(szoba, jatekosId, titkos, sajatValasz) {
+  function nezetKeszit(szoba, jatekosId, titkos, sajatValaszAdat) {
+    // A saját válasz csak akkor számít, ha az aktuális körhöz tartozik: a
+    // körváltáskor törölt régi válasz törlése később is megérkezhet, mint az
+    // új kérdés — addig ne látszódjon kiválasztottnak a régi gomb.
+    const sajatValasz = sajatValaszAdat
+      && (sajatValaszAdat.kor === undefined || sajatValaszAdat.kor === szoba.kor)
+      && szoba.allapot === 'kerdes'
+      ? sajatValaszAdat.valasz
+      : null;
+
     const jatekosok = (szoba.jatekosok || []).slice().sort((a, b) => b.pont - a.pont);
     const en = jatekosok.find((j) => j.id === jatekosId);
     const hostE = Boolean(en && en.host);
@@ -232,6 +244,8 @@
     let titkos = null;
     let sajatValasz = null;
     let utolsoSzoba = null;
+    let bentVoltam = false;
+    let lezarva = false;
 
     const frissit = () => {
       if (utolsoSzoba) visszahivas(nezetKeszit(utolsoSzoba, jatekosId, titkos, sajatValasz));
@@ -250,13 +264,23 @@
         return;
       }
       utolsoSzoba = pillanat.data();
+
+      // Ha a listáról lekerültünk (kiléptünk egy másik ablakban, vagy a
+      // szobavezető kivett), ne nézzük tovább egy idegen szoba állapotát.
+      const bent = (utolsoSzoba.jatekosok || []).some((j) => j.id === jatekosId);
+      if (bent) bentVoltam = true;
+      else if (bentVoltam && !lezarva) {
+        lezarva = true;
+        hibaVisszahivas(new Error('Kikerültél a szobából.'));
+        return;
+      }
       frissit();
     }, hibaVisszahivas));
 
     // A saját válaszunkat magunk is olvashatjuk, hogy azonnal látszódjon a választás.
     leiratkozok.push(
       szobaHiv(kod).collection('valaszok').doc(uid).onSnapshot((pillanat) => {
-        sajatValasz = pillanat.exists ? pillanat.data().valasz : null;
+        sajatValasz = pillanat.exists ? pillanat.data() : null;
         frissit();
       }, () => { /* nem baj, ha nem tudjuk olvasni */ }),
     );
@@ -274,7 +298,7 @@
 
   /* ───────────────────────── válaszadás ───────────────────────── */
 
-  async function valaszAd(kod, jatekosId, valaszIndex) {
+  async function valaszAd(kod, jatekosId, valaszIndex, kor) {
     const idx = Number(valaszIndex);
     if (!Number.isInteger(idx) || idx < 0 || idx > 3) throw new Error('Érvénytelen válasz.');
 
@@ -284,22 +308,38 @@
       uid,
       jatekosId,
       valasz: idx,
+      // Melyik körre szól — a szobavezető a más körhöz tartozó (késve
+      // beérkezett) válaszokat nem veszi figyelembe.
+      ...(Number.isInteger(kor) ? { kor } : {}),
       mikor: most(),
     });
   }
 
-  async function kilep(kod, jatekosId) {
+  async function kilep(kod) {
     try {
-      const pillanat = await szobaHiv(kod).get();
+      const hiv = szobaHiv(kod);
+      const pillanat = await hiv.get();
       if (!pillanat.exists) return;
 
       if (pillanat.data().hostUid === uid) {
         // A szobavezető kilépésével a játék véget ér — nincs, aki vezesse.
-        await szobaHiv(kod).delete();
+        // Az aldokumentumokat is töröljük, különben árván maradnának.
+        for (const gyujtemeny of ['valaszok', 'jelentkezok', 'titkos']) {
+          const docs = await hiv.collection(gyujtemeny).get().catch(() => null);
+          if (!docs || docs.empty) continue;
+          const koteg = db.batch();
+          docs.forEach((d) => koteg.delete(d.ref));
+          await koteg.commit().catch(() => {});
+        }
+        await hiv.delete();
         return;
       }
-      await szobaHiv(kod).collection('valaszok').doc(uid).delete();
-      await szobaHiv(kod).collection('jelentkezok').doc(uid).delete();
+
+      await hiv.collection('valaszok').doc(uid).delete().catch(() => {});
+      // Jelezzük a szobavezetőnek, hogy kiléptünk: ő vesz le a listáról (a
+      // szobát csak ő írhatja). Ettől a "mindenki válaszolt" is helyesen számol.
+      await hiv.collection('jelentkezok').doc(uid).delete().catch(() => {});
+      await hiv.collection('jelentkezok').doc(uid).set({ kilep: true, mikor: most() });
     } catch { /* kilépéskor már mindegy */ }
   }
 

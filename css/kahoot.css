@@ -395,3 +395,73 @@
 }
 .kJelzes span { color: var(--ink-2); font-size: 15px; }
 .kJelzes[hidden] { display: none; }
+
+/* ───────────── szobakód + QR a váróban ───────────── */
+
+.kcode {
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(18px, 4vw, 40px); flex-wrap: wrap;
+}
+.kcode__szoveg { flex: 1 1 240px; }
+.kcode__qr {
+  flex: none; width: 168px; height: 168px; padding: 10px;
+  border-radius: var(--r-md); background: #fff;
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, .5);
+}
+.kcode__qr svg { display: block; width: 100%; height: 100%; }
+.kcode__qr[hidden] { display: none; }
+.kcode__masol {
+  margin-top: 14px; padding: 9px 16px; border-radius: 999px;
+  border: 1px solid rgba(237, 234, 228, .28); background: transparent;
+  color: inherit; font: 600 13.5px var(--body); cursor: pointer;
+  transition: background .25s, border-color .25s;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.kcode__masol:hover { background: rgba(237, 234, 228, .1); border-color: rgba(237, 234, 228, .5); }
+.kcode__masol[hidden] { display: none; }
+
+/* ───────────── saját állás a kérdés fejlécében ───────────── */
+
+.kq__sajat {
+  margin-left: auto; margin-right: 6px;
+  font-size: 13.5px; font-weight: 600; color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.kq__sajat:empty { display: none; }
+
+/* ───────────── saját eredmény a kör végén ───────────── */
+
+.ksajat {
+  display: grid; gap: 2px; text-align: center;
+  padding: 18px 20px; margin-bottom: 14px;
+  border-radius: var(--r-md);
+  animation: kpop .45s var(--ease) both;
+}
+.ksajat strong { font-family: var(--display); font-size: clamp(22px, 4vw, 28px); font-weight: 600; }
+.ksajat span { font-size: 14.5px; opacity: .85; font-variant-numeric: tabular-nums; }
+.ksajat--jo { background: #2E7D52; color: #fff; }
+.ksajat--rossz { background: var(--paper-3); color: var(--ink); }
+.ksajat[hidden] { display: none; }
+
+/* A lejárt vagy elküldött válasz gombjai halványabbak — látszik, hogy most
+   már nem lehet koppintani. A kiválasztott teljes színben marad. */
+.kvalasz:disabled:not(.is-valasztott) { opacity: .55; }
+
+/* ───────────── sötét mód: a fix színű elemek is igazodjanak ───────────── */
+
+:root[data-theme="dark"] .khiba { background: #3A1F1C; border-color: #6B2F28; color: #F2B8B0; }
+:root[data-theme="dark"] .ktabla .jo { color: #7CCB8E; }
+:root[data-theme="dark"] .ktabla .rossz { color: #F08A7E; }
+:root[data-theme="dark"] .kq__ido.is-veszely,
+:root[data-theme="dark"] .kevsav__hint.is-keves { color: #F08A7E; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .khiba { background: #3A1F1C; border-color: #6B2F28; color: #F2B8B0; }
+  :root:not([data-theme="light"]) .ktabla .jo { color: #7CCB8E; }
+  :root:not([data-theme="light"]) .ktabla .rossz { color: #F08A7E; }
+  :root:not([data-theme="light"]) .kq__ido.is-veszely,
+  :root:not([data-theme="light"]) .kevsav__hint.is-keves { color: #F08A7E; }
+}
+
+@media (max-width: 520px) {
+  .kcode__qr { width: 140px; height: 140px; }
+}

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Adatvédelmi tájékoztató — Asthetic Game</title>
 <meta name="description" content="Az Asthetic Game adatvédelmi tájékoztatója: milyen adatok keletkeznek a játék használatakor, mit csinál a kamera, a Bluetooth és a YouTube-beágyazás.">
-<link rel="canonical" href="https://asthetic.hu/adatvedelem.html">
+<link rel="canonical" href="https://asthetic.hu/adatvedelem">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#15171B" media="(prefers-color-scheme: dark)">
@@ -14,7 +14,7 @@
 <meta property="og:locale" content="hu_HU">
 <meta property="og:title" content="Adatvédelmi tájékoztató — Asthetic Game">
 <meta property="og:description" content="Mi történik az adatokkal az Asthetic Game használata közben.">
-<meta property="og:url" content="https://asthetic.hu/adatvedelem.html">
+<meta property="og:url" content="https://asthetic.hu/adatvedelem">
 <meta property="og:image" content="https://asthetic.hu/assets/asthetic-logo.png">
 <meta property="og:image:alt" content="Az Asthetic Game logója">
 <meta name="twitter:card" content="summary_large_image">
@@ -44,16 +44,19 @@
     </a>
     <ul class="nav__links" id="navLinks">
       <li><a href="index.html#hogyan">Hogyan működik</a></li>
-      <li><a href="index.html#modok">Játékmódok</a></li>
+      <li><a href="kahoot.html">Kvízcsata</a></li>
+      <li><a href="jatek.html">Kártyás játék</a></li>
       <li><a href="szabalyok.html">Szabályok</a></li>
-      <li><a href="index.html#gyik">GYIK</a></li>
+      <li><a class="nav__app" href="letoltes.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+        Android app</a></li>
     </ul>
     <div class="nav__cta">
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Sötét mód be- és kikapcsolása">
         <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/></svg>
         <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"/></svg>
       </button>
-      <a class="btn btn--accent btn--sm" href="jatek.html">Játék indítása</a>
+      <a class="btn btn--accent btn--sm" href="kahoot.html">Játék indítása</a>
       <button class="nav-toggle" id="navToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
@@ -176,5 +179,6 @@
 <script src="js/config.js" defer></script>
 <script src="js/app-shell.js" defer></script>
 <script src="js/site.js" defer></script>
+<script src="js/frissites.js" defer></script>
 </body>
 </html>

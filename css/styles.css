@@ -557,7 +557,7 @@ a{color:inherit}
 
 /* ───────────── Mobil ───────────── */
 
-@media (max-width:860px){
+@media (max-width:1100px){
   .nav__links{
     position:fixed;inset:74px 0 auto;
     flex-direction:column;align-items:stretch;gap:2px;
@@ -590,4 +590,319 @@ a{color:inherit}
   .site-header,.site-footer,.cta-band,.marquee,.progress{display:none}
   body{background:#fff;color:#000}
   .rule__body{grid-template-rows:1fr!important}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   2026 ősz — kezdőlap-frissítés: telefon-illusztráció, két játék,
+   Kvízcsata-funkciók, Android-sáv, letöltés oldal
+   ═══════════════════════════════════════════════════════════════ */
+
+/* A négy válaszszín — ugyanaz, mint a Kvízcsatában (css/kahoot.css). */
+:root{--q0:#C0392B;--q1:#1E6FA8;--q2:#9A6407;--q3:#2E7D52}
+
+/* ───────────── Fejléc: app-link ───────────── */
+
+.nav__links a{white-space:nowrap}
+.nav__app{display:inline-flex!important;align-items:center;gap:7px}
+.nav__app svg{width:16px;height:16px;flex:none;color:var(--accent)}
+
+/* A hosszabb menü szűkebb asztali szélességen is férjen ki. */
+@media (max-width:1240px) and (min-width:1101px){
+  .nav__links a{padding:9px 10px;font-size:14px}
+}
+
+/* ───────────── Hero ───────────── */
+
+.hero__badge{
+  display:inline-flex;align-items:center;gap:10px;margin:0 0 22px;
+  padding:7px 14px 7px 12px;border-radius:999px;
+  background:var(--paper-2);border:1px solid var(--line);
+  font-size:13.5px;font-weight:500;color:var(--ink-2);
+  animation:fade-up .8s .05s var(--ease) both;
+}
+.hero__badgeDot{width:8px;height:8px;border-radius:50%;background:var(--q3);box-shadow:0 0 0 4px rgba(46,125,82,.16);animation:pulzal 2.4s var(--ease-soft) infinite}
+@keyframes pulzal{50%{box-shadow:0 0 0 7px rgba(46,125,82,0)}}
+
+.hero__app{
+  display:inline-flex;align-items:center;gap:10px;margin-top:22px;
+  color:var(--ink-2);font-size:14.5px;text-decoration:none;
+  animation:fade-up .9s .8s var(--ease) both;
+}
+.hero__app > svg:first-child{width:20px;height:20px;color:var(--q3);flex:none}
+.hero__app b{color:var(--ink);font-weight:600}
+.hero__appNyil{width:15px;height:15px;opacity:.6;transition:transform .3s var(--ease)}
+.hero__app:hover{color:var(--ink)}
+.hero__app:hover .hero__appNyil{transform:translateX(3px);opacity:1}
+
+/* ───────────── Hero-illusztráció: telefon ───────────── */
+
+.hero__visual{
+  position:relative;justify-self:center;
+  width:min(100%,430px);aspect-ratio:1/1.08;
+  display:grid;place-items:center;
+  animation:logo-in 1.1s .2s var(--ease) both;
+}
+.hero__visual::before{
+  content:"";position:absolute;inset:8% 4%;border-radius:50%;
+  background:radial-gradient(closest-side,var(--accent-wash),transparent);
+  z-index:0;
+}
+
+.phone{
+  position:relative;z-index:1;
+  width:62%;aspect-ratio:9/18.5;
+  padding:9px;border-radius:38px;
+  background:#1B1E23;
+  box-shadow:0 0 0 1.5px #3A3F47 inset,0 40px 80px -30px rgba(20,22,26,.55),0 14px 30px -18px rgba(20,22,26,.4);
+  transform:rotate(-5deg);
+  animation:phone-float 7s var(--ease-soft) infinite;
+}
+@keyframes phone-float{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(-5deg) translateY(-10px)}}
+.phone__notch{position:absolute;top:15px;left:50%;width:30%;height:14px;margin-left:-15%;border-radius:0 0 10px 10px;background:#1B1E23;z-index:2}
+.phone__screen{
+  height:100%;border-radius:30px;overflow:hidden;
+  background:var(--paper);color:var(--ink);
+  display:flex;flex-direction:column;gap:8px;
+  padding:34px 12px 14px;
+}
+.pq__top{display:flex;justify-content:space-between;align-items:baseline;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.pq__top b{font-family:var(--display);font-size:19px;letter-spacing:0;color:var(--accent);font-weight:500}
+.pq__bar{height:4px;border-radius:4px;background:var(--paper-3);overflow:hidden}
+.pq__bar i{display:block;height:100%;width:60%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent-deep));animation:pq-fogy 9s linear infinite}
+@keyframes pq-fogy{from{width:100%}to{width:0}}
+.pq__eq{display:flex;justify-content:center;align-items:flex-end;gap:3px;height:22px;margin-top:4px}
+.pq__eq i{width:3px;height:100%;border-radius:2px;background:var(--accent);transform-origin:bottom;animation:eq-ugral 1s var(--ease-soft) infinite alternate;animation-delay:calc(var(--i)*-.14s)}
+@keyframes eq-ugral{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+.pq__q{margin:4px 0 2px;text-align:center;font-family:var(--display);font-weight:500;font-size:14.5px;line-height:1.25}
+.pq__answers{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:auto}
+.pq__a{
+  display:flex;align-items:center;gap:6px;padding:12px 8px;border-radius:10px;
+  color:#fff;font-weight:600;font-size:12.5px;
+}
+.pq__a i{width:9px;height:9px;background:rgba(255,255,255,.9);flex:none}
+.pq__a--0{background:var(--q0)}
+.pq__a--0 i{clip-path:polygon(50% 0,100% 100%,0 100%)}
+.pq__a--1{background:var(--q1);outline:2px solid var(--ink);outline-offset:2px}
+.pq__a--1 i{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.pq__a--2{background:var(--q2)}
+.pq__a--2 i{border-radius:50%}
+.pq__a--3{background:var(--q3)}
+.pq__a--3 i{border-radius:2px}
+.pq__foot{margin:6px 0 0;text-align:center;font-size:10px;color:var(--ink-3)}
+
+.floatcard{
+  position:absolute;z-index:2;
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px 10px 10px;border-radius:16px;
+  background:var(--paper-2);border:1px solid var(--line);
+  box-shadow:var(--shadow-md);
+  font-size:13px;line-height:1.25;
+}
+.floatcard b{display:block;font-weight:600;color:var(--ink)}
+.floatcard small{display:block;color:var(--ink-3);font-size:11.5px}
+.floatcard--qr{left:-4%;top:45%;animation:float 6s -2s var(--ease-soft) infinite}
+.floatcard--qr img{width:46px;height:46px;border-radius:6px;border:1px solid var(--line)}
+.floatcard--score{right:-4%;bottom:3%;animation:float 6.5s -4s var(--ease-soft) infinite}
+.floatcard__pont{
+  display:grid;place-items:center;min-width:52px;height:40px;padding:0 8px;border-radius:10px;
+  background:var(--q3);color:#fff;font-family:var(--display);font-size:17px;font-weight:600;
+}
+
+.floatdial{
+  position:absolute;z-index:2;right:6%;top:8%;
+  width:72px;height:72px;border-radius:50%;
+  display:grid;place-items:center;
+  background:var(--night);color:var(--night-ink);
+  box-shadow:var(--shadow-md);
+  animation:float 5.5s -1s var(--ease-soft) infinite;
+}
+.floatdial svg{position:absolute;inset:6px;width:60px;height:60px;transform:rotate(-90deg)}
+.floatdial circle{fill:none;stroke:rgba(237,234,228,.16);stroke-width:4}
+.floatdial .floatdial__val{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:169.6;stroke-dashoffset:50;animation:dial-fogy 9s linear infinite}
+@keyframes dial-fogy{from{stroke-dashoffset:0}to{stroke-dashoffset:169.6}}
+.floatdial b{font-family:var(--display);font-size:22px;font-weight:500}
+
+@media (max-width:899px){
+  .hero__visual{width:min(100%,360px);margin-top:6px}
+}
+@media (max-width:420px){
+  .floatcard{font-size:12px;padding:8px 10px 8px 8px}
+  .floatcard--qr img{width:38px;height:38px}
+  .floatdial{width:60px;height:60px}
+  .floatdial svg{inset:5px;width:50px;height:50px}
+}
+
+/* ───────────── Két játék ───────────── */
+
+.duo{display:grid;gap:22px}
+@media (min-width:820px){.duo{grid-template-columns:1fr 1fr}}
+
+.duo__card{
+  position:relative;overflow:hidden;isolation:isolate;
+  display:flex;flex-direction:column;
+  padding:clamp(26px,4vw,40px);border-radius:var(--r-xl);
+  text-decoration:none;color:inherit;
+  border:1px solid var(--line);background:var(--paper-2);
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .4s;
+}
+.duo__card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--line-2)}
+.duo__card--kviz{background:var(--night);color:var(--night-ink);border-color:transparent}
+.duo__card--kviz::before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:radial-gradient(70% 60% at 100% 0%,rgba(200,122,79,.35),transparent 70%),
+             radial-gradient(50% 50% at 0% 100%,rgba(30,111,168,.22),transparent 70%);
+}
+
+.duo__art{position:relative;height:120px;margin-bottom:22px}
+.duo__card--kviz .duo__art{display:grid;grid-template-columns:repeat(2,64px);grid-template-rows:repeat(2,50px);gap:8px;height:auto;width:max-content}
+.duo__tile{border-radius:12px;transition:transform .5s var(--ease)}
+.duo__tile--0{background:var(--q0)}
+.duo__tile--1{background:var(--q1)}
+.duo__tile--2{background:var(--q2)}
+.duo__tile--3{background:var(--q3)}
+.duo__card:hover .duo__tile--0{transform:translate(-3px,-3px)}
+.duo__card:hover .duo__tile--1{transform:translate(3px,-3px)}
+.duo__card:hover .duo__tile--2{transform:translate(-3px,3px)}
+.duo__card:hover .duo__tile--3{transform:translate(3px,3px)}
+
+.duo__card--kartya .duo__art{height:108px}
+.duo__ring{position:absolute;left:0;top:0;width:108px;height:108px;display:grid;place-items:center;z-index:2;border-radius:50%;background:var(--paper-2)}
+.duo__ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.duo__ring circle{fill:none;stroke:var(--paper-3);stroke-width:4.5}
+.duo__ring .duo__ringVal{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:163.4;stroke-dashoffset:48}
+.duo__ring b{font-family:var(--display);font-size:32px;font-weight:500}
+.duo__card2,.duo__card3{
+  position:absolute;top:8px;width:78px;height:96px;border-radius:12px;
+  border:1px solid var(--line-2);background:var(--paper);
+  box-shadow:var(--shadow-sm);transition:transform .5s var(--ease);
+}
+.duo__card2{left:86px;transform:rotate(8deg)}
+.duo__card3{left:124px;transform:rotate(16deg);background:var(--accent-wash)}
+.duo__card:hover .duo__card2{transform:rotate(4deg) translateX(8px)}
+.duo__card:hover .duo__card3{transform:rotate(20deg) translateX(18px)}
+
+.duo__tag{margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.duo__card--kviz .duo__tag{color:#E9A57C}
+.duo__title{font-size:clamp(28px,3.4vw,36px);margin-bottom:12px}
+.duo__text{margin:0 0 18px;color:var(--ink-2);font-size:16px}
+.duo__card--kviz .duo__text{color:rgba(237,234,228,.74)}
+.duo__list{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:9px;font-size:15px}
+.duo__list li{display:flex;gap:10px;align-items:flex-start}
+.duo__list li::before{
+  content:"";flex:none;width:16px;height:16px;margin-top:4px;border-radius:50%;
+  background-color:var(--accent-wash);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%22m4.5 8.2 2.2 2.2 4.8-4.8%22 fill=%22none%22 stroke=%22%23C87A4F%22 stroke-width=%221.8%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E");
+  background-position:center;background-size:100%;background-repeat:no-repeat;
+}
+.duo__card--kviz .duo__list li::before{background-color:rgba(237,234,228,.12)}
+.duo__go{margin-top:auto;display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;color:var(--accent)}
+.duo__card--kviz .duo__go{color:#F1B48F}
+.duo__go svg{width:17px;height:17px;transition:transform .35s var(--ease)}
+.duo__card:hover .duo__go svg{transform:translateX(4px)}
+
+/* ───────────── Kvízcsata-funkciók ───────────── */
+
+.features{display:grid;gap:16px}
+@media (min-width:640px){.features{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:980px){.features{grid-template-columns:repeat(3,1fr)}}
+.feature{
+  padding:26px 24px;border-radius:var(--r-lg);
+  border:1px solid var(--line);background:var(--paper-2);
+  transition:transform .45s var(--ease),box-shadow .45s var(--ease),border-color .4s;
+}
+.feature:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--line-2)}
+.feature__ikon{display:grid;place-items:center;width:46px;height:46px;margin-bottom:16px;border-radius:14px;background:var(--accent-wash);color:var(--accent-deep)}
+.feature__ikon svg{width:23px;height:23px}
+.feature:nth-child(3n+2) .feature__ikon{background:rgba(30,111,168,.12);color:#3B8BC4}
+.feature:nth-child(3n+3) .feature__ikon{background:rgba(46,125,82,.13);color:#3E9A67}
+.feature h3{font-size:19.5px;margin-bottom:6px}
+.feature p{margin:0;color:var(--ink-2);font-size:15px}
+
+/* ───────────── Android-sáv ───────────── */
+
+.appband{
+  position:relative;overflow:hidden;isolation:isolate;
+  display:grid;gap:30px;align-items:center;
+  padding:clamp(32px,5vw,60px);border-radius:var(--r-xl);
+  background:var(--night);color:var(--night-ink);
+}
+@media (min-width:820px){.appband{grid-template-columns:1fr auto}}
+.appband::before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:radial-gradient(55% 80% at 0% 0%,rgba(46,125,82,.30),transparent 70%),
+             radial-gradient(45% 70% at 100% 100%,rgba(200,122,79,.26),transparent 70%);
+}
+.kicker--light{color:#8FCBA3}
+.appband h2{font-size:clamp(28px,4vw,42px);margin-bottom:14px}
+.appband__text > p{margin:0;max-width:54ch;color:rgba(237,234,228,.76)}
+.appband__text b{color:var(--night-ink)}
+.appband__actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin-top:26px}
+.appband .appband__btn{--btn-bg:#7BC795;--btn-fg:#0E2417}
+.appband .appband__btn:hover{--btn-bg:#95D6AB}
+.appband__more{color:var(--night-ink);font-weight:600;font-size:15px;text-underline-offset:4px}
+.appband .appband__meta{margin-top:18px;font-size:13.5px;color:rgba(237,234,228,.55)}
+.appband__qr{display:grid;justify-items:center;gap:10px;text-align:center;font-size:13px;color:rgba(237,234,228,.6);max-width:180px}
+.appband__qr img{width:150px;height:150px;border-radius:16px;padding:8px;background:#fff}
+@media (max-width:819px){.appband__qr{display:none}}
+
+/* ───────────── CTA-sáv: két gomb ───────────── */
+
+.cta-band__actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.cta-band .cta-band__second{--btn-bg:transparent;--btn-fg:#F7F5F1;border-color:rgba(237,234,228,.3)}
+.cta-band .cta-band__second:hover{--btn-bg:rgba(237,234,228,.08)}
+
+.faq__a a{color:var(--accent);text-underline-offset:3px}
+
+/* ───────────── Letöltés oldal ───────────── */
+
+.dl{display:grid;gap:clamp(30px,5vw,60px);align-items:center;padding:clamp(40px,6vw,80px) 0 clamp(30px,4vw,50px)}
+@media (min-width:900px){.dl{grid-template-columns:1.1fr .9fr}}
+.dl h1{font-size:clamp(36px,5.6vw,58px);margin-bottom:16px}
+.dl__actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:28px}
+.dl__verzio{
+  display:flex;flex-wrap:wrap;gap:8px 18px;margin:22px 0 0;padding:0;list-style:none;
+  color:var(--ink-3);font-size:14px;
+}
+.dl__verzio b{color:var(--ink);font-weight:600}
+.dl__visual{justify-self:center;width:min(100%,380px)}
+.dl__qrkartya{
+  display:grid;justify-items:center;gap:14px;text-align:center;
+  padding:28px;border-radius:var(--r-xl);
+  border:1px solid var(--line);background:var(--paper-2);box-shadow:var(--shadow-md);
+}
+.dl__qrkartya img{width:200px;height:200px;border-radius:14px;padding:6px;background:#fff;border:1px solid var(--line)}
+.dl__qrkartya p{margin:0;color:var(--ink-2);font-size:15px}
+
+.dl__lepesek{display:grid;gap:18px;counter-reset:lepes;margin:0;padding:0;list-style:none}
+@media (min-width:760px){.dl__lepesek{grid-template-columns:repeat(3,1fr)}}
+.dl__lepesek li{
+  counter-increment:lepes;position:relative;
+  padding:26px 24px 24px;border-radius:var(--r-lg);
+  border:1px solid var(--line);background:var(--paper-2);
+}
+.dl__lepesek li::before{
+  content:counter(lepes);display:grid;place-items:center;
+  width:36px;height:36px;margin-bottom:14px;border-radius:50%;
+  background:var(--accent);color:#fff;font-family:var(--display);font-weight:600;
+}
+.dl__lepesek h3{font-size:19px;margin-bottom:6px}
+.dl__lepesek p{margin:0;color:var(--ink-2);font-size:15px}
+
+.dl__info{display:grid;gap:18px;margin-top:22px}
+@media (min-width:760px){.dl__info{grid-template-columns:1fr 1fr}}
+.dl__doboz{padding:24px;border-radius:var(--r-lg);background:var(--paper-2);border:1px solid var(--line)}
+.dl__doboz h3{font-size:19px;margin-bottom:10px}
+.dl__doboz p,.dl__doboz li{color:var(--ink-2);font-size:15px}
+.dl__doboz p{margin:0 0 10px}
+.dl__doboz p:last-child{margin-bottom:0}
+.dl__doboz ul{margin:0;padding-left:20px}
+.dl__doboz li{margin-bottom:6px}
+.dl__doboz li::marker{color:var(--accent)}
+.dl__doboz--figyelem{border-color:var(--accent);background:var(--accent-wash)}
+
+/* Az alkalmazáson belül a letöltés gombjai értelmetlenek. */
+.is-app .dl__csakWeb{display:none!important}
+
+@media (prefers-reduced-motion:reduce){
+  .phone,.floatcard,.floatdial,.pq__bar i,.pq__eq i,.floatdial__val{animation:none!important}
 }

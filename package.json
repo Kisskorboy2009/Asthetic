@@ -8,6 +8,8 @@
   "scripts": {
     "start": "node server.js",
     "build": "node scripts/build-www.js",
+    "build:web": "node scripts/build-www.js --web",
+    "deploy": "npm run build:web && firebase deploy --only hosting",
     "sync": "npm run build && cap sync android",
     "android": "npm run sync && cap open android"
   },
@@ -17,6 +19,8 @@
     "@capacitor/core": "^7.4.3"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.4.3"
+    "@capacitor/cli": "^7.4.3",
+    "esbuild": "^0.25.10",
+    "html-minifier-terser": "^7.2.0"
   }
 }

@@ -1,19 +1,51 @@
 name: Android APK
 
-# Minden main-re küldött változtatásnál lefordul az alkalmazás, és letölthető APK lesz belőle.
-# Kézzel is indítható a GitHub "Actions" fülén (Run workflow).
+# Minden main-re küldött változtatásnál lefordul az alkalmazás, és — ha be van
+# állítva az aláíró kulcs — új kiadás (Release) lesz belőle a GitHubon.
+#
+# Ebből dolgozik:
+#   • az alkalmazás önfrissítője (js/frissites.js): a legfrissebb kiadást nézi,
+#     és ha az újabb a telepítettnél, felajánlja a frissítést;
+#   • a weboldal letöltés oldala (letoltes.html): mindig a legfrissebb APK-ra mutat.
+#
+# Verziószám: a versionCode ennek a munkafolyamatnak a futásszáma (minden
+# futásnál nő), a versionName "1.<futásszám>", a kiadás címkéje "v1.<futásszám>".
+# A frissítő a címkéből olvassa ki a versionCode-ot — ezt a sémát ne változtasd
+# meg, és a fájlt se nevezd át (új fájlnévvel a futásszám újraindulna 1-ről).
+#
+# Aláírás: a repó titkai közül (Settings → Secrets and variables → Actions)
+#   ANDROID_KEYSTORE_BASE64   a .p12 kulcstár base64-ben
+#   ANDROID_KEYSTORE_PASSWORD a kulcstár jelszava
+#   ANDROID_KEY_ALIAS         a kulcs neve (asthetic)
+#   ANDROID_KEY_PASSWORD      a kulcs jelszava
+# Titkok nélkül is lefordul (hibakereső kulccsal), de kiadás NEM készül belőle,
+# mert azt a telefon nem tudná rátelepíteni a meglévő alkalmazásra.
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write   # a kiadás (Release) létrehozásához
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      VERZIO_KOD: ${{ github.run_number }}
+      VERZIO_NEV: 1.${{ github.run_number }}
+
     steps:
       - name: Kód letöltése
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # a változásnaplóhoz kell a korábbi kiadások címkéje is
 
       # A Capacitor 7 android modulja Java 21-re fordul (sourceCompatibility VERSION_21).
       - name: Java 21 beállítása
@@ -30,22 +62,79 @@ jobs:
       - name: Csomagok telepítése
         run: npm ci
 
+      - name: Tesztek
+        run: |
+          node adatbazis/test_pontozas.js
+          node adatbazis/test_evtartomany.js
+          node adatbazis/test_engine.js > /dev/null
+
       - name: Weboldal becsomagolása (www/)
         run: npm run build
 
       - name: Capacitor szinkron
         run: npx cap sync android
 
+      - name: Aláíró kulcs előkészítése
+        id: kulcs
+        env:
+          KULCS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KULCS_B64" ]; then
+            echo "$KULCS_B64" | base64 -d > "$RUNNER_TEMP/asthetic.p12"
+            echo "ASTHETIC_KEYSTORE_FILE=$RUNNER_TEMP/asthetic.p12" >> "$GITHUB_ENV"
+            echo "van=igen" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Nincs beállítva az ANDROID_KEYSTORE_BASE64 titok — hibakereső kulccsal fordul, kiadás nem készül."
+            echo "van=nem" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Gradle futtathatóvá tétele
         run: chmod +x android/gradlew
 
       - name: APK fordítása
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        env:
+          ASTHETIC_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ASTHETIC_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ASTHETIC_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon -PverzioKod="$VERZIO_KOD" -PverzioNev="$VERZIO_NEV"
 
-      - name: APK feltöltése
+      - name: APK és verzióleíró előkészítése
+        run: |
+          mkdir -p kiadas
+          cp android/app/build/outputs/apk/release/app-release.apk kiadas/asthetic.apk
+          # Változásnapló: a legutóbbi kiadás óta érkezett commitok címe.
+          ELOZO=$(git describe --tags --abbrev=0 --match 'v1.*' 2>/dev/null || true)
+          if [ -n "$ELOZO" ]; then TARTOMANY="$ELOZO..HEAD"; else TARTOMANY="-5"; fi
+          git log $TARTOMANY --no-merges --pretty='- %s' > kiadas/valtozasok.md
+          [ -s kiadas/valtozasok.md ] || echo "- Kisebb javítások" > kiadas/valtozasok.md
+          node -e '
+            const fs = require("fs");
+            fs.writeFileSync("kiadas/verzio.json", JSON.stringify({
+              versionCode: Number(process.env.VERZIO_KOD),
+              versionName: process.env.VERZIO_NEV,
+              datum: new Date().toISOString(),
+              meret: fs.statSync("kiadas/asthetic.apk").size,
+              valtozasok: fs.readFileSync("kiadas/valtozasok.md", "utf8").trim().split("\n").map((s) => s.replace(/^- /, "")),
+            }, null, 2));
+          '
+          cat kiadas/verzio.json
+
+      - name: APK feltöltése (munkafolyamat-melléklet)
         uses: actions/upload-artifact@v4
         with:
           name: asthetic-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: kiadas/asthetic.apk
           if-no-files-found: error
+
+      - name: Kiadás a GitHubon
+        if: steps.kulcs.outputs.van == 'igen'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERZIO_NEV }}
+          name: Asthetic ${{ env.VERZIO_NEV }}
+          body_path: kiadas/valtozasok.md
+          make_latest: 'true'
+          files: |
+            kiadas/asthetic.apk
+            kiadas/verzio.json

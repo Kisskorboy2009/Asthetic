@@ -292,3 +292,119 @@
   :root:not([data-theme="light"]) .appSav,
   :root:not([data-theme="light"]) .appFulek { background: var(--paper-2); }
 }
+
+/* ───────────── verzió és frissítéskeresés a kezdőlap alján ───────────── */
+
+.appVerzio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 26px;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.appVerzio__gomb {
+  border: 1px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-2);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: 600 13px var(--body);
+  cursor: pointer;
+}
+.appVerzio__gomb:disabled { opacity: .6; }
+
+/* A csempék ikonjainak háttere sötét módban is illeszkedjen. */
+:root[data-theme="dark"] .appCsempe--kviz .appCsempe__ikon { background: rgba(123, 160, 136, .16); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .appCsempe--kviz .appCsempe__ikon { background: rgba(123, 160, 136, .16); }
+}
+
+/* ───────────── frissítési ablak ───────────── */
+
+.frissAblak {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: rgba(10, 12, 14, .5);
+  opacity: 0;
+  transition: opacity .3s var(--ease);
+}
+.frissAblak.is-be { opacity: 1; }
+
+.frissAblak__panel {
+  width: min(100%, 460px);
+  padding: 26px 22px 20px;
+  border-radius: var(--r-xl);
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  transform: translateY(24px);
+  transition: transform .4s var(--ease);
+}
+.frissAblak.is-be .frissAblak__panel { transform: none; }
+
+.frissAblak__jel {
+  width: 54px; height: 54px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  display: grid; place-items: center;
+  background: rgba(46, 125, 82, .14);
+  color: #2E7D52;
+}
+.frissAblak__jel svg { width: 26px; height: 26px; }
+.frissAblak__cim { font-size: 22px; margin-bottom: 6px; }
+.frissAblak__verzio { margin: 0 0 14px; color: var(--ink-2); font-size: 14.5px; }
+.frissAblak__verzio b { color: var(--ink); }
+
+.frissAblak__lista {
+  margin: 0 0 16px;
+  padding: 14px 16px 14px 32px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  text-align: left;
+  font-size: 14px;
+  color: var(--ink-2);
+  max-height: 34vh;
+  overflow: auto;
+}
+.frissAblak__lista li { margin-bottom: 5px; }
+.frissAblak__lista li::marker { color: var(--accent); }
+
+.frissAblak__sav { height: 8px; border-radius: 99px; background: var(--paper-3); overflow: hidden; margin-bottom: 10px; }
+.frissAblak__sav[hidden] { display: none; }
+.frissAblak__savBelso { height: 100%; width: 0; border-radius: 99px; background: #2E7D52; transition: width .2s linear; }
+
+.frissAblak__allapot { min-height: 1.2em; margin: 0 0 12px; font-size: 14px; color: var(--ink-2); }
+.frissAblak__allapot:empty { margin: 0; min-height: 0; }
+.frissAblak__link { border: 0; background: none; padding: 0; color: var(--accent); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+
+.frissAblak__gombok { display: grid; gap: 8px; }
+.frissAblak__gombok .btn { width: 100%; }
+
+/* rövid értesítés ("Naprakész vagy") */
+.frissUzenet {
+  position: fixed;
+  left: 50%;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  z-index: 210;
+  max-width: min(92vw, 420px);
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 14px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transform: translate(-50%, 16px);
+  opacity: 0;
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+.frissUzenet.is-be { opacity: 1; transform: translate(-50%, 0); }

@@ -32,8 +32,12 @@
     </a>
     <ul class="nav__links" id="navLinks">
       <li><a href="index.html#hogyan">Hogyan működik</a></li>
-      <li><a href="szabalyok.html">Szabályok</a></li>
+      <li><a href="kahoot.html" aria-current="page">Kvízcsata</a></li>
       <li><a href="jatek.html">Kártyás játék</a></li>
+      <li><a href="szabalyok.html">Szabályok</a></li>
+      <li><a class="nav__app" href="letoltes.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+        Android app</a></li>
     </ul>
     <div class="nav__cta">
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Sötét mód be- és kikapcsolása">
@@ -196,10 +200,15 @@
           <h1 class="h2">Írd be a szoba kódját</h1>
         </div>
         <div class="kcard">
+          <div class="kfield" id="csatlakozNevMezo" hidden>
+            <label for="csatlakozNevInput">A neved</label>
+            <input class="kinput" id="csatlakozNevInput" type="text" maxlength="20" placeholder="pl. Kisskorboy" autocomplete="nickname">
+          </div>
           <div class="kfield">
             <label for="kodInput">Szobakód</label>
             <input class="kinput kinput--code" id="kodInput" type="text" maxlength="4" placeholder="ABCD" autocomplete="off" autocapitalize="characters">
           </div>
+          <p class="kvarunk" id="csatlakozAllapot" role="status" style="margin-top:0"></p>
           <p class="khiba" id="csatlakozHiba" role="alert"></p>
           <div class="krow">
             <button class="btn btn--accent btn--lg" id="csatlakozBtn" type="button">Belépés</button>
@@ -213,9 +222,13 @@
     <section class="kview" id="kv-lobby">
       <div class="kwrap">
         <div class="kcode">
-          <div class="kcode__label">Szobakód</div>
-          <div class="kcode__value" id="lobbyKod">----</div>
-          <div class="kcode__hint" id="lobbyHint">Ezt a kódot írják be a többiek</div>
+          <div class="kcode__szoveg">
+            <div class="kcode__label">Szobakód</div>
+            <div class="kcode__value" id="lobbyKod">----</div>
+            <div class="kcode__hint" id="lobbyHint">Ezt a kódot írják be a többiek</div>
+            <button class="kcode__masol" id="lobbyLinkBtn" type="button" hidden>Meghívó link másolása</button>
+          </div>
+          <div class="kcode__qr" id="lobbyQr" hidden aria-label="QR-kód a csatlakozáshoz"></div>
         </div>
 
         <div class="kcard" style="margin-top:16px">
@@ -236,6 +249,7 @@
       <div class="kwrap kwrap--wide">
         <div class="kq__fej">
           <span class="kq__kor" id="qKor">1. kör</span>
+          <span class="kq__sajat" id="qSajat"></span>
           <span class="kq__ido" id="qIdo">30</span>
         </div>
         <div class="kq__sav"><div class="kq__savBelso" id="qSav"></div></div>
@@ -277,6 +291,8 @@
     <!-- ════════ KÖR EREDMÉNYE ════════ -->
     <section class="kview" id="kv-eredmeny">
       <div class="kwrap">
+        <div class="ksajat" id="eSajat" hidden></div>
+
         <div class="keredmeny__dal">
           <div class="keredmeny__cim" id="eDalCim">…</div>
           <div class="keredmeny__meta" id="eDalMeta"></div>
@@ -312,8 +328,11 @@
             <thead><tr><th>#</th><th>Játékos</th><th class="szam">Pont</th></tr></thead>
             <tbody id="vTabla"></tbody>
           </table>
+          <p class="kvarunk" id="vVarunk"></p>
+          <p class="khiba" id="vegeHiba" role="alert"></p>
           <div class="krow" style="margin-top:18px">
-            <button class="btn btn--accent btn--lg" id="ujJatekBtn" type="button">Új játék</button>
+            <button class="btn btn--accent btn--lg" id="ujraBtn" type="button" hidden>Még egy menet, ugyanígy</button>
+            <button class="btn btn--outline btn--lg" id="ujJatekBtn" type="button">Kilépés</button>
           </div>
         </div>
       </div>
@@ -349,8 +368,12 @@
 <script src="js/kahoot-firestore.js" defer></script>
 <script src="js/kahoot-vezeto.js" defer></script>
 
+<!-- QR-kód a szobához (csak a szobavezető váróképernyőjén jelenik meg) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
+
 <script src="js/app-shell.js" defer></script>
 <script src="js/site.js" defer></script>
+<script src="js/frissites.js" defer></script>
 <script src="js/kahoot.js" defer></script>
 </body>
 </html>

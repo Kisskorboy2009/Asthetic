@@ -38,6 +38,7 @@
     'adatvedelem.html': { cim: 'Adatvédelem', ful: null },
     'feltetelek.html': { cim: 'Felhasználási feltételek', ful: null },
     '404.html': { cim: 'Nincs ilyen oldal', ful: null },
+    'letoltes.html': { cim: 'Alkalmazás', ful: null },
   };
 
   const fajl = location.pathname.split('/').pop() || 'index.html';
@@ -138,8 +139,34 @@
             </span>
             <span class="appCsempe__nyil">${svg(ikon.nyil)}</span>
           </a>
+        </div>
+        <div class="appVerzio">
+          <span id="appVerzioSzam">Asthetic</span>
+          <button class="appVerzio__gomb" id="appFrissitesGomb" type="button">Frissítések keresése</button>
         </div>`;
       fo.appendChild(otthon);
+
+      // A telepített verzió és a kézi frissítéskeresés (js/frissites.js).
+      const kiir = async () => {
+        const f = window.AstheticFrissites;
+        if (!f) return;
+        const v = await f.verzio().catch(() => null);
+        if (v) document.getElementById('appVerzioSzam').textContent = 'Verzió ' + v.versionName;
+      };
+      if (document.readyState === 'complete') kiir();
+      else window.addEventListener('load', kiir, { once: true });
+
+      document.getElementById('appFrissitesGomb').addEventListener('click', async (e) => {
+        const gomb = e.currentTarget;
+        const f = window.AstheticFrissites;
+        if (!f || gomb.disabled) return;
+        gomb.disabled = true;
+        gomb.textContent = 'Keresés…';
+        try { await f.ellenoriz({ kezi: true }); } finally {
+          gomb.disabled = false;
+          gomb.textContent = 'Frissítések keresése';
+        }
+      });
     }
   }
 })();

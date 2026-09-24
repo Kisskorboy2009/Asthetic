@@ -14,7 +14,9 @@ const os = require('os');
 const kahoot = require('./kahoot-server.js');
 
 const PORT = Number(process.argv[2]) || 4173;
-const ROOT = __dirname;
+// Második paraméterként megadható, melyik mappát szolgálja ki
+// (pl. "web" — a tömörített, élesre szánt változat kipróbálásához).
+const ROOT = process.argv[3] ? path.resolve(__dirname, process.argv[3]) : __dirname;
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -160,8 +162,15 @@ async function apiKezelo(req, res, url) {
   }
 
   if (ut === 'kovetkezo') {
-    kahoot.kovetkezoKor(szoba);
+    // Csak a kör eredményéből lehet továbblépni — egy dupla kattintás ne
+    // ugorja át a következő kört.
+    if (szoba.allapot === 'eredmeny') kahoot.kovetkezoKor(szoba);
     return json(res, 200, { ok: true });
+  }
+
+  if (ut === 'ujra') {
+    const eredmeny = kahoot.ujraJatszas(szoba);
+    return json(res, eredmeny.hiba ? 400 : 200, eredmeny.hiba ? { hiba: eredmeny.hiba } : { ok: true });
   }
 
   if (ut === 'kihagy') {
@@ -195,19 +204,35 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const relative = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname).replace(/^\/+/, '');
+  let relative;
+  try {
+    relative = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname).replace(/^\/+/, '');
+  } catch {
+    // Hibás %-kódolás — különben a kivétel az egész kiszolgálót leállítaná.
+    res.writeHead(400).end('Hibás kérés');
+    return;
+  }
   const filePath = path.join(ROOT, relative);
 
-  // Ne lehessen kilépni a mappából
-  if (!filePath.startsWith(ROOT)) {
+  // Ne lehessen kilépni a mappából, és ne szolgáljuk ki a rejtett (.git),
+  // a fejlesztői (node_modules) és az Android-fordítási mappákat sem.
+  const reszek = path.relative(ROOT, filePath).split(path.sep);
+  if (!filePath.startsWith(ROOT + path.sep)
+      || reszek.some((r) => r.startsWith('.'))
+      || ['node_modules', 'android', 'arduino'].includes(reszek[0])) {
     res.writeHead(403).end('Forbidden');
     return;
   }
 
-  fs.readFile(filePath, (err, data) => {
+  // Kiterjesztés nélküli címek (/jatek → jatek.html), ahogy a Firebase-en is.
+  const kiszolgalando = !path.extname(filePath) && fs.existsSync(filePath + '.html')
+    ? filePath + '.html'
+    : filePath;
+
+  fs.readFile(kiszolgalando, (err, data) => {
     if (err) { sendNotFound(res); return; }
     res.writeHead(200, {
-      'Content-Type': TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+      'Content-Type': TYPES[path.extname(kiszolgalando).toLowerCase()] || 'application/octet-stream',
       'Cache-Control': 'no-store',
     });
     res.end(data);

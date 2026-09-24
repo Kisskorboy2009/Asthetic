@@ -221,6 +221,57 @@ if (!readNoticeFlag()) {
   });
 }
 
+/* ───────────── Az Android alkalmazás legfrissebb kiadása ─────────────
+   A letöltés oldal és a kezdőlap app-sávja a GitHubon lévő legfrissebb
+   kiadásból mutatja a verziót, a méretet és a változásokat. A letöltés gombja
+   ettől függetlenül is működik: a "latest/download" cím mindig a legújabbra mutat. */
+
+const appMezok = document.querySelectorAll('[data-app-verzio], [data-app-meta], [data-app-valtozasok], [data-app-datum], [data-app-meret]');
+
+if (appMezok.length) {
+  fetch('https://api.github.com/repos/Kisskorboy2009/Asthetic/releases/latest', {
+    headers: { Accept: 'application/vnd.github+json' },
+  })
+    .then((v) => (v.ok ? v.json() : null))
+    .then((kiadas) => {
+      const valtozasLista = document.querySelector('[data-app-valtozasok]');
+      if (!kiadas) {
+        if (valtozasLista) valtozasLista.innerHTML = '<li>Az első kiadás hamarosan érkezik.</li>';
+        return;
+      }
+      const apk = (kiadas.assets || []).find((a) => a.name === 'asthetic.apk');
+      const verzio = String(kiadas.tag_name || '').replace(/^v/, '');
+      const mb = apk ? (apk.size / 1048576).toFixed(1).replace('.', ',') + ' MB' : null;
+      const datum = kiadas.published_at
+        ? new Date(kiadas.published_at).toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' })
+        : null;
+
+      const ir = (sel, szoveg) => document.querySelectorAll(sel).forEach((el) => { if (szoveg) el.textContent = szoveg; });
+      ir('[data-app-verzio]', verzio);
+      ir('[data-app-meret]', mb);
+      ir('[data-app-datum]', datum);
+      ir('[data-app-meta]', `Verzió ${verzio}${mb ? ' · ' + mb : ''} · Android 6.0 vagy újabb · ingyenes`);
+
+      if (valtozasLista) {
+        const sorok = String(kiadas.body || '')
+          .split('\n')
+          .map((s) => s.replace(/^\s*[-*]\s*/, '').trim())
+          .filter(Boolean)
+          .slice(0, 6);
+        valtozasLista.textContent = '';
+        (sorok.length ? sorok : ['Kisebb javítások']).forEach((sor) => {
+          const li = document.createElement('li');
+          li.textContent = sor;
+          valtozasLista.appendChild(li);
+        });
+      }
+    })
+    .catch(() => {
+      const valtozasLista = document.querySelector('[data-app-valtozasok]');
+      if (valtozasLista) valtozasLista.innerHTML = '<li>A változások listája most nem érhető el.</li>';
+    });
+}
+
 /* ───────────── Kártyák fénykövetése ───────────── */
 
 if (!reduceMotion) {

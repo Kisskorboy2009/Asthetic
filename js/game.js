@@ -62,10 +62,11 @@ window.onYouTubeIframeAPIReady = () => {
 };
 
 function createPlayer(videoId) {
-  if (!window.YT || !window.YT.Player) {
-    pendingVideoId = videoId;
-    return;
-  }
+  pendingVideoId = videoId;
+  if (!window.YT || !window.YT.Player) return;
+  // A lejátszó már készül (gyorsan egymás után beolvasott két kártya): nem
+  // hozunk létre másodikat, az onReady a legutóbbi dalt tölti be.
+  if (player) return;
   player = new YT.Player('ytFrame', {
     videoId,
     // Adatvédelmi módú beágyazás: a YouTube csak a tényleges lejátszáskor tárol adatot
@@ -75,7 +76,17 @@ function createPlayer(videoId) {
       modestbranding: 1, rel: 0, playsinline: 1, fs: 0, iv_load_policy: 3,
     },
     events: {
-      onReady: () => { playerReady = true; player.playVideo(); watchForAutoplayBlock(); },
+      onReady: () => {
+        playerReady = true;
+        // Ha a betöltés alatt már egy újabb kártyát olvastak be, azt indítjuk.
+        if (pendingVideoId && pendingVideoId !== videoId) {
+          player.loadVideoById({ videoId: pendingVideoId, startSeconds: START_SECOND });
+        } else {
+          player.playVideo();
+        }
+        pendingVideoId = null;
+        watchForAutoplayBlock();
+      },
       onStateChange: onPlayerStateChange,
       onError: () => {
         setState('done', 'Ez a videó nem játszható le');
@@ -93,7 +104,6 @@ function loadVideo(videoId) {
   $('revealBtn').textContent = 'Videó felfedése';
 
   if (!player || !playerReady) {
-    pendingVideoId = videoId;
     createPlayer(videoId);
   } else {
     player.loadVideoById({ videoId, startSeconds: START_SECOND });
@@ -430,6 +440,7 @@ function megszakitottaE(err) {
 
 // Az alkalmazásban a Capacitor futtatókörnyezete be van töltve és natív módban fut.
 function natívE() {
+  if (window.ASTHETIC && typeof window.ASTHETIC.natív === 'boolean') return window.ASTHETIC.natív;
   const cap = window.capacitorExports && window.capacitorExports.Capacitor;
   return !!(cap && cap.isNativePlatform && cap.isNativePlatform());
 }
@@ -666,8 +677,11 @@ $('manualForm').addEventListener('submit', (e) => {
 
 document.addEventListener('keydown', (e) => {
   const typing = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+  // Fókuszált gombon a szóköz magát a gombot nyomja meg — ha mi is váltanánk,
+  // kétszer váltana (azaz semmi sem történne).
+  const onButton = e.target.tagName === 'BUTTON' || e.target.tagName === 'A';
 
-  if (e.code === 'Space' && currentView === 'play' && !typing) {
+  if (e.code === 'Space' && currentView === 'play' && !typing && !onButton) {
     e.preventDefault();
     togglePlayback(false);
   }

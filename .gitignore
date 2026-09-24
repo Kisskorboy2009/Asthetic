@@ -4,6 +4,8 @@ npm-debug.log*
 
 # A www/ mappát a scripts/build-www.js állítja elő minden fordításkor
 www/
+# a weboldal tömörített változata (npm run build:web)
+web/
 
 # Android build kimenetek
 android/build/
