@@ -31,3 +31,6 @@ firebase-debug.log
 # A link-ellenőrzés futásonként újragenerált jelentése
 # (a tartós eredmény az adatbazis/tiltott_videok.json)
 adatbazis/link_jelentes.json
+adatbazis/video_cimek.json
+adatbazis/tartalom_jelentes.json
+adatbazis/link_javaslatok.json

@@ -209,6 +209,12 @@
       sajatValasz: sajatValasz === undefined ? null : sajatValasz,
     };
 
+    // A titkos dokumentum (dal, helyes válasz) külön figyelőn érkezik, és a
+    // körváltáskor a szoba frissítése gyakran előbb ér ide. Addig a titkos
+    // adat még az előző köré — azt nem szabad használni, különben az előző
+    // kör dala szólna. A kör nélküli (régi) titkos adatot elfogadjuk.
+    if (titkos && titkos.kor !== undefined && titkos.kor !== szoba.kor) titkos = null;
+
     if (szoba.allapot === 'kerdes' && szoba.kerdes) {
       const k = szoba.kerdes;
       // FONTOS: a hatralevo idot NEM a szobavezeto orajabol szamoljuk.

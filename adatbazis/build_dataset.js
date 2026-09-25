@@ -14,6 +14,7 @@ const FORRAS = process.argv[2] || 'D:/Hister/KESZ_LINKES.xlsx';
 const KIMENET = path.join(__dirname, 'songs.json');
 const TILTOTT = path.join(__dirname, 'tiltott_videok.json');
 const { nyelvvelKiegeszit } = require('./nyelv_felismeres.js');
+const { javitasokBetolt, alkalmaz } = require('./lib/javitasok.js');
 
 // Mar bevizsgalt, hasznalhatatlan videok (torolt link, Magyarorszagon letiltva,
 // beagyazas tiltva). A listat a link_ellenoriz.js allitja elo; itt azert kell
@@ -110,6 +111,10 @@ function main() {
       videoId,
     });
   }
+
+  // Kezi javitasok (rossz link, elirt cim/eloado) - lasd javitasok.json.
+  const javitva = alkalmaz(songs, javitasokBetolt());
+  if (javitva) console.log('Kezi javitas           : ' + javitva);
 
   songs.sort((a, b) => a.year - b.year || a.artist.localeCompare(a.artist, 'hu'));
   songs.forEach((s, i) => { s.id = i + 1; });

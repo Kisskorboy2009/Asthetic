@@ -1,4 +1,5 @@
-// Asthetic - a tiltolistara kerult dalok kivetele a songs.json-bol
+// Asthetic - a tiltolistara kerult dalok kivetele a songs.json-bol, es a
+// javitasok.json kezi javitasainak alkalmazasa
 //
 // A link_ellenoriz.js --frissit kapcsoloval a rossz linkeket a
 // tiltott_videok.json-ba irja. Ez a szkript ezeket veszi ki a songs.json-bol,
@@ -18,6 +19,7 @@ const path = require('path');
 
 const SONGS = path.join(__dirname, 'songs.json');
 const TILTOTT = path.join(__dirname, 'tiltott_videok.json');
+const { javitasokBetolt, alkalmaz } = require('./lib/javitasok.js');
 
 function tiltottHalmaz() {
   if (!fs.existsSync(TILTOTT)) return new Set();
@@ -29,11 +31,15 @@ function main() {
   const tiltott = tiltottHalmaz();
   const songs = JSON.parse(fs.readFileSync(SONGS, 'utf8'));
 
+  const javitva = alkalmaz(songs, javitasokBetolt());
+  if (javitva) console.log('Javitott dalok: ' + javitva);
+
   const maradok = songs.filter((s) => !tiltott.has(s.videoId));
   const kidobott = songs.filter((s) => tiltott.has(s.videoId));
 
   if (kidobott.length === 0) {
-    console.log('Nincs kivenni valo: a songs.json mar tiszta (' + songs.length + ' dal).');
+    if (javitva) fs.writeFileSync(SONGS, JSON.stringify(songs, null, 2), 'utf8');
+    console.log('Nincs kivenni valo (' + songs.length + ' dal).');
     return;
   }
 

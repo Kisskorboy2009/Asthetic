@@ -1,0 +1,166 @@
+{
+  "leiras": "Kézi javítások a táblázat hibáira, az eredeti videoId szerint. A build_dataset.js és a takarits.js alkalmazza.",
+  "javitasok": [
+    {
+      "videoId": "DNtO2D8r4AQ",
+      "eredeti": "Pappa Pia Stáb — Menj tovább! (2017)",
+      "ujVideoId": "dgHkTbJt5rw",
+      "megjegyzes": "a régi link egy kenyérsütős videó volt",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "Bh-DqiC3b9Y",
+      "eredeti": "Sihel Ferri & Henna — Laza Leszek (2015)",
+      "ujVideoId": "eg8OaJ2-OgA",
+      "artist": "Sihell Ferry & Henna",
+      "megjegyzes": "a régi link egy másik dal volt",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "stPmAjQFhpA",
+      "eredeti": "Solid Base — Let It All Out (1996)",
+      "ujVideoId": "QK72upxevoQ",
+      "title": "Let It All Be Sunshine",
+      "megjegyzes": "nincs \"Let It All Out\" című Solid Base-dal",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "LIMpVhvwiDQ",
+      "eredeti": "Hooligans — Szex & Rock and Roll (2005)",
+      "title": "Szex & KV",
+      "megjegyzes": "a videó jó, a cím volt téves",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "joEM4FoN-Ig",
+      "eredeti": "Romantic — Szeress úgy is ha rossz vagyok (2001)",
+      "artist": "Zámbó Jimmy",
+      "year": 1992,
+      "megjegyzes": "a videó Zámbó Jimmy eredeti felvétele",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "5pqdobEx82w",
+      "eredeti": "Sisi — Badacsony (2024)",
+      "artist": "Lil Frakk feat. toldyuuso",
+      "megjegyzes": "a videón Lil Frakk előadása szól",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "JoW5Oop6h7o",
+      "eredeti": "Rúzsa Magdi — 1 x 1 (2020)",
+      "title": "1 x fent 1 x lent",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "62_gC64cx2U",
+      "eredeti": "Rúzsa Magdi — Domino (2021)",
+      "title": "Domine",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "CpzEiqOmXU8",
+      "eredeti": "Desh — Bomba (2022)",
+      "title": "Szexbomb",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "-wNfntTkiRA",
+      "eredeti": "Sisi — Tsingilingi (2023)",
+      "title": "Tsingling",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "NhBx447hkqw",
+      "eredeti": "Auth Csilla — Te vagy a fény (1995)",
+      "title": "Nem te vagy a végső megoldás",
+      "megjegyzes": "a videón ez a dal szól",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "rYtqTMicTeE",
+      "eredeti": "Wellhello — Késő van (2025)",
+      "title": "Késő már",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "QFx150f5lKg",
+      "eredeti": "Szandi — Tiniédes l’amour (1990)",
+      "title": "Tinédzser l'amour",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "Uwzep1FGN_I",
+      "eredeti": "Coffein — Tróposi nyár (2001)",
+      "title": "Trópusi nyár",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "sGGIu-K4Mk0",
+      "eredeti": "Sisi — Reppelj jobban (2023)",
+      "title": "Rappelj jobban",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "zaVdT52ent4",
+      "eredeti": "Martin Laurent — Fekete BMV-vel megyek hozzád (2023)",
+      "title": "Fekete BMW-vel megyek hozzád",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "VfXqB1Gzll4",
+      "eredeti": "UFO — Caribi party (1996)",
+      "title": "Karibi party",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "Ka5KpjgpfjU",
+      "eredeti": "R-Go — Rég várok valakira (1983)",
+      "title": "Rég várok valakire",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "ARcJXy1qd-8",
+      "eredeti": "Metro — Kócos ördögök (1970)",
+      "title": "Kócos kis ördögök",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "Akga75nN7hA",
+      "eredeti": "Generál — Csöngess be jó barát (1973)",
+      "title": "Csöngess be hozzám, jó barát",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "osBNQgUlhuk",
+      "eredeti": "A jó LaciBetyár — Lesencei Betyárok (2018)",
+      "title": "Lesencei zsiványok",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "YJJtyarGU9w",
+      "eredeti": "Kis Grofó — Fokozzuk fel A Hangulatot (2021)",
+      "artist": "Kis Grófo",
+      "title": "Fokozzuk fel!",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "HyiImyywAVI",
+      "eredeti": "MC Hawer és Tekknő — Ma este mulatunk (2006)",
+      "title": "Ma este mulatok",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "HfiI6_KJzNA",
+      "eredeti": "Kaczor Feri — Jóska gyere haza (2001)",
+      "title": "Jóska, rögtön gyere haza",
+      "felvitel": "2026-09-25"
+    },
+    {
+      "videoId": "FAUrjKp3hRs",
+      "eredeti": "Emergency House — Ez legalább szex (1998)",
+      "title": "Ez legalább sex",
+      "felvitel": "2026-09-25"
+    }
+  ]
+}

@@ -80,7 +80,16 @@ function ujBongeszo(nev) {
 }
 
 function figyelj(b, kod, jatekosId) {
-  b.leiratkoz = b.FS.figyel(kod, jatekosId, (a) => { const l = a.jatekosok.map((j) => j.nev).join(','); if (process.env.DBG && l !== b._l) { console.log('    [' + b.nev + '] ' + l + ' (' + a.allapot + ')'); b._l = l; } b.allapot = a; }, (h) => { b.hiba = h; });
+  b.tortenet = [];
+  b.leiratkoz = b.FS.figyel(kod, jatekosId, (a) => {
+    b.tortenet.push({
+      allapot: a.allapot,
+      kor: a.kor,
+      videoId: a.kerdes ? a.kerdes.videoId : null,
+      valaszok: a.kerdes && a.kerdes.valaszok ? a.kerdes.valaszok.join('|') : null,
+      eredmenyVideo: a.eredmeny && a.eredmeny.dal ? a.eredmeny.dal.videoId : null,
+      eredmenyValaszok: a.eredmeny && a.eredmeny.valaszok ? a.eredmeny.valaszok.join('|') : null,
+    }); const l = a.jatekosok.map((j) => j.nev).join(','); if (process.env.DBG && l !== b._l) { console.log('    [' + b.nev + '] ' + l + ' (' + a.allapot + ')'); b._l = l; } b.allapot = a; }, (h) => { b.hiba = h; });
 }
 
 const letrehozottSzobak = [];
@@ -233,6 +242,39 @@ async function tesztKesoValasz() {
   takarit(host, p1, p2);
 }
 
+async function tesztZeneKorhoz() {
+  console.log('\n6) A szobavezetőnél mindig az aktuális kör dala szól (nem az előzőé)');
+  for (const csakSzinek of [false, true]) {
+    const { host, p1, p2, kod } = await szobaJatekosokkal({
+      korokSzama: 3, valaszIdoMp: 30, mindenkiUtanTovabb: true, tipusok: ['year', 'title'], csakSzinek,
+    });
+    await host.V.jatekIndit(kod);
+    for (let kor = 1; kor <= 3; kor++) {
+      await varakozas(() => host.allapot && host.allapot.allapot === 'kerdes' && host.allapot.kor === kor, 15000);
+      await var_(800);
+      await Promise.all([host, p1, p2].map((b) => b.FS.valaszAd(kod, b.jatekosId, 0, kor)));
+      await varakozas(() => host.allapot.allapot === 'eredmeny' && host.allapot.kor === kor, 15000);
+      if (kor < 3) await host.V.kovetkezoKor(kod);
+    }
+
+    const mod = csakSzinek ? ' (csak színek)' : '';
+    for (let kor = 1; kor <= 3; kor++) {
+      const eredmeny = host.tortenet.find((t) => t.allapot === 'eredmeny' && t.kor === kor);
+      const helyesDal = eredmeny && eredmeny.eredmenyVideo;
+      const latott = host.tortenet.filter((t) => t.allapot === 'kerdes' && t.kor === kor && t.videoId);
+      const rossz = latott.filter((t) => t.videoId !== helyesDal);
+      ellenoriz(latott.length > 0 && rossz.length === 0,
+        `${kor}. kör${mod}: a szobavezető ${latott.length ? 'csak a kör saját dalát kapta' : 'NEM kapott dalt'}${rossz.length ? ` — ${rossz.length}× egy másik kör dalát (${rossz[0].videoId} ≠ ${helyesDal})` : ''}`);
+
+      const latottValasz = host.tortenet.filter((t) => t.allapot === 'kerdes' && t.kor === kor && t.valaszok);
+      const rosszValasz = latottValasz.filter((t) => t.valaszok !== eredmeny.eredmenyValaszok);
+      ellenoriz(latottValasz.length > 0 && rosszValasz.length === 0,
+        `${kor}. kör${mod}: a szobavezető a kör saját válaszait látta${rosszValasz.length ? ' — HIBA: egy másik körét is' : ''}`);
+    }
+    takarit(host, p1, p2);
+  }
+}
+
 async function torlesMindent() {
   for (const { host, kod } of letrehozottSzobak) {
     try { await host.FS.kilep(kod); } catch { /* már nincs */ }
@@ -241,7 +283,7 @@ async function torlesMindent() {
 
 (async () => {
   const csak = process.argv[2];
-  const tesztek = { 1: tesztMindenkiValaszolt, 2: tesztKilepes, 3: tesztKikapcsolva, 4: tesztHallgatasUjratoltes, 5: tesztKesoValasz };
+  const tesztek = { 1: tesztMindenkiValaszolt, 2: tesztKilepes, 3: tesztKikapcsolva, 4: tesztHallgatasUjratoltes, 5: tesztKesoValasz, 6: tesztZeneKorhoz };
   try {
     for (const [szam, teszt] of Object.entries(tesztek)) {
       if (!csak || csak === szam) await teszt();

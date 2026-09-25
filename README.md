@@ -102,6 +102,17 @@ Ami HTTP-szinten rendben van, az még megbukhat magában a lejátszóban. Erre v
 
 A megtalált videók a `tiltott_videok.json`-ba kerülnek. Ezt a `build_dataset.js` is figyelembe veszi, tehát az adatbázis újraépítése után sem jönnek vissza a rossz linkek.
 
+### Rossz tartalmú linkek (más dal, más videó)
+
+Egy link lehet lejátszható, de mögötte egészen más videó is állhat. A tartalom-ellenőrző ezt nézi:
+
+```bash
+node adatbazis/tartalom_ellenoriz.js        # a videók címét összeveti az előadóval és a dalcímmel
+node adatbazis/link_kereso.js 140 1343      # helyes videót keres a megadott dalokhoz
+```
+
+A döntések két fájlba kerülnek: a nem létező dalok a `tiltott_videok.json`-ba (`rossz-tartalom`), a javítások (új videó, elírt cím vagy előadó) a `javitasok.json`-ba. Mindkettőt a `takarits.js` és a `build_dataset.js` is alkalmazza.
+
 ---
 
 Az oldalt készítette: [Kisskorboy](https://kisskorboy.hu/)

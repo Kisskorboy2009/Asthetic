@@ -249,6 +249,8 @@ async function csatlakozStream() {
 
 let elozoAllapotNev = null;
 let elozoKor = null;
+let elozoTartalom = null;
+let elozoZene = null;
 let elozoValaszNyitva = null;
 
 function kirajzol() {
@@ -352,9 +354,19 @@ function rajzolKerdes() {
   const valaszokMostNyiltak = elozoValaszNyitva === false && k.valaszNyitva !== false;
   elozoValaszNyitva = k.valaszNyitva !== false;
 
+  // A kérdés tartalma (a szobavezetőnél "csak színek" módban) késve is
+  // megérkezhet — ha változott, a gombokat újrarajzoljuk, de a
+  // visszaszámlálót nem indítjuk újra.
+  const tartalom = [allapot.kor, k.csakSzinek, (k.valaszok || []).join('\u0001')].join('|');
+  const tartalomValtozott = tartalom !== elozoTartalom;
+  elozoTartalom = tartalom;
+
   if (ujKor || valaszokMostNyiltak) {
     kuldesFolyamatban = false;
     idoLejart = false;
+  }
+
+  if (ujKor || valaszokMostNyiltak || tartalomValtozott) {
     const doboz = $('qValaszok');
     doboz.className = 'kvalaszok' + (k.csakSzinek ? ' kvalaszok--szinek' : '');
     // "Csak színek" módban nincs válaszszöveg, csak a négy jelölt gomb.
@@ -372,12 +384,20 @@ function rajzolKerdes() {
       gomb.addEventListener('click', () => valaszKuld(Number(gomb.dataset.index)));
     });
 
-    // A videoId-t vagy csak a szobavezeto kapja meg, vagy - ha a szoba ugy van
-    // beallitva - minden jatekos. Ahol megvan, ott szoljon.
-    // A dal csak új körnél induljon újra — a válaszok megnyitásakor szóljon tovább.
-    if (ujKor && k.videoId) zeneIndit(k.videoId, k.kezdesMp);
+  }
+
+  if (ujKor || valaszokMostNyiltak) {
     document.body.classList.add('is-szol');
     visszaszamlalIndit(hallgatas ? k.hallgatasHatraMs : k.hatralevoMs, hallgatas);
+  }
+
+  // A dal akkor indul, amikor az ADOTT kör dala megérkezik — ez lehet a kör
+  // első frissítése után is. Körönként egyszer: a válaszok megnyitásakor
+  // tovább szól, nem indul újra.
+  const zene = k.videoId ? allapot.kor + ':' + k.videoId : null;
+  if (zene && zene !== elozoZene) {
+    elozoZene = zene;
+    zeneIndit(k.videoId, k.kezdesMp);
   }
 
   const valaszoltam = allapot.sajatValasz !== null && allapot.sajatValasz !== undefined;
