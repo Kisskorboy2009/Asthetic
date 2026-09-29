@@ -429,6 +429,8 @@
 .appFiokLap__email { color: var(--ink-2); font-size: 14px; margin-top: -8px; overflow-wrap: anywhere; }
 .appFiokLap__hiba { margin: 0; color: #B3261E; font-size: 13.5px; }
 .appFiokLap__hiba[hidden] { display: none; }
+.appFiokLap__allapot { margin: 0; color: var(--ink-2); font-size: 13.5px; overflow-wrap: anywhere; }
+.appFiokLap__allapot[hidden] { display: none; }
 
 .appCsempe[hidden] { display: none; }
 .appCsempe:nth-child(4) { animation-delay: .23s; }

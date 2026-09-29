@@ -55,20 +55,49 @@ service cloud.firestore {
       }
     }
 
-    // ───────────── Rubik-Bingó ─────────────
-    // Zárt teszt: csak a felsorolt Google-fiókok érik el. Ugyanez a lista van a
-    // js/fiok.js-ben is — a kettőnek egyeznie kell.
+    // ───────────── Adminok és a Rubik-Bingó hozzáférése ─────────────
+    // Az adminok fixek (ugyanez a lista van a js/fiok.js-ben is — egyezniük
+    // kell). Rajtuk kívül az játszhat a bingóval, akit az admin oldalon
+    // felvesznek: annak az e-mail-címe dokumentum a bingo_hozzaferes alatt.
+
+    function ellenorzottEmail() {
+      return request.auth != null && request.auth.token.get('email_verified', false) == true;
+    }
+
+    function adminE() {
+      return ellenorzottEmail()
+        && request.auth.token.get('email', '') in ['kisskorboy1990@gmail.com', 'richardszenti@gmail.com'];
+    }
 
     function tesztelo() {
-      return request.auth != null
-        && request.auth.token.get('email_verified', false) == true
-        && request.auth.token.get('email', '') in ['kisskorboy1990@gmail.com', 'richardszenti@gmail.com'];
+      return adminE()
+        || (ellenorzottEmail()
+          && exists(/databases/$(database)/documents/bingo_hozzaferes/$(request.auth.token.email)));
+    }
+
+    // A saját bejegyzését mindenki megnézheti (ebből tudja az app, hogy
+    // játszhat-e); a listát csak az adminok látják és szerkesztik.
+    match /bingo_hozzaferes/{email} {
+      allow get: if adminE() || (ellenorzottEmail() && request.auth.token.email == email);
+      allow list, write: if adminE();
     }
 
     function bingoVezetoE(kod) {
       return tesztelo()
         && exists(/databases/$(database)/documents/bingo/$(kod))
         && get(/databases/$(database)/documents/bingo/$(kod)).data.hostUid == request.auth.uid;
+    }
+
+    // ───────────── Dallista (admin.html) ─────────────
+    // Bárki olvashatja (a játékok ebből dolgoznak), de csak a két admin írja.
+    match /dalok/{doc} {
+      allow read: if true;
+      allow write: if adminE();
+    }
+
+    // A korábbi változatok, hogy egy rossz mentés visszaállítható legyen.
+    match /dalok_mentesek/{doc} {
+      allow read, write: if adminE();
     }
 
     match /bingo/{kod} {

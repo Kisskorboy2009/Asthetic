@@ -615,9 +615,9 @@ async function evSavElokeszit() {
   if (evSavKesz) return;
 
   try {
-    const valasz = await fetch('adatbazis/songs.json', { cache: 'force-cache' });
-    if (!valasz.ok) throw new Error('nem toltodott be');
-    const dalok = await valasz.json();
+    const dalok = window.AstheticDalok
+      ? await window.AstheticDalok.betolt()
+      : await fetch('adatbazis/songs.json', { cache: 'force-cache' }).then((v) => { if (!v.ok) throw new Error('nem toltodott be'); return v.json(); });
     dalEvek = dalok.map((d) => d.year).filter(Number.isFinite).sort((a, b) => a - b);
     if (!dalEvek.length) throw new Error('ures');
   } catch {

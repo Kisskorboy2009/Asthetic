@@ -59,12 +59,20 @@
     } catch { return false; }
   }
 
+  window.ASTHETIC.emulator = emulatorE();
+
   /** Egyszer inicializálja a Firebase-t; minden oldal ezen keresztül éri el. */
   window.ASTHETIC.firebaseIndit = function () {
     const fb = window.firebase;
     if (!fb) throw new Error('A Firebase nem töltődött be.');
     if (!fb.apps.length) {
       fb.initializeApp(window.ASTHETIC.firebaseBeallitas);
+      // Az Android WebView-ban a Firestore streamelő kapcsolata gyakran nem
+      // jön létre; ezt a beállítást az első Firestore-hívás előtt kell megadni,
+      // ezért itt, bárki is indítja elsőként a Firebase-t.
+      if (fb.firestore) {
+        try { fb.firestore().settings({ experimentalAutoDetectLongPolling: true, merge: true }); } catch { /* már fut */ }
+      }
       if (emulatorE()) {
         fb.auth().useEmulator('http://127.0.0.1:9099', { disableWarnings: true });
         if (fb.firestore) fb.firestore().useEmulator('127.0.0.1', 8080);

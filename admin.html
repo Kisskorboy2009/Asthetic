@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dallista — Asthetic Game</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15171B" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/asthetic-logo.png" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/kahoot.css">
+<link rel="stylesheet" href="css/admin.css">
+<script>(function(){try{var t=localStorage.getItem("asthetic-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Ugrás a tartalomra</a>
+
+<header class="site-header" id="siteHeader">
+  <div class="container nav">
+    <a class="logo" href="index.html" aria-label="Asthetic Game — főoldal">
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__text">Asthetic</span>
+    </a>
+    <ul class="nav__links" id="navLinks">
+      <li><a href="index.html#hogyan">Hogyan működik</a></li>
+      <li><a href="kahoot.html">Kvízcsata</a></li>
+      <li><a href="jatek.html">Kártyás játék</a></li>
+      <li><a href="szabalyok.html">Szabályok</a></li>
+    </ul>
+    <div class="nav__cta">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Sötét mód be- és kikapcsolása">
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/></svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"/></svg>
+      </button>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="section section--tight">
+  <div class="container">
+
+    <!-- ════════ BELÉPÉS ════════ -->
+    <section class="aview" id="av-zar">
+      <div class="azar">
+        <p class="kicker">Admin</p>
+        <h1 class="h2">Dallista</h1>
+        <p class="lead" id="zarSzoveg">Betöltés…</p>
+        <button class="btn btn--accent btn--lg" id="zarBelepBtn" type="button" hidden>Bejelentkezés Google-fiókkal</button>
+        <p class="khiba" id="zarHiba" role="alert"></p>
+      </div>
+    </section>
+
+    <!-- ════════ LISTA ════════ -->
+    <section class="aview" id="av-lista">
+      <div class="afej">
+        <div>
+          <p class="kicker">Admin</p>
+          <h1 class="h2" id="aCim">Dallista</h1>
+          <p class="afej__meta" id="aMeta"></p>
+        </div>
+        <div class="bszeg afulek" role="tablist">
+          <label><input type="radio" name="panel" value="dalok" checked><span>Dallista</span></label>
+          <label><input type="radio" name="panel" value="hozzaferes"><span>Bingó-hozzáférés</span></label>
+        </div>
+      </div>
+
+      <div id="panelDalok">
+      <div class="afej afej--gombok">
+        <div class="afej__gombok">
+          <button class="btn btn--outline btn--sm" id="ujDalBtn" type="button">+ Új dal</button>
+          <button class="btn btn--accent btn--sm amentes" id="mentesBtn" type="button" disabled>
+            Mentés<span class="amentes__db" id="valtozasDb" hidden></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="asav">
+        <label class="akereso">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+          <input id="kereso" type="search" placeholder="Keresés előadóra, címre, évre…" autocomplete="off" aria-label="Keresés">
+        </label>
+        <div class="bszeg asav__szuro">
+          <label><input type="radio" name="nyelvSzuro" value="" checked><span>Mind</span></label>
+          <label><input type="radio" name="nyelvSzuro" value="hu"><span>Magyar</span></label>
+          <label><input type="radio" name="nyelvSzuro" value="egyeb"><span>Külföldi</span></label>
+          <label><input type="radio" name="nyelvSzuro" value="valtozott"><span>Módosított</span></label>
+        </div>
+        <select class="kinput asav__rend" id="rendezes" aria-label="Rendezés">
+          <option value="id">Legújabb elöl</option>
+          <option value="eloado">Előadó szerint</option>
+          <option value="ev">Év szerint</option>
+          <option value="evCsokk">Év szerint (csökkenő)</option>
+        </select>
+      </div>
+
+      <p class="atalalat" id="talalat"></p>
+      <div class="alista" id="aLista"></div>
+      <button class="btn btn--ghost atobb" id="tobbBtn" type="button" hidden>Mutass még</button>
+
+      <div class="aeszk">
+        <h2 class="h3">Eszközök</h2>
+        <div class="aeszk__gombok">
+          <button class="btn btn--ghost btn--sm" id="letoltBtn" type="button">Lista letöltése (JSON)</button>
+          <button class="btn btn--ghost btn--sm" id="mentesekBtn" type="button">Korábbi mentések</button>
+          <button class="btn btn--ghost btn--sm" id="gyariBtn" type="button">Beépített lista betöltése</button>
+        </div>
+        <div id="mentesekLista" hidden></div>
+      </div>
+      </div>
+
+      <div id="panelHozzaferes" hidden>
+        <div class="kcard ahozza">
+          <h2 class="h3">Ki játszhat a Rubik-Bingóval?</h2>
+          <p class="ahozza__le">Az alkalmazás zárt tesztje: csak az itt felsorolt Google-fiókok látják a bingót, és a szerver is csak őket engedi be. Az adminok mindig hozzáférnek, őket nem lehet eltávolítani. Az új tesztelőnek elég újraindítania az appot.</p>
+          <form class="ahozza__uj" id="emailUrlap" novalidate>
+            <input class="kinput" id="ujEmail" type="email" placeholder="valaki@gmail.com" autocomplete="off" spellcheck="false" aria-label="E-mail-cím">
+            <button class="btn btn--accent" type="submit" id="emailHozzaadBtn">Hozzáadás</button>
+          </form>
+          <p class="khiba" id="emailHiba" role="alert"></p>
+          <ul class="aemailek" id="emailLista"></ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Szerkesztő -->
+<div class="alap" id="szerk" hidden>
+  <form class="alap__doboz" id="szerkUrlap" role="dialog" aria-modal="true" aria-labelledby="szerkCim" novalidate>
+    <div class="alap__fej">
+      <h2 class="alap__cim" id="szerkCim">Dal szerkesztése</h2>
+      <button class="alap__zar" id="szerkZarBtn" type="button" aria-label="Bezárás">×</button>
+    </div>
+
+    <div class="aelonezet" id="elonezet">
+      <img id="elonezetKep" alt="">
+      <button class="aelonezet__lejatszas" id="lejatszBtn" type="button" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.2-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2Z" fill="currentColor"/></svg>
+        Meghallgatom a 45. mp-től
+      </button>
+      <p class="aelonezet__ures" id="elonezetUres">Illeszd be a YouTube-linket</p>
+    </div>
+
+    <div class="kfield">
+      <label for="fVideo">YouTube-link vagy videóazonosító</label>
+      <input class="kinput" id="fVideo" type="text" autocomplete="off" spellcheck="false" placeholder="https://youtu.be/…">
+    </div>
+    <div class="krow">
+      <div class="kfield">
+        <label for="fEloado">Előadó</label>
+        <input class="kinput" id="fEloado" type="text" maxlength="120" autocomplete="off">
+      </div>
+      <div class="kfield">
+        <label for="fCim">Cím</label>
+        <input class="kinput" id="fCim" type="text" maxlength="160" autocomplete="off">
+      </div>
+    </div>
+    <div class="krow">
+      <div class="kfield">
+        <label for="fEv">Megjelenés éve</label>
+        <input class="kinput" id="fEv" type="number" min="1900" max="2100" inputmode="numeric">
+      </div>
+      <div class="kfield">
+        <label>Nyelv</label>
+        <div class="bszeg">
+          <label><input type="radio" name="fNyelv" value="hu"><span>Magyar</span></label>
+          <label><input type="radio" name="fNyelv" value="egyeb"><span>Külföldi</span></label>
+        </div>
+      </div>
+    </div>
+    <details class="areszletek">
+      <summary>Eredeti cím (ha eltér)</summary>
+      <div class="kfield" style="margin-top:10px">
+        <input class="kinput" id="fEredeti" type="text" maxlength="160" autocomplete="off" placeholder="pl. a lemezen szereplő teljes cím">
+      </div>
+    </details>
+
+    <p class="khiba" id="szerkHiba" role="alert"></p>
+    <div class="krow alap__gombok">
+      <button class="btn btn--accent btn--lg" type="submit" id="szerkOkBtn">Kész</button>
+      <button class="btn btn--ghost adelete" id="torolBtn" type="button">Törlés</button>
+    </div>
+  </form>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js" defer></script>
+<script src="js/config.js" defer></script>
+<script src="js/fiok.js" defer></script>
+<script src="js/site.js" defer></script>
+<script src="js/dalok.js" defer></script>
+<script src="js/admin.js" defer></script>
+</body>
+</html>

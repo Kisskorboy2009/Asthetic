@@ -69,6 +69,8 @@
   /** A daladatbázis csak a szobavezetőnek kell — ne töltsük le feleslegesen. */
   async function dalokBetolt() {
     if (songs) return songs;
+    // Az admin oldalon szerkesztett lista (Firestore), tartaléknak a beépített.
+    if (window.AstheticDalok) { songs = await window.AstheticDalok.betolt(); return songs; }
     const valasz = await fetch('adatbazis/songs.json');
     if (!valasz.ok) throw new Error('A dalok adatbázisa nem érhető el.');
     songs = await valasz.json();

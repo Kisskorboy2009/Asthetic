@@ -101,17 +101,22 @@
          <button class="btn btn--ghost" type="button" data-muvelet="ki">Kijelentkezés</button>`
       : `<div class="appFiokLap__nev">Nem vagy bejelentkezve</div>
          <button class="btn btn--accent" type="button" data-muvelet="be">Bejelentkezés Google-fiókkal</button>
+         <p class="appFiokLap__allapot" hidden></p>
          <p class="appFiokLap__hiba" hidden></p>`;
     document.body.appendChild(lap);
     lap.querySelector('button').addEventListener('click', async (e) => {
       const gomb = e.currentTarget;
+      const allapot = lap.querySelector('.appFiokLap__allapot');
+      const h = lap.querySelector('.appFiokLap__hiba');
+      const jelez = (szoveg) => { if (allapot) { allapot.hidden = false; allapot.textContent = szoveg; } };
       gomb.disabled = true;
+      if (h) h.hidden = true;
       try {
         if (gomb.dataset.muvelet === 'ki') await Fiok.kijelentkezes();
-        else await Fiok.bejelentkezes();
+        else await Fiok.bejelentkezes(jelez);
         lap.remove();
       } catch (hiba) {
-        const h = lap.querySelector('.appFiokLap__hiba');
+        if (allapot) allapot.hidden = true;
         if (h) { h.hidden = false; h.textContent = 'Nem sikerült: ' + (hiba && hiba.message ? hiba.message : hiba); }
         gomb.disabled = false;
       }

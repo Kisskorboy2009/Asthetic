@@ -27,6 +27,7 @@ const MASOLANDO = [
   'letoltes.html',
   '404.html',
   'bingo.html',
+  'admin.html',
   'css',
   'js',
   'assets',
@@ -39,9 +40,12 @@ const MASOLANDO = [
 ];
 
 // A Rubik-Bingó csak az alkalmazásban érhető el — a weboldalra nem kerül ki.
+// Az admin oldal csak a weboldalon van.
+const CSAK_WEB = ['admin.html', 'js/admin.js', 'css/admin.css'];
+
 const CSAK_APP = ['bingo.html', 'css/bingo.css', 'js/bingomotor.js', 'js/bingo-asztal.js', 'js/bingo-firestore.js', 'js/bingo.js'];
 
-const OLDALAK = ['index', 'jatek', 'kahoot', 'szabalyok', 'adatvedelem', 'feltetelek', 'letoltes', '404'];
+const OLDALAK = ['admin', 'index', 'jatek', 'kahoot', 'szabalyok', 'adatvedelem', 'feltetelek', 'letoltes', '404'];
 
 function masol(honnan, hova) {
   if (fs.statSync(honnan).isDirectory()) {
@@ -118,6 +122,7 @@ async function main() {
     if (uj !== eredeti) fs.writeFileSync(fajl, uj);
   }
 
+  if (!WEB) for (const nev of CSAK_WEB) fs.rmSync(path.join(CEL, nev), { force: true });
   if (WEB) {
     for (const nev of CSAK_APP) fs.rmSync(path.join(CEL, nev), { force: true });
     await tomorit();

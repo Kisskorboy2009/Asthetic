@@ -43,6 +43,7 @@
 
   async function dalokBetolt() {
     if (songs) return songs;
+    if (window.AstheticDalok) { songs = await window.AstheticDalok.betolt(); return songs; }
     const valasz = await fetch('adatbazis/songs.json');
     if (!valasz.ok) throw new Error('A dalok adatbázisa nem érhető el.');
     songs = await valasz.json();

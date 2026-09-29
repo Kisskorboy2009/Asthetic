@@ -160,10 +160,13 @@ $('zarBelepBtn').addEventListener('click', async () => {
   hibaKiir('zarHiba', '');
   try {
     if (Fiok.felhasznalo) await Fiok.kijelentkezes();
-    await Fiok.bejelentkezes();
+    await Fiok.bejelentkezes((szoveg) => { $('zarAllapot').textContent = szoveg; });
   } catch (e) {
     hibaKiir('zarHiba', 'Nem sikerült bejelentkezni: ' + (e && e.message ? e.message : e));
-  } finally { gomb.disabled = false; }
+  } finally {
+    gomb.disabled = false;
+    $('zarAllapot').textContent = '';
+  }
 });
 $('zarKilepBtn').addEventListener('click', () => Fiok.kijelentkezes());
 
