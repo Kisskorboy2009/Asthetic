@@ -97,16 +97,63 @@
     return reg('FirebaseAuthentication');
   }
 
+  /**
+   * Csak az számít megszakításnak, ha a felhasználó maga zárta be a
+   * fiókválasztót. A Google a beállítási hibákat is „megszakítva” (16-os)
+   * kóddal adja vissza — azokat meg kell mutatni, különben a gomb csak
+   * elhalványul, és nem derül ki, mi a baj.
+   */
   function megszakitottaE(hiba) {
-    const s = String((hiba && (hiba.code || hiba.message)) || hiba || '');
-    return /cancel|megszak|popup-closed|user.?closed|16:/i.test(s);
+    const s = hibaSzoveg(hiba);
+    return /cancel+ed by the user|popup-closed-by-user|cancelled-popup-request|12501/i.test(s);
+  }
+
+  function hibaSzoveg(hiba) {
+    if (!hiba) return 'ismeretlen hiba';
+    const reszek = [hiba.code, hiba.message].filter(Boolean).map(String);
+    return reszek.length ? [...new Set(reszek)].join(': ') : String(hiba);
+  }
+
+  function idokorlat(igeret, ms, uzenet) {
+    let idozito;
+    return Promise.race([
+      igeret,
+      new Promise((_, hiba) => { idozito = setTimeout(() => hiba(new Error(uzenet)), ms); }),
+    ]).finally(() => clearTimeout(idozito));
+  }
+
+  /**
+   * A Google új bejelentkezési felülete (Credential Manager) egyes telefonokon
+   * nem jelenik meg, csak hibát ad. Ilyenkor a klasszikus fiókválasztóval
+   * próbáljuk újra.
+   */
+  async function natívGoogleToken() {
+    const plugin = natívPlugin();
+    let elsoHiba;
+    try {
+      return await idokorlat(plugin.signInWithGoogle({ skipNativeAuth: true }), 90000, 'A Google nem válaszolt.');
+    } catch (hiba) {
+      if (megszakitottaE(hiba)) throw hiba;
+      elsoHiba = hiba;
+      console.warn('Google-bejelentkezés (Credential Manager):', hibaSzoveg(hiba));
+    }
+    try {
+      return await idokorlat(
+        plugin.signInWithGoogle({ skipNativeAuth: true, useCredentialManager: false }),
+        90000,
+        'A Google nem válaszolt.',
+      );
+    } catch (hiba) {
+      if (megszakitottaE(hiba)) throw hiba;
+      throw new Error(hibaSzoveg(hiba) + ' (előtte: ' + hibaSzoveg(elsoHiba) + ')');
+    }
   }
 
   async function bejelentkezes() {
     const fb = await firebaseBetolt();
     try {
       if (window.ASTHETIC && window.ASTHETIC.natív) {
-        const eredmeny = await natívPlugin().signInWithGoogle({ skipNativeAuth: true });
+        const eredmeny = await natívGoogleToken();
         const idToken = eredmeny && eredmeny.credential && eredmeny.credential.idToken;
         if (!idToken) throw new Error('A Google nem adott vissza azonosítót.');
         await fb.auth().signInWithCredential(fb.auth.GoogleAuthProvider.credential(idToken));
