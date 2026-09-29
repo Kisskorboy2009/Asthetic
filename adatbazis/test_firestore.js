@@ -1,4 +1,4 @@
-// Végponttól végpontig teszt a Firestore-os Kvízcsatára — az ÉLES adatbázison.
+// Végponttól végpontig teszt a Firestore-os Kvízcsatára – az ÉLES adatbázison.
 //
 // Ugyanazokat a böngészős fájlokat tölti be (js/kahoot-firestore.js,
 // js/kahoot-vezeto.js, js/jatekmotor.js), amiket a weboldal, csak Node-ban,
@@ -46,7 +46,7 @@ async function varakozas(felt, maxMs) {
   return null;
 }
 
-/* ───────── egy "böngésző": saját Firebase-app, saját globális tér ───────── */
+// egy "böngésző": saját Firebase-app, saját globális tér
 
 let kliensSzam = 0;
 function ujBongeszo(nev) {
@@ -121,7 +121,7 @@ function takarit(...bongeszok) {
   }
 }
 
-/* ───────────────────────── tesztek ───────────────────────── */
+// tesztek
 
 async function tesztMindenkiValaszolt() {
   console.log('\n1) Ha mindenki válaszolt, a kör azonnal lezárul (30 mp-es keretnél)');
@@ -154,7 +154,7 @@ async function tesztMindenkiValaszolt() {
   ellenoriz(p1.allapot.sajatValasz === null, 'új körben a játékos korábbi válasza nem látszik kiválasztottnak');
   ellenoriz(host.allapot.valaszoltakSzama === 0, `új körben 0-ról indul a számláló (${host.allapot.valaszoltakSzama})`);
 
-  // Dupla kattintás: futó kör közben újra "következő kör" — a már beküldött
+  // Dupla kattintás: futó kör közben újra "következő kör" – a már beküldött
   // válasz nem törlődhet, és nem indulhat új kör.
   await p1.FS.valaszAd(kod, p1.jatekosId, 1, p1.allapot.kor);
   await varakozas(() => p1.allapot.sajatValasz === 1, 5000);
@@ -217,7 +217,7 @@ async function tesztHallgatasUjratoltes() {
   await varakozas(() => p1.allapot && p1.allapot.allapot === 'kerdes', 15000);
   ellenoriz(p1.allapot.kerdes.valaszNyitva === false, 'a hallgatás alatt a válaszok zárva vannak');
 
-  // "Oldalfrissítés": a vezetés leáll, majd újraindul — elvesznek az időzítők.
+  // "Oldalfrissítés": a vezetés leáll, majd újraindul – elvesznek az időzítők.
   host.V.leallit();
   await var_(500);
   host.V.indit(kod);
@@ -273,12 +273,12 @@ async function tesztZeneKorhoz() {
       const latott = host.tortenet.filter((t) => t.allapot === 'kerdes' && t.kor === kor && t.videoId);
       const rossz = latott.filter((t) => t.videoId !== helyesDal);
       ellenoriz(latott.length > 0 && rossz.length === 0,
-        `${kor}. kör${mod}: a szobavezető ${latott.length ? 'csak a kör saját dalát kapta' : 'NEM kapott dalt'}${rossz.length ? ` — ${rossz.length}× egy másik kör dalát (${rossz[0].videoId} ≠ ${helyesDal})` : ''}`);
+        `${kor}. kör${mod}: a szobavezető ${latott.length ? 'csak a kör saját dalát kapta' : 'NEM kapott dalt'}${rossz.length ? ` – ${rossz.length}× egy másik kör dalát (${rossz[0].videoId} ≠ ${helyesDal})` : ''}`);
 
       const latottValasz = host.tortenet.filter((t) => t.allapot === 'kerdes' && t.kor === kor && t.valaszok);
       const rosszValasz = latottValasz.filter((t) => t.valaszok !== eredmeny.eredmenyValaszok);
       ellenoriz(latottValasz.length > 0 && rosszValasz.length === 0,
-        `${kor}. kör${mod}: a szobavezető a kör saját válaszait látta${rosszValasz.length ? ' — HIBA: egy másik körét is' : ''}`);
+        `${kor}. kör${mod}: a szobavezető a kör saját válaszait látta${rosszValasz.length ? ' – HIBA: egy másik körét is' : ''}`);
     }
     takarit(host, p1, p2);
   }

@@ -3,8 +3,8 @@
 // Szobakezeles, korok, pontozas. Kulso csomag nelkul: a valos ideju frissiteseket
 // SSE-vel (Server-Sent Events) toljuk ki a jatekosoknak, a muveleteket sima POST-tal.
 //
-// FONTOS biztonsagi elv: a helyes valasz indexet SOHA nem kuldjuk ki a kerdes
-// alatt - csak a kiertekeleskor. Kulonben a bongeszo konzoljabol lattszana.
+// A helyes válasz indexe a kérdés alatt nem kerül ki a kliensekhez, csak a
+// kiértékeléskor, különben a böngésző konzoljából kiolvasható lenne.
 
 const fs = require('fs');
 const path = require('path');
@@ -12,13 +12,13 @@ const motor = require('./js/jatekmotor.js');
 
 const songs = JSON.parse(fs.readFileSync(path.join(__dirname, 'adatbazis', 'songs.json'), 'utf8'));
 
-// ───────────────────────── alapertelmezett szobabeallitasok ─────────────────────────
+// alapertelmezett szobabeallitasok
 
 const ALAP_BEALLITAS = motor.ALAP_BEALLITAS;
 
 const SZOBA_ELAVUL_MS = 4 * 60 * 60 * 1000; // 4 ora utan takaritunk
 
-// ───────────────────────── segedfuggvenyek ─────────────────────────
+// segedfuggvenyek
 
 const szobak = new Map();
 
@@ -34,7 +34,7 @@ function tisztitBeallitas(be) {
   return motor.tisztitBeallitas(be);
 }
 
-// ───────────────────────── szoba letrehozas / csatlakozas ─────────────────────────
+// szoba letrehozas / csatlakozas
 
 function szobaLetrehoz(hostNev, beallitas) {
   const kod = ujKod();
@@ -87,7 +87,7 @@ function szobaCsatlakozas(kod, nev) {
   return { szoba, jatekosId: id };
 }
 
-// ───────────────────────── jatekmenet ─────────────────────────
+// jatekmenet
 
 function jatekIndit(szoba) {
   if (szoba.allapot !== 'lobby') return { hiba: 'A játék már elindult.' };
@@ -258,7 +258,7 @@ function ujraJatszas(szoba) {
   return {};
 }
 
-// ───────────────────────── allapot kikuldese (SSE) ─────────────────────────
+// allapot kikuldese (SSE)
 
 /**
  * A kliensnek kuldott allapot. A `jatekosId` alapjan szemelyre szabjuk:
@@ -349,7 +349,7 @@ function figyeloHozzaad(szoba, jatekosId, res) {
   return () => szoba.figyelok.delete(figyelo);
 }
 
-// ───────────────────────── publikus szobalista + takaritas ─────────────────────────
+// publikus szobalista + takaritas
 
 function publikusSzobak() {
   return [...szobak.values()]

@@ -1,13 +1,11 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — a dallista betöltése
-
-   A játékok (Kvízcsata, Rubik-Bingó) a Firestore-ban tárolt listából
-   dolgoznak, amit az admin oldalon (admin.html) lehet szerkeszteni. Ha az nem
-   érhető el, a weboldallal együtt kiszállított adatbazis/songs.json marad.
-
-   A lista egyetlen dokumentumban van, JSON-szövegként (dalok/lista): így egy
-   olvasás az egész, és a Firestore sem indexeli dalonként a mezőket.
-   ═══════════════════════════════════════════════════════════════ */
+// A dallista betöltése
+//
+// A játékok (Kvízcsata, Rubik-Bingó) a Firestore-ban tárolt listából
+// dolgoznak, amit az admin oldalon (admin.html) lehet szerkeszteni. Ha az nem
+// érhető el, a weboldallal együtt kiszállított adatbazis/songs.json marad.
+//
+// A lista egyetlen dokumentumban van, JSON-szövegként (dalok/lista): így egy
+// olvasás az egész, és a Firestore sem indexeli dalonként a mezőket.
 
 (function () {
   'use strict';

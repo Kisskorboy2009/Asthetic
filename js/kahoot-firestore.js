@@ -1,22 +1,20 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — Kvízcsata Firestore-on, kiszolgáló nélkül
-
-   A Firebase ingyenes csomagján nem futtatható saját kiszolgáló, ezért a
-   játékvezetés a SZOBAVEZETŐ böngészőjében fut: ő választja a dalt, generálja a
-   kérdést, méri a kört és értékel. A többiek csak olvassák a szoba állapotát, és
-   beírják a saját válaszukat. (A szobavezetőnél amúgy is nála szól a zene, tehát
-   neki eddig is nyitva kellett tartania az oldalt.)
-
-   Adatszerkezet — a jogosultsági szabályok erre épülnek (firestore.rules):
-
-     szobak/{kod}                     nyilvános állapot; ÍRNI csak a szobavezető tud
-     szobak/{kod}/titkos/host         videoId + helyes válasz — CSAK a szobavezető olvashatja
-     szobak/{kod}/jelentkezok/{uid}   "be szeretnék lépni, a nevem X"
-     szobak/{kod}/valaszok/{uid}      egy játékos válasza — csak ő és a szobavezető
-
-   Így a helyes válasz a kérdés alatt sehogy sem szedhető ki a böngészőből,
-   ugyanúgy, ahogy a szerveres változatban.
-   ═══════════════════════════════════════════════════════════════ */
+// Kvízcsata Firestore-on, kiszolgáló nélkül
+//
+// A Firebase ingyenes csomagján nem futtatható saját kiszolgáló, ezért a
+// játékvezetés a SZOBAVEZETŐ böngészőjében fut: ő választja a dalt, generálja a
+// kérdést, méri a kört és értékel. A többiek csak olvassák a szoba állapotát, és
+// beírják a saját válaszukat. (A szobavezetőnél amúgy is nála szól a zene, tehát
+// neki eddig is nyitva kellett tartania az oldalt.)
+//
+// Adatszerkezet – a jogosultsági szabályok erre épülnek (firestore.rules):
+//
+//   szobak/{kod}                     nyilvános állapot; ÍRNI csak a szobavezető tud
+//   szobak/{kod}/titkos/host         videoId + helyes válasz – CSAK a szobavezető olvashatja
+//   szobak/{kod}/jelentkezok/{uid}   "be szeretnék lépni, a nevem X"
+//   szobak/{kod}/valaszok/{uid}      egy játékos válasza – csak ő és a szobavezető
+//
+// Így a helyes válasz a kérdés alatt sehogy sem szedhető ki a böngészőből,
+// ugyanúgy, ahogy a szerveres változatban.
 
 (function () {
   'use strict';
@@ -38,7 +36,7 @@
   let songs = null;
   let motor = null;
 
-  /* ───────────────────────── indulás ───────────────────────── */
+  // indulás
 
   async function init() {
     if (db) return;
@@ -66,7 +64,7 @@
     if (!motor) throw new Error('A játékmotor nem töltődött be.');
   }
 
-  /** A daladatbázis csak a szobavezetőnek kell — ne töltsük le feleslegesen. */
+  /** A daladatbázis csak a szobavezetőnek kell – ne töltsük le feleslegesen. */
   async function dalokBetolt() {
     if (songs) return songs;
     // Az admin oldalon szerkesztett lista (Firestore), tartaléknak a beépített.
@@ -80,7 +78,7 @@
   const most = () => firebase.firestore.FieldValue.serverTimestamp();
   const szobaHiv = (kod) => db.collection('szobak').doc(kod);
 
-  /* ───────────────────────── szoba létrehozás / csatlakozás ───────────────────────── */
+  // szoba létrehozás / csatlakozás
 
   async function szobaLetrehoz(nev, beallitasNyers, kep = null) {
     await dalokBetolt();
@@ -144,7 +142,7 @@
     const meglevo = (szoba.jatekosok || []).find((j) => j.uid === uid);
     if (meglevo) return { kod, jatekosId: meglevo.id };
 
-    // A szobavezető veszi fel a játékosokat — mi csak jelentkezünk. Ha egy
+    // A szobavezető veszi fel a játékosokat – mi csak jelentkezünk. Ha egy
     // korábbi kilépésünk jelzése még ott van, előbb eltüntetjük: a meglévő
     // dokumentumot a szabályok szerint csak létrehozni lehet, felülírni nem.
     await szobaHiv(kod).collection('jelentkezok').doc(uid).delete().catch(() => {});
@@ -181,16 +179,16 @@
     });
   }
 
-  /* ───────────────────────── állapot figyelése ───────────────────────── */
+  // állapot figyelése
 
   /**
-   * Ugyanolyan alakú állapotot ad vissza, mint a szerveres SSE — így a
+   * Ugyanolyan alakú állapotot ad vissza, mint a szerveres SSE – így a
    * megjelenítő kód (js/kahoot.js) változtatás nélkül működik mindkét úton.
    */
   function nezetKeszit(szoba, jatekosId, titkos, sajatValaszAdat) {
     // A saját válasz csak akkor számít, ha az aktuális körhöz tartozik: a
     // körváltáskor törölt régi válasz törlése később is megérkezhet, mint az
-    // új kérdés — addig ne látszódjon kiválasztottnak a régi gomb.
+    // új kérdés – addig ne látszódjon kiválasztottnak a régi gomb.
     const sajatValasz = sajatValaszAdat
       && (sajatValaszAdat.kor === undefined || sajatValaszAdat.kor === szoba.kor)
       && szoba.allapot === 'kerdes'
@@ -219,19 +217,16 @@
 
     // A titkos dokumentum (dal, helyes válasz) külön figyelőn érkezik, és a
     // körváltáskor a szoba frissítése gyakran előbb ér ide. Addig a titkos
-    // adat még az előző köré — azt nem szabad használni, különben az előző
+    // adat még az előző köré – azt nem szabad használni, különben az előző
     // kör dala szólna. A kör nélküli (régi) titkos adatot elfogadjuk.
     if (titkos && titkos.kor !== undefined && titkos.kor !== szoba.kor) titkos = null;
 
     if (szoba.allapot === 'kerdes' && szoba.kerdes) {
       const k = szoba.kerdes;
-      // FONTOS: a hatralevo idot NEM a szobavezeto orajabol szamoljuk.
-      // A keszulekek oraja percekkel is elterhet, ezert a kivetitett kep es a
-      // telefon visszaszamlaloja elcsuszna. Helyette a teljes idot kuldjuk, es
-      // minden keszulek attol kezdve szamol, amikor megkapta a kerdest - igy az
-      // elteres csak a halozati keslekedes, nem az oraallitas.
-      // "Csak szinek" modban a szoveg es a valaszok a titkos dokumentumban
-      // vannak - oda csak a szobavezeto lat bele.
+      // A hátralévő időt nem a szobavezető órájából számoljuk (a készülékek
+      // órája eltérhet): a teljes időt küldjük, és mindenki a kérdés
+      // megérkezésétől számol. „Csak színek” módban a szöveg és a válaszok a
+      // titkos dokumentumban vannak, azt csak a szobavezető olvassa.
       const csakSzinek = Boolean(k.csakSzinek) && !hostE;
       nezet.kerdes = {
         tipus: k.tipus,
@@ -271,7 +266,7 @@
       if (!pillanat.exists) {
         // A Firestore először a helyi gyorsítótárból válaszol, és az még
         // "nincs ilyen dokumentum"-ot mondhat, mielőtt a kiszolgáló felelne.
-        // Csak a kiszolgálótól jövő hiányt hisszük el — különben a frissen
+        // Csak a kiszolgálótól jövő hiányt hisszük el – különben a frissen
         // létrehozott szoba azonnal "megszűntnek" látszana.
         if (pillanat.metadata && pillanat.metadata.fromCache) return;
         hibaVisszahivas(new Error('A szoba megszűnt.'));
@@ -304,13 +299,13 @@
       szobaHiv(kod).collection('titkos').doc('host').onSnapshot((pillanat) => {
         titkos = pillanat.exists ? pillanat.data() : null;
         frissit();
-      }, () => { /* játékosként ez tiltott — így is kell lennie */ }),
+      }, () => { /* játékosként ez tiltott – így is kell lennie */ }),
     );
 
     return () => leiratkozok.forEach((f) => { try { f(); } catch { /* mindegy */ } });
   }
 
-  /* ───────────────────────── válaszadás ───────────────────────── */
+  // válaszadás
 
   async function valaszAd(kod, jatekosId, valaszIndex, kor) {
     const idx = Number(valaszIndex);
@@ -322,7 +317,7 @@
       uid,
       jatekosId,
       valasz: idx,
-      // Melyik körre szól — a szobavezető a más körhöz tartozó (késve
+      // Melyik körre szól – a szobavezető a más körhöz tartozó (késve
       // beérkezett) válaszokat nem veszi figyelembe.
       ...(Number.isInteger(kor) ? { kor } : {}),
       mikor: most(),
@@ -336,7 +331,7 @@
       if (!pillanat.exists) return;
 
       if (pillanat.data().hostUid === uid) {
-        // A szobavezető kilépésével a játék véget ér — nincs, aki vezesse.
+        // A szobavezető kilépésével a játék véget ér – nincs, aki vezesse.
         // Az aldokumentumokat is töröljük, különben árván maradnának.
         for (const gyujtemeny of ['valaszok', 'jelentkezok', 'titkos']) {
           const docs = await hiv.collection(gyujtemeny).get().catch(() => null);
@@ -357,7 +352,7 @@
     } catch { /* kilépéskor már mindegy */ }
   }
 
-  /* ───────────────────────── nyilvános szobák ───────────────────────── */
+  // nyilvános szobák
 
   async function publikusSzobak() {
     const hatar = new Date(Date.now() - SZOBA_ELAVUL_PERC * 60 * 1000);

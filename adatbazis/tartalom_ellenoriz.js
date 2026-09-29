@@ -8,7 +8,7 @@
 // Hasznalat:
 //   node adatbazis/tartalom_ellenoriz.js
 //
-// Eredmeny: tartalom_jelentes.json — a gyanus dalok, pontszam szerint.
+// Eredmeny: tartalom_jelentes.json – a gyanus dalok, pontszam szerint.
 // A lekert cimeket a video_cimek.json tarolja, igy az ujrafuttatas gyors.
 
 'use strict';

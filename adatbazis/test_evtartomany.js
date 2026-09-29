@@ -19,7 +19,6 @@ function ok(allitas, szoveg) {
 
 function fejlec(szoveg) { console.log('\n' + szoveg); }
 
-// ─────────────────────────────────────────────────────────────
 
 fejlec('1) A beallitas tisztitasa');
 {
@@ -133,7 +132,6 @@ fejlec('7) A kizart dalok a tartomanyon belul is kizartak maradnak');
   ok(ismetles === 0, `egyetlen dal sem jott vissza masodszor (${ismetles})`);
 }
 
-// ─────────────────────────────────────────────────────────────
 
 console.log('\n================================');
 if (hiba === 0) console.log('MINDEN TESZT ATMENT.');

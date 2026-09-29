@@ -56,7 +56,7 @@ function azonosNyelv(song, songs) {
 // A 4 evszam ugy all elo, hogy a szomszedos ertekek 5-10 ev tavolsagra legyenek egymastol,
 // es a helyes valasz veletlenszeru helyen alljon a sorban.
 //
-// FONTOS: minden evszamnak realisnak kell lennie. Egy jovobeli ev (pl. 2027) azonnal
+// Minden évszámnak reálisnak kell lennie. Egy jövőbeli év (pl. 2027) azonnal
 // elarulna magat, ezert a teljes ablakot beleszoritjuk az ERV_MIN..ERV_MAX tartomanyba:
 // ha a helyes evszam a tartomany szelen van, a helyes valasz automatikusan a sor
 // elejere/vegere kerul, es az elteritok a masik iranyba nyulnak.

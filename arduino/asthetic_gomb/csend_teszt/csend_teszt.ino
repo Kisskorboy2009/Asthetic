@@ -1,4 +1,4 @@
-// CSEND-TESZT — annak eldöntésére, honnan jön a kattogás.
+// CSEND-TESZT – annak eldöntésére, honnan jön a kattogás.
 //
 // Ez a program szándékosan NEM csinál semmit:
 //   - nincs Bluetooth (se klasszikus, se BLE), tehát nincs rádió-áramlökés
@@ -6,7 +6,7 @@
 //   - a főciklus üres
 //
 // Ha ezzel a programmal IS kattog, akkor a hang nem a firmware-től és nem a
-// lábaktól jön — akkor a tápellátás (a dobozban lévő boost/töltő modul) az
+// lábaktól jön – akkor a tápellátás (a dobozban lévő boost/töltő modul) az
 // okozó, és azt hardveresen kell orvosolni.
 //
 // Ha viszont ELHALLGAT, akkor a rádió vagy valamelyik láb a felelős, és onnan

@@ -3,12 +3,11 @@
 //   node scripts/build-www.js         → www/  az Android alkalmazásnak (Capacitor)
 //   node scripts/build-www.js --web   → web/  a weboldalnak (Firebase Hosting)
 //
-// A web/ változatban:
-//   • a belső linkek kiterjesztés nélküliek (/jatek, /kahoot, /letoltes …) —
-//     a Firebase a cleanUrls beállítással szolgálja ki őket;
-//   • a HTML, CSS és JS tömörítve, megjegyzések nélkül kerül ki.
-// Az alkalmazásban maradnak a .html-es linkek: a Capacitor beépített kiszolgálója
-// minden kiterjesztés nélküli útvonalat az index.html-re irányítana.
+// Mindkettőben a HTML, CSS és JS tömörítve, megjegyzések nélkül kerül ki.
+// A web/ változatban a belső linkek kiterjesztés nélküliek (/jatek, /kahoot …),
+// ezeket a Firebase a cleanUrls beállítással szolgálja ki. Az alkalmazásban
+// maradnak a .html-es linkek: a Capacitor beépített kiszolgálója minden
+// kiterjesztés nélküli útvonalat az index.html-re irányítana.
 
 const fs = require('fs');
 const path = require('path');
@@ -39,7 +38,7 @@ const MASOLANDO = [
   'adatbazis/question_engine.js',
 ];
 
-// A Rubik-Bingó csak az alkalmazásban érhető el — a weboldalra nem kerül ki.
+// A Rubik-Bingó csak az alkalmazásban érhető el – a weboldalra nem kerül ki.
 // Az admin oldal csak a weboldalon van.
 const CSAK_WEB = ['admin.html', 'js/admin.js', 'css/admin.css'];
 
@@ -73,7 +72,7 @@ function tisztaLinkek(html) {
   return html.replace(minta, (_, eleje, oldal, vege) => eleje + (oldal === 'index' ? '/' : '/' + oldal) + vege);
 }
 
-async function tomorit() {
+async function tomorit({ tisztaUrl }) {
   const esbuild = require('esbuild');
   const { minify } = require('html-minifier-terser');
 
@@ -89,7 +88,7 @@ async function tomorit() {
   }
   for (const fajl of fajlok(CEL, '.html')) {
     const forras = fs.readFileSync(fajl, 'utf8');
-    const kesz = await minify(tisztaLinkek(forras), {
+    const kesz = await minify(tisztaUrl ? tisztaLinkek(forras) : forras, {
       collapseWhitespace: true,
       conservativeCollapse: true,
       removeComments: true,
@@ -123,12 +122,10 @@ async function main() {
   }
 
   if (!WEB) for (const nev of CSAK_WEB) fs.rmSync(path.join(CEL, nev), { force: true });
-  if (WEB) {
-    for (const nev of CSAK_APP) fs.rmSync(path.join(CEL, nev), { force: true });
-    await tomorit();
-  }
+  if (WEB) for (const nev of CSAK_APP) fs.rmSync(path.join(CEL, nev), { force: true });
+  await tomorit({ tisztaUrl: WEB });
 
-  console.log(`${path.basename(CEL)}/ elkészült — ${db} elem, ${dalokSzama} dal${WEB ? ', tömörítve' : ''}.`);
+  console.log(`${path.basename(CEL)}/ elkészült – ${db} elem, ${dalokSzama} dal, tömörítve.`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

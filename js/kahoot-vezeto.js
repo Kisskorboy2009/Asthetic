@@ -1,26 +1,19 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — a szobavezető böngészőjében futó játékvezetés (Firestore)
-
-   Kiszolgáló nélkül valakinek vezetnie kell a játékot: ezt a szobavezető
-   böngészője végzi. Ő veszi fel a jelentkezőket, választ dalt, generálja a
-   kérdést, méri a kört, és értékel. Mindezt a közös js/jatekmotor.js-szel, hogy
-   a pontozás pontosan ugyanaz legyen, mint a szerveres úton.
-
-   Csak a szobavezetőnél fut — a többi játékos böngészője semmit nem ír a
-   szobadokumentumba (a jogosultsági szabályok sem engednék).
-
-   Két alapszabály, mindkettőt egy-egy valódi hiba tanította meg:
-
-   1. A szobadokumentumot MINDIG tranzakcióban írjuk, ha a korábbi tartalmára
-      építünk (játékoslista, pontok, kör). A sima get() a saját, épp lezárult
-      tranzakciónk előtti állapotot is visszaadhatja — egyszer így esett ki a
-      játékoslistából az, aki a játék indítása előtti pillanatban lépett be.
-
-   2. Időzítő csak EGY helyen áll be (utemez), és mindig a szoba teljes
-      állapotából számol. Korábban a "mindenki válaszolt" rövid időzítőjét a
-      válaszszámláló frissítése azonnal felülírta a teljes válaszidőre, így a
-      játék hiába volt beállítva, mégis kivárta a kört.
-   ═══════════════════════════════════════════════════════════════ */
+// A szobavezető böngészőjében futó játékvezetés (Firestore)
+//
+// Kiszolgáló nélkül valakinek vezetnie kell a játékot: ezt a szobavezető
+// böngészője végzi. Ő veszi fel a jelentkezőket, választ dalt, generálja a
+// kérdést, méri a kört, és értékel. Mindezt a közös js/jatekmotor.js-szel, hogy
+// a pontozás pontosan ugyanaz legyen, mint a szerveres úton.
+//
+// Csak a szobavezetőnél fut – a többi játékos böngészője semmit nem ír a
+// szobadokumentumba (a jogosultsági szabályok sem engednék).
+//
+// Két szabály:
+// 1. Ha a szoba korábbi tartalmára építünk (játékoslista, pontok, kör), az
+//    írás tranzakcióban történik: a sima get() a saját, épp lezárult
+//    tranzakciónk előtti állapotot is visszaadhatja.
+// 2. Időzítő csak egy helyen áll be (utemez), mindig a szoba teljes
+//    állapotából számolva, így egy közbenső írás nem állítja vissza.
 
 (function () {
   'use strict';
@@ -34,7 +27,7 @@
 
   let aktiv = null;
 
-  /* ───────────────────────── indítás / leállítás ───────────────────────── */
+  // indítás / leállítás
 
   function indit(kod) {
     if (aktiv && aktiv.kod === kod) return;
@@ -46,7 +39,7 @@
       hiv,
       leiratkozok: [],
       idozito: null,
-      cel: null,            // { tipus, kor, ido } — mire áll most az időzítő
+      cel: null,            // { tipus, kor, ido } – mire áll most az időzítő
       eletjel: null,
       szoba: null,
       valaszok: {},
@@ -54,7 +47,7 @@
     };
     const sajat = aktiv;
 
-    // 1) A szoba állapotát követjük — ebből tudjuk, mikor mi következik.
+    // 1) A szoba állapotát követjük – ebből tudjuk, mikor mi következik.
     sajat.leiratkozok.push(hiv.onSnapshot((pillanat) => {
       if (aktiv !== sajat) return;
       if (!pillanat.exists) {
@@ -79,7 +72,7 @@
       });
     }, () => {}));
 
-    // 3) Válaszok gyűjtése — ha mindenki válaszolt, ne várjunk az időzítőre.
+    // 3) Válaszok gyűjtése – ha mindenki válaszolt, ne várjunk az időzítőre.
     sajat.leiratkozok.push(hiv.collection('valaszok').onSnapshot((pillanat) => {
       if (aktiv !== sajat) return;
       const valaszok = {};
@@ -104,7 +97,7 @@
   }
 
   /**
-   * A szobát módosító műveletek egymás után futnak, soha nem egyszerre —
+   * A szobát módosító műveletek egymás után futnak, soha nem egyszerre –
    * így egy dupla kattintás vagy egy épp beérkező jelentkező nem tud
    * két, egymásról nem tudó írást elindítani.
    */
@@ -115,7 +108,7 @@
     return kovetkezo;
   }
 
-  /* ───────────────────────── segédfüggvények ───────────────────────── */
+  // segédfüggvények
 
   /** Egy válasz csak az aktuális körre érvényes, és csak ha tényleges játékostól jön. */
   function ervenyesValaszok(szoba, valaszok) {
@@ -123,7 +116,7 @@
     const eredmeny = {};
     for (const v of Object.values(valaszok || {})) {
       if (!v || !jatszoIdk.has(v.jatekosId)) continue;
-      // A régebbi kliensek még nem írják bele a kört — a körváltáskor úgyis
+      // A régebbi kliensek még nem írják bele a kört – a körváltáskor úgyis
       // töröljük a válaszokat, ezért náluk elfogadjuk.
       if (v.kor !== undefined && v.kor !== szoba.kor) continue;
       eredmeny[v.jatekosId] = v;
@@ -131,7 +124,7 @@
     return eredmeny;
   }
 
-  /** A "hányan válaszoltak" kijelzés — csak akkor írunk, ha tényleg változott. */
+  /** A "hányan válaszoltak" kijelzés – csak akkor írunk, ha tényleg változott. */
   function szamlaloFrissit() {
     if (!aktiv || !aktiv.szoba || aktiv.szoba.allapot !== 'kerdes') return;
     const db = Object.keys(ervenyesValaszok(aktiv.szoba, aktiv.valaszok)).length;
@@ -141,7 +134,7 @@
     aktiv.hiv.update({ valaszoltakSzama: db }).catch(() => {});
   }
 
-  /* ───────────────────────── időzítés — egyetlen helyen ───────────────────────── */
+  // időzítés – egyetlen helyen
 
   function utemez() {
     if (!aktiv || !aktiv.szoba) return;
@@ -159,7 +152,7 @@
 
     if (szoba.kerdes.valaszNyitva === false) {
       // Hallgatási szakasz. Ha a szobavezető közben újratöltötte az oldalt,
-      // az időzítő elveszett — ezért mindig a kör kezdetéből számolunk újra.
+      // az időzítő elveszett – ezért mindig a kör kezdetéből számolunk újra.
       const hallgatasMs = (szoba.beallitas.elobbZeneMp || 0) * 1000;
       const kezdet = szoba.kerdes.indultMs || most;
       cel = { tipus: 'nyitas', kor, ido: kezdet + hallgatasMs };
@@ -170,7 +163,7 @@
       const jatszokSzama = motor().jatszok(szoba.jatekosok).length;
       const valaszolt = Object.keys(ervenyesValaszok(szoba, aktiv.valaszok)).length;
       // Ha egyetlen játszó sincs (a szobavezető csak levezet, és még senki nem
-      // lépett be), ne ugorjunk azonnal — különben végigpörögnének a körök.
+      // lépett be), ne ugorjunk azonnal – különben végigpörögnének a körök.
       if (szoba.beallitas.mindenkiUtanTovabb && jatszokSzama > 0 && valaszolt >= jatszokSzama) {
         const gyors = most + SZUNET_KIERTEKELES_MS;
         // Ha már áll egy korábbi rövid időzítő ugyanerre a körre, azt hagyjuk.
@@ -201,7 +194,7 @@
     }, Math.max(0, cel.ido - most));
   }
 
-  /* ───────────────────────── jelentkezők ───────────────────────── */
+  // jelentkezők
 
   async function felvesz(kod, jelentkezoUid, nev, kep) {
     const hiv = FS().szobaHiv(kod);
@@ -230,7 +223,7 @@
     } catch { /* a következő pillanatkép újrapróbálja */ }
   }
 
-  /** A kilépő játékos lekerül a listáról — ettől a "mindenki válaszolt" is helyesen számol. */
+  /** A kilépő játékos lekerül a listáról – ettől a "mindenki válaszolt" is helyesen számol. */
   async function eltavolit(kod, jatekosUid) {
     const hiv = FS().szobaHiv(kod);
     try {
@@ -248,7 +241,7 @@
     } catch { /* a következő pillanatkép újrapróbálja */ }
   }
 
-  /* ───────────────────────── játékmenet ───────────────────────── */
+  // játékmenet
 
   function jatekIndit(kod) {
     return sorba(() => korInditas(kod, { inditas: true }));
@@ -277,7 +270,7 @@
           eredmeny: null,
           vegeredmeny: null,
           valaszoltakSzama: 0,
-          // A már lejátszott dalok kimaradnak — az új menetben friss dalok jönnek.
+          // A már lejátszott dalok kimaradnak – az új menetben friss dalok jönnek.
           jatekosok: (szoba.jatekosok || []).map((j) => ({ ...j, pont: 0 })),
           frissitve: FS().most(),
         });
@@ -287,9 +280,9 @@
 
   /**
    * Új kör indítása. Három helyről hívódik:
-   *   inditas — a váróból indul a játék (pontok nullázása)
-   *   kidobas — a szobavezető kidobja a futó dalt; a kör nem számít bele
-   *   (alap) — az eredmény után jön a következő kör
+   *   inditas – a váróból indul a játék (pontok nullázása)
+   *   kidobas – a szobavezető kidobja a futó dalt; a kör nem számít bele
+   *   (alap) – az eredmény után jön a következő kör
    */
   async function korInditas(kod, { inditas = false, kidobas = false }) {
     const hiv = FS().szobaHiv(kod);
@@ -297,11 +290,9 @@
 
     const engedett = inditas ? ['lobby'] : kidobas ? ['kerdes'] : ['eredmeny'];
 
-    // Az állapotot CSAK a tranzakcióban szabad ellenőrizni. A kör eredményét
-    // tranzakció írja, és amíg a szoba figyelője meg nem kapja, a get() —
-    // még source: 'server'-rel is — a figyelő régi nézetét adja vissza. Egy
-    // korábbi előzetes ellenőrzés emiatt néha "még kérdés"-t látott, és a
-    // következő kör szó nélkül elmaradt.
+    // Az állapotot a tranzakción belül ellenőrizzük: a kör eredményét
+    // tranzakció írja, és amíg a szoba figyelője meg nem kapja, a get() (még
+    // source: 'server'-rel is) a figyelő régi nézetét adja vissza.
     await FS().db.runTransaction(async (tr) => {
       const pillanat = await tr.get(hiv);
       if (!pillanat.exists) throw new Error('Nincs ilyen szoba.');
@@ -327,7 +318,7 @@
       }
 
       // Az előző kör válaszai ugyanebben a tranzakcióban törlődnek: így csak
-      // akkor, ha tényleg új kör indul — egy dupla kattintás nem söpörheti ki
+      // akkor, ha tényleg új kör indul – egy dupla kattintás nem söpörheti ki
       // a már futó kör válaszait. (Minden olvasás után kell jönnie.)
       for (const j of szoba.jatekosok || []) {
         if (j.uid) tr.delete(hiv.collection('valaszok').doc(j.uid));
@@ -358,7 +349,7 @@
       const hallgatasMs = (szoba.beallitas.elobbZeneMp || 0) * 1000;
 
       // A helyes válasz és a videoId külön dokumentumba megy, amit csak a
-      // szobavezető olvashat — a kérdés alatt senki más nem fér hozzá.
+      // szobavezető olvashat – a kérdés alatt senki más nem fér hozzá.
       tr.set(titkosHiv, {
         videoId: dal.videoId,
         correctIndex: kerdes.correctIndex,

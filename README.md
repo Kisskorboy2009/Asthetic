@@ -6,14 +6,14 @@ A projekt három részből áll, és mindhárom ugyanabból a kódbázisból él
 
 | Rész | Hol |
 |---|---|
-| **Weboldal** | a repó gyökere — statikus HTML/CSS/JS |
+| **Weboldal** | a repó gyökere – statikus HTML/CSS/JS |
 | **Android alkalmazás** | ugyanaz a weboldal, [Capacitorral](https://capacitorjs.com/) becsomagolva (`android/`) |
 | **Fizikai gomb** | ESP32-es firmware (`arduino/asthetic_gomb/`) |
 
 ## Játékmódok
 
-- **QR-mód** — beolvasol egy kártyát, a dal a 45. másodperctől szól 30 másodpercig. A fizikai gombbal (vagy a képernyőn) állítható meg és indítható újra.
-- **Kvízcsata (Kahoot-szerű)** — szobát nyitsz, a többiek kóddal csatlakoznak, mindenki ugyanazt a dalt hallja, és négy válasz közül választ. Aki jól és gyorsan válaszol, több pontot kap.
+- **QR-mód** – beolvasol egy kártyát, a dal a 45. másodperctől szól 30 másodpercig. A fizikai gombbal (vagy a képernyőn) állítható meg és indítható újra.
+- **Kvízcsata (Kahoot-szerű)** – szobát nyitsz, a többiek kóddal csatlakoznak, mindenki ugyanazt a dalt hallja, és négy válasz közül választ. Aki jól és gyorsan válaszol, több pontot kap.
 
 ## Helyi futtatás
 
@@ -24,7 +24,7 @@ npm start
 
 Ezután nyisd meg: <http://localhost:4173>
 
-A kamera és a Web Bluetooth csak „biztonságos kontextusban" működik, ezért nem elég a HTML-t duplán kattintani — ezen a kis kiszolgálón keresztül kell megnyitni. A Kvízcsatához a telefonok a helyi hálózatról is csatlakozhatnak (a kiszolgáló kiírja a címet induláskor).
+A kamera és a Web Bluetooth csak „biztonságos kontextusban" működik, ezért nem elég a HTML-t duplán kattintani – ezen a kis kiszolgálón keresztül kell megnyitni. A Kvízcsatához a telefonok a helyi hálózatról is csatlakozhatnak (a kiszolgáló kiírja a címet induláskor).
 
 ## Weboldal élesítése
 
@@ -40,12 +40,12 @@ A tömörített változat helyben is kipróbálható: `npm run build:web`, majd 
 
 Minden `main`-re küldött változtatásnál a GitHub Actions lefordítja és aláírja az alkalmazást, és új **kiadást** (Release) készít belőle `v1.<futásszám>` címkével. Ebből dolgozik:
 
-- a **letöltés oldal** (<https://asthetic.hu/letoltes>) — mindig a legfrissebb APK-ra mutat;
-- az alkalmazás **önfrissítője** (`js/frissites.js` + `android/…/FrissitoPlugin.java`) — induláskor megnézi a legfrissebb kiadást, és ha újabb, felajánlja a letöltést és a telepítést.
+- a **letöltés oldal** (<https://asthetic.hu/letoltes>) – mindig a legfrissebb APK-ra mutat;
+- az alkalmazás **önfrissítője** (`js/frissites.js` + `android/…/FrissitoPlugin.java`) – induláskor megnézi a legfrissebb kiadást, és ha újabb, felajánlja a letöltést és a telepítést.
 
 Az aláíráshoz négy titok kell a repó beállításaiban (*Settings → Secrets and variables → Actions*): `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Enélkül is lefordul az APK (Artifacts alatt), de kiadás nem készül, mert egy másik kulccsal aláírt APK nem telepíthető rá a meglévőre.
 
-**A kulcstárat (`asthetic-alairo-kulcs.p12`) és a jelszavát őrizd meg** — ha elveszik, a már telepített alkalmazásokra nem lehet több frissítést telepíteni.
+**A kulcstárat (`asthetic-alairo-kulcs.p12`) és a jelszavát őrizd meg** – ha elveszik, a már telepített alkalmazásokra nem lehet több frissítést telepíteni.
 
 Helyi fordításhoz Android Studio kell:
 
@@ -64,7 +64,7 @@ ESP32-WROOM, klasszikus Bluetooth és BLE egyszerre. A bekötés és a lábkiosz
 | Piros LED | GPIO18, 220 Ω ellenálláson át |
 | Buzzer | GPIO33, másik lába GND |
 
-A gomb `STOP` / `PLAY` sort küld, a játék pedig `PLAYING` / `STOPPED` sorral válaszol vissza — ettől világít a gomb LED-je pontosan akkor, amikor szól a zene.
+A gomb `STOP` / `PLAY` sort küld, a játék pedig `PLAYING` / `STOPPED` sorral válaszol vissza – ettől világít a gomb LED-je pontosan akkor, amikor szól a zene.
 
 ## Dalok adatbázisa
 
@@ -96,9 +96,9 @@ node adatbazis/link_ellenoriz.js --frissit  # a találatokat a tiltólistára is
 node adatbazis/takarits.js                  # a tiltólistán lévőket kiveszi a songs.json-ból
 ```
 
-A `link_ellenoriz.js` a YouTube oEmbed- és player-válaszából dolgozik: a **törölt**, a **Magyarországon letiltott** és a **beágyazást tiltó** videókat találja meg. Csak akkor jelöl meg egy dalt, ha mindkét forrás egyetért — egy elakadt hálózati kérés így nem dob ki jó dalt.
+A `link_ellenoriz.js` a YouTube oEmbed- és player-válaszából dolgozik: a **törölt**, a **Magyarországon letiltott** és a **beágyazást tiltó** videókat találja meg. Csak akkor jelöl meg egy dalt, ha mindkét forrás egyetért – egy elakadt hálózati kérés így nem dob ki jó dalt.
 
-Ami HTTP-szinten rendben van, az még megbukhat magában a lejátszóban. Erre való a böngészős ellenőrzés: futtasd az `npm start`-ot, és nyisd meg a <http://localhost:4173/adatbazis/link_ellenoriz.html> címet. Ez ugyanabban a YouTube-lejátszóban indítja el a dalokat, mint a játék — **hagyd a lapot előtérben**, különben a böngésző felfüggeszti a videókat, és minden hibásnak látszik.
+Ami HTTP-szinten rendben van, az még megbukhat magában a lejátszóban. Erre való a böngészős ellenőrzés: futtasd az `npm start`-ot, és nyisd meg a <http://localhost:4173/adatbazis/link_ellenoriz.html> címet. Ez ugyanabban a YouTube-lejátszóban indítja el a dalokat, mint a játék – **hagyd a lapot előtérben**, különben a böngésző felfüggeszti a videókat, és minden hibásnak látszik.
 
 A megtalált videók a `tiltott_videok.json`-ba kerülnek. Ezt a `build_dataset.js` is figyelembe veszi, tehát az adatbázis újraépítése után sem jönnek vissza a rossz linkek.
 

@@ -1,6 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — admin: dallista
-   ═══════════════════════════════════════════════════════════════ */
+/* Admin: dallista */
 
 .aview { display: none; }
 .aview.is-active { display: block; animation: kfade .4s var(--ease) both; }

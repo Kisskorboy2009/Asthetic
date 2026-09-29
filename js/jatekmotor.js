@@ -1,14 +1,12 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — a Kvízcsata közös játéklogikája
-
-   Ez a fájl mindkét helyen fut:
-     • Node-ban  (kahoot-server.js, helyi hálózaton játszva)
-     • böngészőben (a szobavezetőnél, amikor Firestore-on megy a játék)
-
-   Csak tiszta függvények vannak benne — se hálózat, se időzítő, se állapot.
-   Így a pontozás és a kérdésválasztás garantáltan ugyanaz a két úton, és a
-   meglévő tesztek (adatbazis/test_pontozas.js) mindkettőt lefedik.
-   ═══════════════════════════════════════════════════════════════ */
+// A Kvízcsata közös játéklogikája
+//
+// Ez a fájl mindkét helyen fut:
+//   • Node-ban  (kahoot-server.js, helyi hálózaton játszva)
+//   • böngészőben (a szobavezetőnél, amikor Firestore-on megy a játék)
+//
+// Csak tiszta függvények vannak benne – se hálózat, se időzítő, se állapot.
+// Így a pontozás és a kérdésválasztás garantáltan ugyanaz a két úton, és a
+// meglévő tesztek (adatbazis/test_pontozas.js) mindkettőt lefedik.
 
 (function (globalis, keszit) {
   if (typeof module !== 'undefined' && module.exports) {
@@ -98,7 +96,7 @@
   function tisztitKep(url) {
     try {
       const u = new URL(String(url || ''));
-      return u.protocol === 'https:' && /(^|.)googleusercontent.com$/.test(u.hostname) ? u.href.slice(0, 500) : null;
+      return u.protocol === 'https:' && /(^|\.)googleusercontent\.com$/.test(u.hostname) ? u.href.slice(0, 500) : null;
     } catch { return null; }
   }
 
@@ -220,7 +218,7 @@
 
   /**
    * Egy kör kiértékelése.
-   * @param jatekosok  [{id, nev, pont}]  — a pont helyben frissül
+   * @param jatekosok  [{id, nev, pont}]  – a pont helyben frissül
    * @param valaszok   { [jatekosId]: {valasz, mikorMs} }
    * @returns a kör eredménylistája, gyorsaság szerint rendezve
    */

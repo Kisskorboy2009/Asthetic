@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rubik-Bingó — Asthetic Game</title>
+<title>Rubik-Bingó – Asthetic Game</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#15171B" media="(prefers-color-scheme: dark)">
@@ -23,7 +23,7 @@
 <main id="main" class="section section--tight">
   <div class="container">
 
-    <!-- ════════ ZÁRT TESZT ════════ -->
+    <!-- zárt teszt -->
     <section class="bview" id="bv-zar">
       <div class="kwrap bzar">
         <div class="bzar__kerek" aria-hidden="true"></div>
@@ -39,14 +39,14 @@
       </div>
     </section>
 
-    <!-- ════════ MENÜ ════════ -->
+    <!-- menü -->
     <section class="bview" id="bv-menu">
       <div class="kwrap">
         <div class="section-head section-head--center">
           <div class="bzar__kerek bzar__kerek--kicsi" aria-hidden="true"></div>
           <p class="kicker">Rubik-Bingó</p>
           <h1 class="h2">Pörgess, hallgass, ikszelj</h1>
-          <p class="lead">A kerék kidob egy színt, szól egy dal. Aki eltalálja, ikszelhet egy ilyen színű mezőt a kártyáján. Aki elsőként kirak öt X-et egy vonalban, nyer.</p>
+          <p class="lead">A kerék kidob egy színt, szól egy dal. Aki eltalálja, ikszelhet egy ilyen színű mezőt a kártyáján. Aki elsőként kirakja a mintát, nyer.</p>
         </div>
         <div class="kcard">
           <div class="bprofil" id="menuProfil"></div>
@@ -60,7 +60,7 @@
       </div>
     </section>
 
-    <!-- ════════ BEÁLLÍTÁSOK ════════ -->
+    <!-- beállítások -->
     <section class="bview" id="bv-beallit">
       <div class="kwrap">
         <div class="section-head">
@@ -69,40 +69,67 @@
         </div>
 
         <div class="kcard">
+          <h2 class="bcsoport">Játékosok</h2>
           <div class="kfield">
-            <label>Hogyan játszotok?</label>
             <div class="bvalasztok bvalasztok--ket">
               <label class="bvalaszto">
                 <input type="radio" name="mod" value="online" checked>
                 <span class="bvalaszto__cim">Mindenki a saját telefonján</span>
-                <span class="bvalaszto__le">Szobakóddal lépnek be. Mindenki a saját telefonján látja a kártyáját és ott írja be a tippjét.</span>
+                <span class="bvalaszto__le">Szobakóddal lépnek be, és mindenki a saját telefonján tippel.</span>
               </label>
               <label class="bvalaszto">
                 <input type="radio" name="mod" value="helyi">
                 <span class="bvalaszto__cim">Egy telefon, körbeadva</span>
-                <span class="bvalaszto__le">Minden ezen a készüléken fut. A nevedre koppintva írod be a tippet, aztán adod tovább.</span>
+                <span class="bvalaszto__le">A nevedre koppintva írod be a tippet, aztán adod tovább.</span>
               </label>
             </div>
           </div>
 
           <div class="kfield" id="helyiJatekosokMezo" hidden>
-            <label>Játékosok</label>
+            <label>Kik játszanak?</label>
             <div class="bnevek" id="helyiJatekosok"></div>
             <button class="btn btn--ghost bnevek__uj" id="helyiUjBtn" type="button">+ Játékos hozzáadása</button>
           </div>
 
+          <div class="kfield" id="vezetoJatszikMezo" style="margin-bottom:0">
+            <label class="ktoggle" style="flex:1 1 100%">
+              <input type="checkbox" id="vezetoJatszikInput" checked>
+              <span class="ktoggle__box" aria-hidden="true"></span>
+              <span class="ktoggle__label">Én is játszom (ha nem, ez a telefon csak az asztal, itt szól a zene)</span>
+            </label>
+          </div>
+
+          <h2 class="bcsoport">Tippelés</h2>
           <div class="kfield">
-            <label>Mit kell eltalálni?</label>
+            <label>Mit kell tippelni?</label>
+            <div class="ktoggles">
+              <label class="ktoggle"><input type="checkbox" id="tEloado" checked><span class="ktoggle__box" aria-hidden="true"></span><span class="ktoggle__label">Előadó</span></label>
+              <label class="ktoggle"><input type="checkbox" id="tCim" checked><span class="ktoggle__box" aria-hidden="true"></span><span class="ktoggle__label">Cím</span></label>
+              <label class="ktoggle"><input type="checkbox" id="tEv" checked><span class="ktoggle__box" aria-hidden="true"></span><span class="ktoggle__label">Évszám</span></label>
+            </div>
+          </div>
+
+          <div class="kfield" id="mitKellMezo">
+            <label>Mikor jó a tipp?</label>
             <div class="bszeg">
-              <label><input type="radio" name="mitKell" value="mindketto" checked><span>Előadó + cím</span></label>
-              <label><input type="radio" name="mitKell" value="barmelyik"><span>Bármelyik</span></label>
-              <label><input type="radio" name="mitKell" value="cim"><span>Csak cím</span></label>
-              <label><input type="radio" name="mitKell" value="eloado"><span>Csak előadó</span></label>
+              <label><input type="radio" name="mitKell" value="mindegyik" checked><span>Ha mind stimmel</span></label>
+              <label id="kettoOpcio"><input type="radio" name="mitKell" value="ketto"><span>Legalább kettő</span></label>
+              <label><input type="radio" name="mitKell" value="barmelyik"><span>Bármelyik elég</span></label>
+            </div>
+          </div>
+
+          <div class="kfield" id="evTuresMezo">
+            <label>Évszám: mennyi eltérés fér bele?</label>
+            <div class="bszeg">
+              <label><input type="radio" name="evTures" value="0"><span>Pontosan</span></label>
+              <label><input type="radio" name="evTures" value="1" checked><span>±1 év</span></label>
+              <label><input type="radio" name="evTures" value="2"><span>±2 év</span></label>
+              <label><input type="radio" name="evTures" value="5"><span>±5 év</span></label>
             </div>
           </div>
 
           <div class="kfield">
-            <label>Mennyire szigorú a gép?</label>
+            <label>Mennyire szigorú a gép a nevekkel?</label>
             <div class="bszeg">
               <label><input type="radio" name="elfogadas" value="pontos"><span>Pontos</span></label>
               <label><input type="radio" name="elfogadas" value="normal" checked><span>Kis elírás belefér</span></label>
@@ -111,46 +138,7 @@
             <p class="bsugo" id="elfogadasSugo"></p>
           </div>
 
-          <div class="kfield" style="margin-bottom:6px">
-            <label class="ktoggle" style="flex:1 1 100%">
-              <input type="checkbox" id="lecsapasInput" checked>
-              <span class="ktoggle__box" aria-hidden="true"></span>
-              <span class="ktoggle__label">Lecsapás — aki elsőként nyom, megállítja a dalt és elsőként tippel</span>
-            </label>
-          </div>
-
-          <div class="krow" id="lecsapIdoSor">
-            <div class="kfield">
-              <label for="lecsapIdoInput">Idő a lecsapás után (mp)</label>
-              <input class="kinput" id="lecsapIdoInput" type="number" min="5" max="60" value="15" inputmode="numeric">
-            </div>
-          </div>
-
-          <div class="kfield" style="margin-bottom:6px">
-            <label class="ktoggle" style="flex:1 1 100%">
-              <input type="checkbox" id="jokerInput">
-              <span class="ktoggle__box" aria-hidden="true"></span>
-              <span class="ktoggle__label">Fehér joker a keréken — ha az jön, bármelyik mező ikszelhető</span>
-            </label>
-          </div>
-
-          <div class="kfield" style="margin-bottom:6px">
-            <label class="ktoggle" style="flex:1 1 100%">
-              <input type="checkbox" id="mindenkiUtanInput" checked>
-              <span class="ktoggle__box" aria-hidden="true"></span>
-              <span class="ktoggle__label">Ha mindenki beküldte a tippjét, ne várjuk ki az időt</span>
-            </label>
-          </div>
-
-          <div class="kfield" id="vezetoJatszikMezo" style="margin-bottom:6px">
-            <label class="ktoggle" style="flex:1 1 100%">
-              <input type="checkbox" id="vezetoJatszikInput" checked>
-              <span class="ktoggle__box" aria-hidden="true"></span>
-              <span class="ktoggle__label">Én is játszom — ha kikapcsolod, ez a készülék csak az asztal (itt szól a zene)</span>
-            </label>
-          </div>
-
-          <div class="krow" style="margin-top:12px">
+          <div class="krow">
             <div class="kfield">
               <label for="idoInput">Tippelési idő (mp)</label>
               <input class="kinput" id="idoInput" type="number" min="10" max="120" value="30" inputmode="numeric">
@@ -161,16 +149,77 @@
             </div>
           </div>
 
+          <div class="kfield" style="margin-bottom:6px">
+            <label class="ktoggle" style="flex:1 1 100%">
+              <input type="checkbox" id="lecsapasInput" checked>
+              <span class="ktoggle__box" aria-hidden="true"></span>
+              <span class="ktoggle__label">Lecsapás: aki elsőként nyom, megállítja a dalt és elsőként tippel</span>
+            </label>
+          </div>
+          <div class="kfield" id="lecsapIdoSor">
+            <label for="lecsapIdoInput">Ennyi ideje van a lecsapónak (mp)</label>
+            <input class="kinput" id="lecsapIdoInput" type="number" min="5" max="60" value="15" inputmode="numeric">
+          </div>
+
+          <div class="kfield" style="margin-bottom:0">
+            <label class="ktoggle" style="flex:1 1 100%">
+              <input type="checkbox" id="mindenkiUtanInput" checked>
+              <span class="ktoggle__box" aria-hidden="true"></span>
+              <span class="ktoggle__label">Ha mindenki beküldte a tippjét, ne várjuk ki az időt</span>
+            </label>
+          </div>
+
+          <h2 class="bcsoport">Nyerés</h2>
+          <div class="kfield">
+            <label>Mikor nyer valaki?</label>
+            <div class="bszeg bszeg--racs">
+              <label><input type="radio" name="nyeres" value="vonal" checked><span>Egy vonal</span></label>
+              <label><input type="radio" name="nyeres" value="ketVonal"><span>Két vonal</span></label>
+              <label><input type="radio" name="nyeres" value="sarkok"><span>Négy sarok</span></label>
+              <label><input type="radio" name="nyeres" value="teli"><span>Teli kártya</span></label>
+            </div>
+          </div>
+
+          <div class="kfield">
+            <label>Hány kör legyen?</label>
+            <div class="bszeg">
+              <label><input type="radio" name="maxKor" value="0" checked><span>Amíg valaki nyer</span></label>
+              <label><input type="radio" name="maxKor" value="10"><span>10</span></label>
+              <label><input type="radio" name="maxKor" value="15"><span>15</span></label>
+              <label><input type="radio" name="maxKor" value="20"><span>20</span></label>
+              <label><input type="radio" name="maxKor" value="30"><span>30</span></label>
+            </div>
+            <p class="bsugo">Ha elfogynak a körök, az nyer, aki a legközelebb járt.</p>
+          </div>
+
+          <div class="kfield" style="margin-bottom:0">
+            <label class="ktoggle" style="flex:1 1 100%">
+              <input type="checkbox" id="jokerInput">
+              <span class="ktoggle__box" aria-hidden="true"></span>
+              <span class="ktoggle__label">Fehér joker a keréken: ha az jön, bármelyik mező ikszelhető</span>
+            </label>
+          </div>
+
+          <h2 class="bcsoport">Dalok</h2>
+          <div class="kfield">
+            <label>Milyen dalok jöjjenek?</label>
+            <div class="bszeg">
+              <label><input type="radio" name="nyelv" value="mind" checked><span>Mind</span></label>
+              <label><input type="radio" name="nyelv" value="hu"><span>Csak magyar</span></label>
+              <label><input type="radio" name="nyelv" value="kulfoldi"><span>Csak külföldi</span></label>
+            </div>
+          </div>
           <div class="krow">
             <div class="kfield">
-              <label for="evTolInput">Dalok ettől az évtől</label>
+              <label for="evTolInput">Ettől az évtől</label>
               <input class="kinput" id="evTolInput" type="number" min="1900" max="2100" placeholder="bármikor" inputmode="numeric">
             </div>
             <div class="kfield">
-              <label for="evIgInput">…eddig az évig</label>
+              <label for="evIgInput">Eddig az évig</label>
               <input class="kinput" id="evIgInput" type="number" min="1900" max="2100" placeholder="bármikor" inputmode="numeric">
             </div>
           </div>
+          <p class="bsugo" id="dalDarab"></p>
 
           <p class="khiba" id="beallitHiba" role="alert"></p>
           <div class="krow" style="margin-top:18px">
@@ -181,7 +230,7 @@
       </div>
     </section>
 
-    <!-- ════════ CSATLAKOZÁS ════════ -->
+    <!-- csatlakozás -->
     <section class="bview" id="bv-csatlakoz">
       <div class="kwrap">
         <div class="section-head section-head--center">
@@ -203,7 +252,7 @@
       </div>
     </section>
 
-    <!-- ════════ VÁRÓ ════════ -->
+    <!-- váró -->
     <section class="bview" id="bv-lobby">
       <div class="kwrap">
         <div class="kcode">
@@ -216,7 +265,7 @@
         <div class="kcard" style="margin-top:16px">
           <h2 class="h3" style="margin-bottom:12px">Az asztalnál (<span id="lobbyLetszam">0</span>)</h2>
           <div class="kplayers" id="lobbyJatekosok"></div>
-          <p class="kures" id="lobbyBeallitas" style="text-align:left;padding:18px 0 0"></p>
+          <ul class="bszabalyok" id="lobbyBeallitas"></ul>
           <p class="khiba" id="lobbyHiba" role="alert"></p>
           <div class="krow" style="margin-top:12px">
             <button class="btn btn--accent btn--lg" id="inditBtn" type="button" hidden>Indulhat a játék</button>
@@ -226,68 +275,65 @@
       </div>
     </section>
 
-    <!-- ════════ JÁTÉK ════════ -->
+    <!-- játék: egy képernyőre tervezve, görgetés nélkül -->
     <section class="bview" id="bv-jatek">
       <div class="bjatek">
         <div class="bfej">
           <span class="bfej__kor" id="jKor">1. kör</span>
           <span class="bfej__szin" id="jSzin"></span>
+          <button class="bfej__gomb" id="jKilepBtn" type="button">Kilépés</button>
         </div>
 
-        <div class="basztal" id="jAsztal">
-          <div class="basztal__filc" aria-hidden="true"></div>
-          <div class="bkerek" id="jKerek">
-            <div class="bkerek__mutato" aria-hidden="true"></div>
-            <svg class="bkerek__lap" id="jKerekLap" viewBox="0 0 200 200" aria-hidden="true"></svg>
-            <div class="bkerek__agy"><span id="jIdo">–</span></div>
+        <div class="basztal-hely">
+          <div class="basztal" id="jAsztal">
+            <div class="basztal__filc" aria-hidden="true"></div>
+            <div class="bkerek" id="jKerek">
+              <div class="bkerek__mutato" aria-hidden="true"></div>
+              <svg class="bkerek__lap" id="jKerekLap" viewBox="0 0 200 200" aria-hidden="true"></svg>
+              <div class="bkerek__agy"><span id="jIdo">–</span></div>
+            </div>
+            <div class="basztal__helyek" id="jHelyek"></div>
           </div>
-          <div class="basztal__helyek" id="jHelyek"></div>
         </div>
 
         <div class="bpanel" id="jPanel">
           <p class="bpanel__uzenet" id="jUzenet" role="status"></p>
-
           <button class="btn btn--accent kHangGomb" id="jHangGomb" type="button" hidden>Koppints a hanghoz</button>
 
-          <div class="btipp" id="jTipp" hidden>
-            <div class="krow">
-              <div class="kfield">
-                <label for="jEloado">Előadó</label>
-                <input class="kinput" id="jEloado" type="text" maxlength="80" autocomplete="off" autocapitalize="words" spellcheck="false">
+          <div class="bjatekos" id="jJatekos" hidden>
+            <form class="btipp" id="jTipp" novalidate>
+              <input class="kinput" id="jEloado" type="text" maxlength="80" placeholder="Előadó" aria-label="Előadó" autocomplete="off" autocapitalize="words" spellcheck="false">
+              <input class="kinput" id="jCim" type="text" maxlength="80" placeholder="Cím" aria-label="Cím" autocomplete="off" spellcheck="false">
+              <div class="btipp__sor">
+                <input class="kinput btipp__ev" id="jEv" type="text" maxlength="4" placeholder="Év" aria-label="Évszám" inputmode="numeric" autocomplete="off">
+                <button class="btn btn--accent" id="jKuldBtn" type="submit">Beküldöm</button>
               </div>
-              <div class="kfield">
-                <label for="jCim">Cím</label>
-                <input class="kinput" id="jCim" type="text" maxlength="80" autocomplete="off" spellcheck="false">
-              </div>
-            </div>
-            <div class="krow">
-              <button class="btn btn--accent btn--lg" id="jKuldBtn" type="button">Beküldöm</button>
-            </div>
-            <p class="bsugo" id="jTippAllapot"></p>
+            </form>
+            <button class="blecsap" id="jLecsapBtn" type="button">
+              <span class="blecsap__kor" aria-hidden="true"></span>
+              <span class="blecsap__felirat">Lecsap</span>
+            </button>
           </div>
+          <p class="bsugo btipp__allapot" id="jTippAllapot"></p>
 
-          <button class="blecsap" id="jLecsapBtn" type="button" hidden>
+          <button class="blecsap blecsap--nagy" id="jLecsapHelyiBtn" type="button" hidden>
             <span class="blecsap__kor" aria-hidden="true"></span>
             <span class="blecsap__felirat">Lecsap</span>
           </button>
 
-          <div id="jEredmeny" hidden></div>
+          <div class="beredmeny" id="jEredmeny" hidden></div>
 
-          <div class="bsajat" id="jSajat" hidden>
-            <p class="bsajat__cim" id="jSajatCim">A kártyád</p>
-            <div class="bkartya" id="jKartya"></div>
-          </div>
-
-          <div class="krow bpanel__gombok">
-            <button class="btn btn--accent btn--lg" id="jKovetkezoBtn" type="button" hidden>Következő kör</button>
+          <div class="bpanel__gombok">
+            <button class="btn btn--accent" id="jIkszelBtn" type="button" hidden>Ikszelek</button>
+            <button class="btn btn--accent" id="jKovetkezoBtn" type="button" hidden>Következő kör</button>
             <button class="btn btn--ghost" id="jKihagyBtn" type="button" hidden>Másik dal</button>
-            <button class="btn btn--ghost" id="jKilepBtn" type="button">Kilépés</button>
+            <button class="btn btn--ghost" id="jKartyamBtn" type="button" hidden>A kártyám</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ════════ VÉGE ════════ -->
+    <!-- vége -->
     <section class="bview" id="bv-vege">
       <div class="kwrap">
         <div class="bvege__fej">
@@ -311,7 +357,7 @@
   </div>
 </main>
 
-<!-- Alsó lap: helyi játékban a tipp beírása, az ikszelés, és hogy ki csapott le -->
+<!-- alsó lap: kártya, ikszelés, helyi tippelés, „ki csapott le?” -->
 <div class="blap" id="bLap" hidden>
   <div class="blap__doboz" role="dialog" aria-modal="true" aria-labelledby="bLapCim">
     <div class="blap__fej">

@@ -1,11 +1,11 @@
-// Asthetic — helyi webkiszolgáló + a Kahoot-mód API-ja.
+// Asthetic – helyi webkiszolgáló + a Kahoot-mód API-ja.
 //
 // A böngésző a kamerát és a Web Bluetooth-t csak "biztonságos kontextusban" engedi:
 // ez a localhost vagy a HTTPS. Ezért nem elég a fájlt duplán kattintani, ezen a kis
 // szerveren keresztül kell megnyitni.
 //
 // A Kahoot-mód viszont NEM használ kamerát és Bluetooth-t, ezért a telefonok a helyi
-// hálózatról is csatlakozhatnak sima http-vel — emiatt kötünk 0.0.0.0-ra.
+// hálózatról is csatlakozhatnak sima http-vel – emiatt kötünk 0.0.0.0-ra.
 
 const http = require('http');
 const fs = require('fs');
@@ -15,7 +15,7 @@ const kahoot = require('./kahoot-server.js');
 
 const PORT = Number(process.argv[2]) || 4173;
 // Második paraméterként megadható, melyik mappát szolgálja ki
-// (pl. "web" — a tömörített, élesre szánt változat kipróbálásához).
+// (pl. "web" – a tömörített, élesre szánt változat kipróbálásához).
 const ROOT = process.argv[3] ? path.resolve(__dirname, process.argv[3]) : __dirname;
 
 const TYPES = {
@@ -32,7 +32,7 @@ const TYPES = {
   '.webmanifest': 'application/manifest+json; charset=utf-8',
 };
 
-// ───────────────────────── segédfüggvények ─────────────────────────
+// segédfüggvények
 
 function json(res, status, adat) {
   const szoveg = JSON.stringify(adat);
@@ -77,7 +77,7 @@ function helyiCimek() {
   return cimek;
 }
 
-// ───────────────────────── API ─────────────────────────
+// API
 
 async function apiKezelo(req, res, url) {
   const ut = url.pathname.replace(/^\/api\//, '');
@@ -162,7 +162,7 @@ async function apiKezelo(req, res, url) {
   }
 
   if (ut === 'kovetkezo') {
-    // Csak a kör eredményéből lehet továbblépni — egy dupla kattintás ne
+    // Csak a kör eredményéből lehet továbblépni – egy dupla kattintás ne
     // ugorja át a következő kört.
     if (szoba.allapot === 'eredmeny') kahoot.kovetkezoKor(szoba);
     return json(res, 200, { ok: true });
@@ -186,7 +186,7 @@ async function apiKezelo(req, res, url) {
   return json(res, 404, { hiba: 'Ismeretlen művelet.' });
 }
 
-// ───────────────────────── kiszolgáló ─────────────────────────
+// kiszolgáló
 
 const server = http.createServer((req, res) => {
   let url;
@@ -208,7 +208,7 @@ const server = http.createServer((req, res) => {
   try {
     relative = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname).replace(/^\/+/, '');
   } catch {
-    // Hibás %-kódolás — különben a kivétel az egész kiszolgálót leállítaná.
+    // Hibás %-kódolás – különben a kivétel az egész kiszolgálót leállítaná.
     res.writeHead(400).end('Hibás kérés');
     return;
   }
@@ -240,7 +240,7 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n  ASTHETIC fut — ${kahoot.songs.length} dal betöltve\n`);
+  console.log(`\n  ASTHETIC fut – ${kahoot.songs.length} dal betöltve\n`);
   console.log(`  Ezen a gépen : http://localhost:${PORT}`);
   for (const cim of helyiCimek()) {
     console.log(`  Telefonról   : http://${cim}:${PORT}   (azonos wifin)`);

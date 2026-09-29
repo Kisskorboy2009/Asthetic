@@ -47,9 +47,9 @@ function ujAsztal(beallitas = {}) {
   return { asztal, ora, allapot: () => utolso };
 }
 
-/** A dal tényleges adataival tippel — ez biztosan jó. */
-const joTipp = (asztal) => ({ eloado: asztal.t.dal.eloado, cim: asztal.t.dal.cim });
-const rosszTipp = { eloado: 'Senki Sem', cim: 'Nincs ilyen dal' };
+/** A dal tényleges adataival tippel – ez biztosan jó. */
+const joTipp = (asztal) => ({ eloado: asztal.t.dal.eloado, cim: asztal.t.dal.cim, ev: asztal.t.dal.ev });
+const rosszTipp = { eloado: 'Senki Sem', cim: 'Nincs ilyen dal', ev: 1901 };
 
 function mezoSzinnel(j, szin, jelolt = j.jelolt) {
   return j.kartya.findIndex((s, i) => s === szin && !jelolt[i]);
@@ -86,7 +86,7 @@ console.log('Kör: pörgetés, dal, tippek');
   asztal.tipp(b, rosszTipp);
   ora.teker(5000);
   ellenoriz(allapot().publikus.bekuldtek.length === 2 && allapot().publikus.allapot === 'kor', 'két tipp után még szól a dal');
-  asztal.tipp(c, { eloado: asztal.t.dal.eloado.toLowerCase(), cim: asztal.t.dal.cim + '!' });
+  asztal.tipp(c, { eloado: asztal.t.dal.eloado.toLowerCase(), cim: asztal.t.dal.cim + '!', ev: String(asztal.t.dal.ev + 1) });
   ellenoriz(allapot().publikus.hatralevoMs === MINDENKI_KESZ_MS, 'a harmadik tipp után már csak a rövid szünet van hátra');
   ora.teker(MINDENKI_KESZ_MS);
   p = allapot().publikus;
@@ -184,10 +184,10 @@ console.log('Idő lejárta, elírás, felülbírálás');
   const b = asztal.jatekosFelvesz({ nev: 'Bence' });
   asztal.indit();
   ora.teker(PORGETES_MS);
-  asztal.tipp(a, { eloado: asztal.t.dal.eloado, cim: asztal.t.dal.cim + 'xx' });
+  asztal.tipp(a, { eloado: asztal.t.dal.eloado, cim: asztal.t.dal.cim + 'xx', ev: asztal.t.dal.ev });
   ora.teker(30000);
   let p = allapot().publikus;
-  ellenoriz(p.allapot === 'eredmeny' && !p.eredmeny.jogok[a], 'pontos módban az elírás nem ér — lejárt az idő');
+  ellenoriz(p.allapot === 'eredmeny' && !p.eredmeny.jogok[a], 'pontos módban az elírás nem ér – lejárt az idő');
   ellenoriz(p.eredmeny.tippek.find((t) => t.jatekosId === b).kuldott === false, 'aki nem tippelt, annál „nem küldött” szerepel');
 
   asztal.felulbiral(a, true);
@@ -277,6 +277,28 @@ console.log('Újratöltés után folytatás');
   ellenoriz(kiirt.publikus.fazis === 'szol' && kiirt.publikus.hatralevoMs === 16000, 'a futó kör a helyes hátralévő idővel folytatódik (16 mp)');
   ora.teker(16000);
   ellenoriz(kiirt.publikus.allapot === 'eredmeny', 'és az idő végén kiértékel');
+}
+
+console.log('Körkorlát és más nyerési mód');
+{
+  const { asztal, ora, allapot } = ujAsztal({ maxKor: 2, nyeres: 'sarkok' });
+  const a = asztal.jatekosFelvesz({ nev: 'Anna' });
+  const b = asztal.jatekosFelvesz({ nev: 'Bence' });
+  asztal.indit();
+  const anna = asztal.jatekos(a);
+  [0, 1, 2, 3].forEach((i) => { anna.jelolt[i] = 1; });   // majdnem kész sor – sarkok módban nem nyer
+  ora.teker(PORGETES_MS);
+  asztal.lecsap(a);
+  asztal.tipp(a, joTipp(asztal));
+  asztal.jelol(a, 4);
+  ellenoriz(allapot().publikus.allapot === 'eredmeny', 'sarkok módban a kirakott sor nem nyer');
+  asztal.jatekos(b).jelolt[24] = 1;
+  asztal.kovetkezo();
+  ora.teker(PORGETES_MS + 30000);
+  asztal.kovetkezo();
+  const p = allapot().publikus;
+  ellenoriz(p.allapot === 'vege' && /2 kör/.test(p.uzenet), 'a 2. kör után vége: letelt a körök száma');
+  ellenoriz(p.nyertesek.length === 1 && p.nyertesek[0] === a, 'a legtöbb sarokkal rendelkező nyer (Anna: 2, Bence: 1)');
 }
 
 console.log(hibak ? `\n${hibak} HIBA` : '\nMinden rendben.');

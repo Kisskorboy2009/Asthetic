@@ -1,21 +1,19 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — Google-fiók
-
-   Bejelentkezés Google-fiókkal. Az alkalmazásban a natív Google-bejelentkezés
-   (@capacitor-firebase/authentication) adja az azonosító tokent, a Firebase
-   webes SDK-ja pedig ezzel lépteti be a felhasználót — így a Firestore-szabályok
-   ugyanazt a felhasználót látják, mint a Kvízcsatában. Böngészőben felugró
-   ablakos bejelentkezés van.
-
-   A Firebase-t csak akkor tölti be, amikor tényleg kell.
-   ═══════════════════════════════════════════════════════════════ */
+// Google-fiók
+//
+// Bejelentkezés Google-fiókkal. Az alkalmazásban a natív Google-bejelentkezés
+// (@capacitor-firebase/authentication) adja az azonosító tokent, a Firebase
+// webes SDK-ja pedig ezzel lépteti be a felhasználót – így a Firestore-szabályok
+// ugyanazt a felhasználót látják, mint a Kvízcsatában. Böngészőben felugró
+// ablakos bejelentkezés van.
+//
+// A Firebase-t csak akkor tölti be, amikor tényleg kell.
 
 (function () {
   'use strict';
 
   // Az adminok: ők szerkesztik a dallistát, és ők adják meg, ki játszhat a
   // Rubik-Bingóval (bingo_hozzaferes/{email}). Ugyanez a lista van a
-  // firestore.rules-ban is — a kettőnek egyeznie kell, a szerveren az a döntő.
+  // firestore.rules-ban is – a kettőnek egyeznie kell, a szerveren az a döntő.
   const ADMINOK = ['kisskorboy1990@gmail.com', 'richardszenti@gmail.com'];
 
   const FIREBASE_VERZIO = '12.4.0';
@@ -42,7 +40,7 @@
   /**
    * Van-e a felhasználónak hozzáférése a Rubik-Bingóhoz. Csak a saját
    * dokumentumát kérdezi le (a szabályok mást nem is engednek), a Firestore
-   * REST-felületén — így ehhez nem kell a teljes Firestore SDK.
+   * REST-felületén – így ehhez nem kell a teljes Firestore SDK.
    * Hálózati hibánál az utolsó ismert állapot marad.
    */
   async function bingoHozzaferes(u, korabbi) {
@@ -132,7 +130,7 @@
   /**
    * Csak az számít megszakításnak, ha a felhasználó maga zárta be a
    * fiókválasztót. A Google a beállítási hibákat is „megszakítva” (16-os)
-   * kóddal adja vissza — azokat meg kell mutatni, különben a gomb csak
+   * kóddal adja vissza – azokat meg kell mutatni, különben a gomb csak
    * elhalványul, és nem derül ki, mi a baj.
    */
   function megszakitottaE(hiba) {
@@ -155,9 +153,8 @@
   }
 
   /**
-   * A klasszikus Google-fiókválasztóval kezdünk: az újabb felület (Credential
-   * Manager) a teszttelefonon válasz nélkül lógva maradt, és csak az időkorlát
-   * után jött a klasszikus — ezért kellett sokat várni. Az újat már csak
+   * A klasszikus Google-fiókválasztóval kezdünk, mert az újabb felület
+   * (Credential Manager) egyes telefonokon nem válaszol. Az újat csak
    * tartaléknak használjuk, ha a klasszikus hibát ad.
    */
   async function natívGoogleToken(jelez) {
@@ -176,7 +173,7 @@
       console.warn('Google-bejelentkezés (klasszikus):', hibaSzoveg(hiba));
     }
     try {
-      jelez('Első próba: ' + hibaSzoveg(elsoHiba) + ' — újrapróbálom…');
+      jelez('Első próba: ' + hibaSzoveg(elsoHiba) + ' – újrapróbálom…');
       return await idokorlat(plugin.signInWithGoogle({ skipNativeAuth: true }), 20000,
         'az új Google-felület sem válaszolt');
     } catch (hiba) {
@@ -185,7 +182,7 @@
     }
   }
 
-  /** @param jelez  (szöveg) => void — a lépések kiírásához, hogy látszódjon, hol tart */
+  /** @param jelez  (szöveg) => void – a lépések kiírásához, hogy látszódjon, hol tart */
   async function bejelentkezes(jelez = () => {}) {
     jelez('Firebase betöltése…');
     const fb = await idokorlat(firebaseBetolt(), 20000, 'A Firebase nem töltődött be (nincs internet?).');
@@ -236,14 +233,14 @@
     kijelentkezes,
     figyel,
     firebase: firebaseBetolt,
-    /** Az utolsó ismert állapot — a Firebase betöltése előtt a mentett. */
+    /** Az utolsó ismert állapot – a Firebase betöltése előtt a mentett. */
     get felhasznalo() { return felhasznalo; },
     get engedett() { return Boolean(felhasznalo && felhasznalo.engedett); },
     /** Admin: a dallistát és a bingó-hozzáférést szerkesztheti (admin.html). */
     get admin() { return Boolean(felhasznalo && felhasznalo.admin); },
   };
 
-  /* ───────────── fiókgomb a weboldal fejlécében ─────────────
+  /* fiókgomb a weboldal fejlécében
      Az alkalmazásban a js/app-shell.js rakja ki a sajátját. */
 
   const szoveg = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);

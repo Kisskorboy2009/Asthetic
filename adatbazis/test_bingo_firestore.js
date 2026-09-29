@@ -105,7 +105,7 @@ function figyelj(b, kod, jatekosId) {
   ellenoriz(await varakozas(() => vezeto.allapot.titkos && vezeto.allapot.titkos.videoId === asztal.t.videoId), 'a szobavezető megkapja a dalt');
 
   const dal = asztal.t.dal;
-  await jatekos.O.tipp(kod, jatekosId, jatekos.allapot.p.kor, { eloado: dal.eloado, cim: dal.cim });
+  await jatekos.O.tipp(kod, jatekosId, jatekos.allapot.p.kor, { eloado: dal.eloado, cim: dal.cim, ev: dal.ev });
   ellenoriz(await varakozas(() => vezeto.allapot.p.bekuldtek.includes(jatekosId)), 'a játékos tippje beérkezett');
   ellenoriz(await tiltottE(vezeto.db.collection('bingo').doc(kod).collection('lepesek').doc(jatekos.uid).set({ tipp: { kor: 1 } })),
     'más nevében nem lehet tippelni (a szobavezető sem írhatja a játékos lépéseit)');
@@ -130,7 +130,7 @@ function figyelj(b, kod, jatekosId) {
   ellenoriz(await varakozas(() => jatekos.allapot.p.fazis === 'lecsap' && jatekos.allapot.p.lecsapas.jatekosId === jatekosId), 'a lecsapás beérkezett, megállt a dal');
   ellenoriz(await varakozas(() => vezeto.allapot.p.fazis === 'lecsap'), 'a szobavezetőnél is lecsapás látszik');
   const dal2 = asztal.t.dal;
-  await jatekos.O.tipp(kod, jatekosId, 2, { eloado: dal2.eloado, cim: dal2.cim });
+  await jatekos.O.tipp(kod, jatekosId, 2, { eloado: dal2.eloado, cim: dal2.cim, ev: dal2.ev });
   ellenoriz(await varakozas(() => jatekos.allapot.p.allapot === 'eredmeny'), 'helyes lecsapás → a kör véget ér');
   ellenoriz(jatekos.allapot.p.eredmeny.jogok[jatekosId] === 'joker', 'a lecsapó jokerjogot kap');
 

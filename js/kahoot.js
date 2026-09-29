@@ -1,14 +1,12 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — Kvízcsata (Kahoot-mód) kliensoldal
-   A szerver küldi az állapotot (SSE), mi csak megjelenítjük és
-   visszaküldjük a műveleteket.
-   ═══════════════════════════════════════════════════════════════ */
+// Kvízcsata (Kahoot-mód) kliensoldal
+// A szerver küldi az állapotot (SSE), mi csak megjelenítjük és
+// visszaküldjük a műveleteket.
 
 'use strict';
 
 const $ = (id) => document.getElementById(id);
 
-// ───────────────────────── munkamenet ─────────────────────────
+// munkamenet
 
 const TAROLO = 'asthetic-kviz';
 
@@ -26,17 +24,17 @@ let munkamenet = munkamenetBetolt();  // { kod, jatekosId, nev }
 let allapot = null;                    // a szervertől kapott legutóbbi állapot
 let forras = null;                     // EventSource
 
-// ───────────────────────── kommunikáció ─────────────────────────
+// kommunikáció
 
 // Böngészőben üres (relatív hívások), az Android alkalmazásban a beállított
-// kiszolgáló teljes címe — lásd js/config.js.
+// kiszolgáló teljes címe – lásd js/config.js.
 function apiBazis() {
   return (window.ASTHETIC && window.ASTHETIC.szerver) || '';
 }
 
 /* A Kvízcsata két úton működhet, ugyanazzal a felülettel:
-     'szerver'   — saját gépen/hálózaton futó server.js (SSE + /api)
-     'firestore' — kiszolgáló nélkül, a Firebase ingyenes csomagján
+     'szerver'   – saját gépen/hálózaton futó server.js (SSE + /api)
+     'firestore' – kiszolgáló nélkül, a Firebase ingyenes csomagján
    Indításkor megnézzük, elérhető-e a saját kiszolgáló; ha nem, Firestore-ra
    váltunk. A megjelenítő kód nem tud a különbségről: mindkét út ugyanolyan
    alakú állapotot ad. */
@@ -46,7 +44,7 @@ async function modMeghataroz() {
   if (mod) return mod;
 
   // Az alkalmazásban a beépített kiszolgáló MINDEN pont nélküli útvonalat az
-  // index.html-re irányít, 200-as státusszal — a /api/szobak próba tehát ott
+  // index.html-re irányít, 200-as státusszal – a /api/szobak próba tehát ott
   // hamis „van saját kiszolgáló” eredményt adna. Ezért ha natívan futunk és
   // nincs kézzel megadott cím, meg sem próbálkozunk: egyből Firestore.
   const sajatCim = apiBazis();
@@ -59,7 +57,7 @@ async function modMeghataroz() {
       // kiszolgálónk válaszolt-e, és nem egy HTML-oldal jött vissza.
       const adat = valasz.ok ? await valasz.json() : null;
       if (adat && Array.isArray(adat.szobak)) { mod = 'szerver'; return mod; }
-    } catch { /* nincs saját kiszolgáló — jöhet a Firestore */ }
+    } catch { /* nincs saját kiszolgáló – jöhet a Firestore */ }
   }
 
   if (!window.AstheticFirestore) throw new Error('A Kvízcsata most nem érhető el.');
@@ -123,7 +121,7 @@ function hibaKiir(elemId, uzenet) {
   if (el) el.textContent = uzenet || '';
 }
 
-// ───────────────────────── nézetváltás ─────────────────────────
+// nézetváltás
 
 function nezet(nev) {
   document.querySelectorAll('.kview').forEach((v) => v.classList.remove('is-active'));
@@ -131,7 +129,7 @@ function nezet(nev) {
   if (el) el.classList.add('is-active');
 }
 
-// ───────────────────────── YouTube (csak a szobavezetőnél) ─────────────────────────
+// YouTube (csak a szobavezetőnél)
 
 let lejatszo = null;
 let lejatszoKesz = false;
@@ -174,7 +172,7 @@ function zeneIndit(videoId, kezdesMp) {
   } catch { /* a lejátszó még nem áll készen */ }
 
   // Mobilon a böngésző letilthatja a hang automatikus indítását. Ha rövid időn
-  // belül nem szól, felajánljuk a koppintást — egy érintés után már engedi.
+  // belül nem szól, felajánljuk a koppintást – egy érintés után már engedi.
   clearTimeout(hangEllenorzo);
   hangEllenorzo = setTimeout(() => {
     let jatszik = false;
@@ -189,7 +187,7 @@ function zeneLeallit() {
   if (lejatszo && lejatszoKesz) { try { lejatszo.pauseVideo(); } catch { /* nem baj */ } }
 }
 
-// ───────────────────────── valós idejű kapcsolat ─────────────────────────
+// valós idejű kapcsolat
 
 let firestoreLeiratkozas = null;
 
@@ -245,7 +243,7 @@ async function csatlakozStream() {
   };
 }
 
-// ───────────────────────── megjelenítés ─────────────────────────
+// megjelenítés
 
 let elozoAllapotNev = null;
 let elozoKor = null;
@@ -288,14 +286,14 @@ function rajzolLobby() {
 
   $('inditBtn').hidden = !allapot.host;
   $('lobbyHint').textContent = allapot.host
-    ? 'Ezt a kódot írják be a többiek, vagy olvassák be a QR-kódot — te indítod a játékot'
+    ? 'Ezt a kódot írják be a többiek, vagy olvassák be a QR-kódot – te indítod a játékot'
     : 'Várunk a szobavezetőre, hogy elindítsa a játékot';
 
   $('lobbyLinkBtn').hidden = false;
   qrKirajzol(allapot.host ? meghivoLink(allapot.kod) : null);
 }
 
-/** A weboldal címe a meghívóhoz — az alkalmazásban is a nyilvános címre mutat. */
+/** A weboldal címe a meghívóhoz – az alkalmazásban is a nyilvános címre mutat. */
 function meghivoLink(kod) {
   const alap = window.ASTHETIC && window.ASTHETIC.natív
     ? 'https://asthetic.hu/kahoot'
@@ -319,7 +317,7 @@ function qrKirajzol(link) {
 }
 
 // --- kérdés ---
-/** Hányan játszanak ténylegesen — a csak levezető szobavezető nem számít. */
+/** Hányan játszanak ténylegesen – a csak levezető szobavezető nem számít. */
 function jatszokSzama() {
   return (allapot.jatekosok || []).filter((j) => !j.nezo).length;
 }
@@ -331,13 +329,13 @@ function rajzolKerdes() {
 
   $('qKor').textContent = `${allapot.kor}. kör / ${allapot.korokSzama}`;
   $('qSajat').textContent = sajatHelyezes();
-  // "Csak színek" módban a kérdés szövege el sem jut hozzánk — a szobavezető
+  // "Csak színek" módban a kérdés szövege el sem jut hozzánk – a szobavezető
   // képernyőjén kell nézni, mi a kérdés.
   $('qSzoveg').textContent = k.csakSzinek
     ? 'Nézd a szobavezető képernyőjét, és válassz színt!'
     : k.szoveg;
   $('kihagyBtn').hidden = !allapot.host;
-  // A szobavezető, aki csak levezeti a játékot, nem válaszol — nála a "kilépés"
+  // A szobavezető, aki csak levezeti a játékot, nem válaszol – nála a "kilépés"
   // helyett a szoba bezárása a természetes művelet.
   $('kilepKerdesBtn').textContent = allapot.host ? 'Szoba bezárása' : 'Kilépés';
 
@@ -355,7 +353,7 @@ function rajzolKerdes() {
   elozoValaszNyitva = k.valaszNyitva !== false;
 
   // A kérdés tartalma (a szobavezetőnél "csak színek" módban) késve is
-  // megérkezhet — ha változott, a gombokat újrarajzoljuk, de a
+  // megérkezhet – ha változott, a gombokat újrarajzoljuk, de a
   // visszaszámlálót nem indítjuk újra.
   const tartalom = [allapot.kor, k.csakSzinek, (k.valaszok || []).join('\u0001')].join('|');
   const tartalomValtozott = tartalom !== elozoTartalom;
@@ -391,7 +389,7 @@ function rajzolKerdes() {
     visszaszamlalIndit(hallgatas ? k.hallgatasHatraMs : k.hatralevoMs, hallgatas);
   }
 
-  // A dal akkor indul, amikor az ADOTT kör dala megérkezik — ez lehet a kör
+  // A dal akkor indul, amikor az ADOTT kör dala megérkezik – ez lehet a kör
   // első frissítése után is. Körönként egyszer: a válaszok megnyitásakor
   // tovább szól, nem indul újra.
   const zene = k.videoId ? allapot.kor + ':' + k.videoId : null;
@@ -418,7 +416,7 @@ function rajzolKerdes() {
       if (!kuldesFolyamatban) g.classList.remove('is-valasztott');
     });
     $('qStatusz').textContent = idoLejart && !nezoVagyok
-      ? 'Lejárt az idő — mindjárt jön az eredmény.'
+      ? 'Lejárt az idő – mindjárt jön az eredmény.'
       : `${allapot.valaszoltakSzama}/${jatszokSzama()} játékos válaszolt`;
   }
 }
@@ -426,7 +424,7 @@ function rajzolKerdes() {
 let kuldesFolyamatban = false;
 let idoLejart = false;
 
-/** "1340 pont · 2. hely" — a saját állásunk a kérdés fejlécében. */
+/** "1340 pont · 2. hely" – a saját állásunk a kérdés fejlécében. */
 function sajatHelyezes() {
   if (allapot.nezo) return '';
   const jatszok = (allapot.jatekosok || []).filter((j) => !j.nezo);
@@ -481,7 +479,7 @@ function visszaszamlalIndit(hatralevoMs, hallgatasE) {
     $('qSav').style.width = Math.max(0, (maradt / teljes) * 100) + '%';
     if (maradt <= 0) {
       clearInterval(visszaszamlaloId);
-      // A válaszidő végén a gombok lezárulnak — a hallgatási szakasz végén nem.
+      // A válaszidő végén a gombok lezárulnak – a hallgatási szakasz végén nem.
       if (!hallgatasE && allapot && allapot.allapot === 'kerdes' && !idoLejart) {
         idoLejart = true;
         kirajzol();
@@ -516,7 +514,7 @@ function rajzolEredmeny() {
     sajatEl.hidden = true;
   }
 
-  $('eDalCim').textContent = `${e.dal.eloado} — ${e.dal.cim}`;
+  $('eDalCim').textContent = `${e.dal.eloado} – ${e.dal.cim}`;
   $('eDalMeta').textContent = `${e.dal.ev}`;
   $('eHelyes').textContent = `Helyes válasz: ${e.helyesValasz}`;
 
@@ -563,7 +561,7 @@ function rajzolVege() {
   $('ujraBtn').hidden = !allapot.host;
   $('ujJatekBtn').textContent = allapot.host ? 'Szoba bezárása' : 'Kilépés';
   $('vVarunk').textContent = allapot.host
-    ? 'Ugyanezzel a társasággal új menetet indíthatsz — a már lejátszott dalok nem jönnek újra.'
+    ? 'Ugyanezzel a társasággal új menetet indíthatsz – a már lejátszott dalok nem jönnek újra.'
     : 'Ha a szobavezető új menetet indít, maradj itt: magától indul.';
 
   $('vTabla').innerHTML = v
@@ -603,7 +601,7 @@ function szoveg(s) {
   })[c]);
 }
 
-// ───────────────────────── évtartomány-csúszka ─────────────────────────
+// évtartomány-csúszka
 
 /* Két egymásra fektetett range-mező adja a két fogantyút (natív dupla csúszka
    nincs). A fogantyúk nem mehetnek át egymáson: mindkettő a másikig mozoghat. */
@@ -621,7 +619,7 @@ async function evSavElokeszit() {
     dalEvek = dalok.map((d) => d.year).filter(Number.isFinite).sort((a, b) => a - b);
     if (!dalEvek.length) throw new Error('ures');
   } catch {
-    // A csúszka nélkül is lehet szobát nyitni — ilyenkor a teljes adatbázisból
+    // A csúszka nélkül is lehet szobát nyitni – ilyenkor a teljes adatbázisból
     // jönnek a dalok, ahogy eddig.
     $('evSav').hidden = true;
     evSavKesz = true;
@@ -677,15 +675,15 @@ function evSavKirajzol() {
   const db = dalEvek.filter((ev) => ev >= ertek.tol && ev <= ertek.ig).length;
   const hint = $('evDarab');
   hint.textContent = db === dalEvek.length
-    ? `A teljes adatbázis játszható — ${db} dal.`
+    ? `A teljes adatbázis játszható – ${db} dal.`
     : `${db} dal esik ebbe a tartományba.`;
   // A körök számánál kevesebb dalból nem lehet végigjátszani a szobát.
   const korok = Number($('korokInput').value) || 0;
   hint.classList.toggle('is-keves', db < korok);
-  if (db < korok) hint.textContent = `Csak ${db} dal esik ebbe a tartományba — kevesebb, mint a ${korok} kör.`;
+  if (db < korok) hint.textContent = `Csak ${db} dal esik ebbe a tartományba – kevesebb, mint a ${korok} kör.`;
 }
 
-// ───────────────────────── műveletek ─────────────────────────
+// műveletek
 
 const NEV_KULCS = 'asthetic-nev';
 
@@ -725,13 +723,13 @@ $('letrehozBtn').addEventListener('click', async () => {
   }
 
   let evek = evSavErtek();
-  // Ha a csúszka a teljes skálán áll, nem szűkítünk — így a váróban sem
+  // Ha a csúszka a teljes skálán áll, nem szűkítünk – így a váróban sem
   // jelenik meg feleslegesen az évtartomány.
   if (evek && evek.tol <= dalEvek[0] && evek.ig >= dalEvek[dalEvek.length - 1]) evek = null;
   if (evek) {
     const jatszhato = dalEvek.filter((ev) => ev >= evek.tol && ev <= evek.ig).length;
     if (jatszhato === 0) {
-      hibaKiir('letrehozHiba', 'Ebben az évtartományban egyetlen dal sincs — állíts szélesebbet.');
+      hibaKiir('letrehozHiba', 'Ebben az évtartományban egyetlen dal sincs – állíts szélesebbet.');
       return;
     }
   }
@@ -825,7 +823,7 @@ async function ebrenTart() {
   } catch { /* nem támogatott vagy nem engedélyezett */ }
 }
 
-/** A gomb a művelet idejére letiltva — egy dupla koppintás ne indítson két kört. */
+/** A gomb a művelet idejére letiltva – egy dupla koppintás ne indítson két kört. */
 async function gombbal(gomb, muvelet) {
   if (gomb.disabled) return;
   gomb.disabled = true;
@@ -905,7 +903,7 @@ async function kilepes() {
   publikusFrissit();
 }
 
-// ───────────────────────── publikus szobák ─────────────────────────
+// publikus szobák
 
 async function publikusFrissit() {
   try {
@@ -943,9 +941,9 @@ async function publikusFrissit() {
   }
 }
 
-// ───────────────────────── indulás ─────────────────────────
+// indulás
 
-// A név megmarad a következő alkalomra is — ne kelljen mindig beírni.
+// A név megmarad a következő alkalomra is – ne kelljen mindig beírni.
 try {
   const mentettNev = localStorage.getItem(NEV_KULCS);
   if (mentettNev && !$('nevInput').value) $('nevInput').value = mentettNev;

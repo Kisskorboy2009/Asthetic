@@ -9,9 +9,9 @@
 // egy magyar előadó egy angol nyelvű dala sem sorolódik rossz helyre.
 //
 // A jelek súlyozva:
-//   ő / ű            — gyakorlatilag csak a magyarban van, erős jel
-//   magyar kötőszavak, névelők, gyakori szavak — erős jel
-//   á é í ó ö ú ü    — gyenge jel, sok más nyelvben is előfordul
+//   ő / ű            – gyakorlatilag csak a magyarban van, erős jel
+//   magyar kötőszavak, névelők, gyakori szavak – erős jel
+//   á é í ó ö ú ü    – gyenge jel, sok más nyelvben is előfordul
 
 const CSAK_MAGYAR_BETU = /[őűŐŰ]/;
 
@@ -48,7 +48,7 @@ const MAGYAR_VEGZODESEK = [
 ];
 
 // Magyar keresztnevek. Szándékosan csak azok, amelyek angol/nemzetközi
-// környezetben nem fordulnak elő ugyanígy — a "Linda", "Erik", "Laura" típusú
+// környezetben nem fordulnak elő ugyanígy – a "Linda", "Erik", "Laura" típusú
 // kétértelmű nevek kimaradnak, hogy ne minősítsünk magyarnak külföldi előadót.
 const MAGYAR_KERESZTNEVEK = new Set([
   "lászló","istván","józsef","jános","zoltán","sándor","gábor","ferenc","attila",
@@ -65,7 +65,7 @@ const MAGYAR_KERESZTNEVEK = new Set([
   "ibolya","kinga","klára","magdolna","melinda","piroska","sarolta","bernadett",
   "brigitta","csenge","dalma","dorina","flóra","gréta","jázmin","lilla","ildikó",
   "erika","márta","irén","aranka","etelka","boglárka","villő","hédi","zsuzsa",
-  // becenevek — ezek nagyon jellegzetesek
+  // becenevek – ezek nagyon jellegzetesek
   "veca","joci","rozi","orsi","krisz","zsuzsi","kati","marci","gabi","feri",
   "jani","pisti","laci","bandi","gyuri","sanyi","tomi","robi","dani","peti",
   "andris","misi","karcsi","csabi","zsófi","niki","kriszta","bori","juci",

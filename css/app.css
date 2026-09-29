@@ -1,5 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — alkalmazás-külső
+/* Alkalmazás-külső
 
    Ez a fájl minden oldalra betöltődik, de KIZÁRÓLAG az Android alkalmazásban
    lép életbe: a js/config.js ott teszi ki a <html> elemre az `is-app` osztályt.
@@ -9,8 +8,7 @@
      • eltűnik a weboldalas fejléc, lábléc és a görgetéssávos olvasmány-érzet
      • fent egy tömör alkalmazás-sáv, lent natív stílusú fülsor
      • a kezdőlapon marketingszöveg helyett rögtön a játékmódok
-     • a telefon bevágásait (állapotsáv, gesztussáv) kikerüli a tartalom
-   ═══════════════════════════════════════════════════════════════ */
+     • a telefon bevágásait (állapotsáv, gesztussáv) kikerüli a tartalom */
 
 .is-app,
 .is-app body {
@@ -37,7 +35,7 @@
 .is-app .notice,
 .is-app .skip-link { display: none !important; }
 
-/* ───────────── felső alkalmazás-sáv ───────────── */
+/* felső alkalmazás-sáv */
 
 .appSav {
   position: fixed;
@@ -86,7 +84,7 @@
   padding-bottom: calc(74px + env(safe-area-inset-bottom));
 }
 
-/* ───────────── alsó fülsor ───────────── */
+/* alsó fülsor */
 
 .appFulek {
   position: fixed;
@@ -117,7 +115,7 @@
 .appFul:active { color: var(--ink-2); }
 .appFul.is-aktiv { color: var(--accent); }
 
-/* ───────────── alkalmazás-kezdőlap ───────────── */
+/* alkalmazás-kezdőlap */
 
 .is-app .appRejt { display: none !important; }
 
@@ -137,7 +135,7 @@
   object-fit: contain;
   margin-bottom: 10px;
 }
-/* A logó tusszínű, sötét háttéren megfordítjuk — ahogy a weboldalon is. */
+/* A logó tusszínű, sötét háttéren megfordítjuk – ahogy a weboldalon is. */
 :root[data-theme="dark"] .appHome__logo { filter: invert(1); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .appHome__logo { filter: invert(1); }
@@ -218,9 +216,7 @@
   .appHome__fej, .appCsempe { animation: none; }
 }
 
-/* ═══════════════════════════════════════════
-   Alkalmazás-finomítások
-   ═══════════════════════════════════════════ */
+/* Alkalmazás-finomítások */
 
 /* A görgetésre előúszó animációk a weboldalon szépek, az alkalmazásban viszont
    azonnal elárulják, hogy weblap. Ott minden rögtön a helyén van. */
@@ -230,7 +226,7 @@
   transition: none !important;
 }
 
-/* Ne legyen dupla koppintásra nagyítás — az alkalmazásban zavaró. */
+/* Ne legyen dupla koppintásra nagyítás – az alkalmazásban zavaró. */
 .is-app a,
 .is-app button,
 .is-app label,
@@ -240,7 +236,7 @@
 /* A <main> saját belső kerete nem kell még egyszer a törzs kitöltése mellé. */
 .is-app main.section--tight > .container { padding-block: 0; }
 
-/* ───────────── kör eredménye: férjen ki keskeny kijelzőn ───────────── */
+/* kör eredménye: férjen ki keskeny kijelzőn */
 
 .is-app .ktabla { table-layout: fixed; width: 100%; }
 .is-app .ktabla th,
@@ -266,12 +262,12 @@
 .is-app .ktabla--vege th:nth-child(2) { width: 56%; }
 .is-app .ktabla--vege th:nth-child(3) { width: 30%; }
 
-/* A hosszú nevek törhetnek — a számok nem (lásd css/kahoot.css). */
+/* A hosszú nevek törhetnek – a számok nem (lásd css/kahoot.css). */
 .is-app .ktabla td { overflow-wrap: anywhere; }
 
-/* ───────────── Bluetooth-gomb a kártyás módban ───────────── */
+/* Bluetooth-gomb a kártyás módban */
 
-/* Az alkalmazásban ez fontos, gyakran használt kapcsoló — legyen rendes,
+/* Az alkalmazásban ez fontos, gyakran használt kapcsoló – legyen rendes,
    teljes szélességű gomb, ne egy apró jelvény a sarokban. */
 .is-app .btConnect,
 .is-app #btConnect {
@@ -281,7 +277,7 @@
   font-size: 15px;
 }
 
-/* ───────────── görgetés ───────────── */
+/* görgetés */
 
 .is-app main { -webkit-overflow-scrolling: touch; }
 
@@ -293,7 +289,7 @@
   :root:not([data-theme="light"]) .appFulek { background: var(--paper-2); }
 }
 
-/* ───────────── verzió és frissítéskeresés a kezdőlap alján ───────────── */
+/* verzió és frissítéskeresés a kezdőlap alján */
 
 .appVerzio {
   display: flex;
@@ -321,7 +317,7 @@
   :root:not([data-theme="light"]) .appCsempe--kviz .appCsempe__ikon { background: rgba(123, 160, 136, .16); }
 }
 
-/* ───────────── frissítési ablak ───────────── */
+/* frissítési ablak */
 
 .frissAblak {
   position: fixed;
@@ -409,7 +405,7 @@
 }
 .frissUzenet.is-be { opacity: 1; transform: translate(-50%, 0); }
 
-/* ───────────── Google-fiók a felső sávban ───────────── */
+/* Google-fiók a felső sávban */
 
 .appSav__fiok { overflow: hidden; }
 .appSav__fiok img { width: 28px; height: 28px; border-radius: 50%; display: block; }

@@ -1,13 +1,11 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — admin: a dallista szerkesztése
-
-   A lista a Firestore-ban van (dalok/lista, JSON-szövegként), a játékok
-   onnan olvassák (js/dalok.js). Itt a teljes lista a memóriában szerkeszthető,
-   és a „Mentés” egyszerre írja ki. Mentés előtt az előző változat a
-   dalok_mentesek gyűjteménybe kerül, és onnan visszaállítható.
-
-   Írni csak a két admin fiók tud — ezt a firestore.rules dönti el, nem ez a fájl.
-   ═══════════════════════════════════════════════════════════════ */
+// Admin: a dallista szerkesztése
+//
+// A lista a Firestore-ban van (dalok/lista, JSON-szövegként), a játékok
+// onnan olvassák (js/dalok.js). Itt a teljes lista a memóriában szerkeszthető,
+// és a „Mentés” egyszerre írja ki. Mentés előtt az előző változat a
+// dalok_mentesek gyűjteménybe kerül, és onnan visszaállítható.
+//
+// Írni csak a két admin fiók tud – ezt a firestore.rules dönti el, nem ez a fájl.
 
 'use strict';
 
@@ -25,7 +23,7 @@ let torolt = 0;            // a mentés óta törölt dalok száma
 let lathato = OLDALMERET;
 let szerkesztett = null;   // a szerkesztőben nyitott dal id-ja (új dalnál null)
 
-/* ───────────── apróságok ───────────── */
+// apróságok
 
 function szoveg(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -68,9 +66,7 @@ function videoAzonosito(szovegErtek) {
 const valtozottE = (d) => eredeti.get(d.id) !== JSON.stringify(d);
 const valtozasokSzama = () => lista.filter(valtozottE).length + torolt;
 
-/* ═══════════════════════════════════════════
-   Belépés
-   ═══════════════════════════════════════════ */
+// Belépés
 
 function zar(szovegErtek, belepGomb) {
   nezet('zar');
@@ -94,9 +90,7 @@ $('zarBelepBtn').addEventListener('click', async () => {
   gomb.disabled = false;
 });
 
-/* ═══════════════════════════════════════════
-   Betöltés és mentés
-   ═══════════════════════════════════════════ */
+// Betöltés és mentés
 
 async function betolt() {
   $('aMeta').textContent = 'Betöltés…';
@@ -120,7 +114,7 @@ function listaBeallit(l, m) {
 
 function metaKiir() {
   const reszek = [`${lista.length} dal`];
-  if (meta.forras === 'beepitett') reszek.push('még a beépített lista — az első mentéssel kerül fel');
+  if (meta.forras === 'beepitett') reszek.push('még a beépített lista – az első mentéssel kerül fel');
   else if (meta.frissitve && meta.frissitve.toDate) {
     const d = meta.frissitve.toDate();
     reszek.push(`utoljára mentve: ${d.toLocaleString('hu-HU', { dateStyle: 'medium', timeStyle: 'short' })}${meta.modosito ? ' · ' + meta.modosito : ''}`);
@@ -166,7 +160,7 @@ async function ment() {
         modosito: (Fiok.felhasznalo && Fiok.felhasznalo.email) || '',
       });
     });
-    toast(`Mentve — ${rendezett.length} dal. A játékok mostantól ebből dolgoznak.`, 'good');
+    toast(`Mentve – ${rendezett.length} dal. A játékok mostantól ebből dolgoznak.`, 'good');
     const friss = await window.AstheticDalok.betoltReszletesen({ friss: true });
     listaBeallit(friss.lista, friss.meta);
   } catch (e) {
@@ -180,9 +174,7 @@ window.addEventListener('beforeunload', (e) => {
   if (valtozasokSzama()) { e.preventDefault(); e.returnValue = ''; }
 });
 
-/* ═══════════════════════════════════════════
-   Lista
-   ═══════════════════════════════════════════ */
+// Lista
 
 function szurt() {
   const kereses = ekezetNelkul($('kereso').value.trim());
@@ -240,9 +232,7 @@ document.querySelectorAll('input[name="nyelvSzuro"]').forEach((el) => el.addEven
 $('rendezes').addEventListener('change', () => { lathato = OLDALMERET; rajzol(); });
 $('tobbBtn').addEventListener('click', () => { lathato += OLDALMERET; rajzol(); });
 
-/* ═══════════════════════════════════════════
-   Szerkesztő
-   ═══════════════════════════════════════════ */
+// Szerkesztő
 
 function szerkNyit(id) {
   const d = id === null ? null : lista.find((x) => x.id === id);
@@ -307,12 +297,12 @@ $('szerkUrlap').addEventListener('submit', (e) => {
   if (!title) return hiba('Hiányzik a cím.');
   if (!Number.isInteger(year) || year < ELSO_EV || year > UTOLSO_EV) return hiba(`Az év ${ELSO_EV} és ${UTOLSO_EV} közötti egész szám legyen.`);
   const dupla = lista.find((d) => d.videoId === videoId && d.id !== szerkesztett);
-  if (dupla) return hiba(`Ez a videó már szerepel: ${dupla.artist} — ${dupla.title}.`);
+  if (dupla) return hiba(`Ez a videó már szerepel: ${dupla.artist} – ${dupla.title}.`);
 
   const adat = { artist, title, titleOriginal: eredetiCim || title, year, videoId, nyelv };
   if (szerkesztett === null) {
     lista.push({ id: kovetkezoId(), ...adat });
-    toast('Hozzáadva — ne felejtsd el menteni.', 'good');
+    toast('Hozzáadva – ne felejtsd el menteni.', 'good');
   } else {
     const d = lista.find((x) => x.id === szerkesztett);
     Object.assign(d, adat);
@@ -323,13 +313,13 @@ $('szerkUrlap').addEventListener('submit', (e) => {
 
 $('torolBtn').addEventListener('click', () => {
   const d = lista.find((x) => x.id === szerkesztett);
-  if (!d || !window.confirm(`Törlöd? ${d.artist} — ${d.title}`)) return;
+  if (!d || !window.confirm(`Törlöd? ${d.artist} – ${d.title}`)) return;
   lista = lista.filter((x) => x.id !== d.id);
   if (eredeti.has(d.id)) torolt++;
   szerkZar();
   metaKiir();
   rajzol();
-  toast('Törölve — a mentéssel lesz végleges.', 'warn');
+  toast('Törölve – a mentéssel lesz végleges.', 'warn');
 });
 
 $('ujDalBtn').addEventListener('click', () => szerkNyit(null));
@@ -337,9 +327,7 @@ $('szerkZarBtn').addEventListener('click', szerkZar);
 $('szerk').addEventListener('click', (e) => { if (e.target === $('szerk')) szerkZar(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('szerk').hidden) szerkZar(); });
 
-/* ═══════════════════════════════════════════
-   Eszközök
-   ═══════════════════════════════════════════ */
+// Eszközök
 
 $('letoltBtn').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(lista.slice().sort((a, b) => a.id - b.id), null, 2)], { type: 'application/json' });
@@ -356,7 +344,7 @@ $('gyariBtn').addEventListener('click', async () => {
   lista = l.map((d) => ({ ...d }));
   torolt = [...eredeti.keys()].filter((id) => !lista.some((d) => d.id === id)).length;
   rajzol();
-  toast('A beépített lista betöltve — mentéssel lesz érvényes.', 'warn');
+  toast('A beépített lista betöltve – mentéssel lesz érvényes.', 'warn');
 });
 
 $('mentesekBtn').addEventListener('click', async () => {
@@ -382,16 +370,14 @@ $('mentesekBtn').addEventListener('click', async () => {
       lista = JSON.parse(d.data().json).map((x) => ({ ...x }));
       torolt = [...eredeti.keys()].filter((id) => !lista.some((x) => x.id === id)).length;
       rajzol();
-      toast('A korábbi változat betöltve — mentéssel lesz érvényes.', 'warn');
+      toast('A korábbi változat betöltve – mentéssel lesz érvényes.', 'warn');
     }));
   } catch (e) {
     doboz.innerHTML = `<p class="kures">Nem sikerült: ${szoveg(e.message)}</p>`;
   }
 });
 
-/* ═══════════════════════════════════════════
-   Fülek
-   ═══════════════════════════════════════════ */
+// Fülek
 
 document.querySelectorAll('input[name="panel"]').forEach((r) => r.addEventListener('change', () => {
   const hozza = r.value === 'hozzaferes' && r.checked;
@@ -401,11 +387,9 @@ document.querySelectorAll('input[name="panel"]').forEach((r) => r.addEventListen
   $('aMeta').hidden = hozza;
 }));
 
-/* ═══════════════════════════════════════════
-   Rubik-Bingó hozzáférés
-   Egy dokumentum e-mail-címenként: bingo_hozzaferes/{email}. Az adminok
-   (Fiok.ADMINOK) nincsenek benne — ők mindig hozzáférnek, nem törölhetők.
-   ═══════════════════════════════════════════ */
+// Rubik-Bingó hozzáférés
+// Egy dokumentum e-mail-címenként: bingo_hozzaferes/{email}. Az adminok
+// (Fiok.ADMINOK) nincsenek benne – ők mindig hozzáférnek, nem törölhetők.
 
 const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const hozzaferesHiv = () => window.ASTHETIC.firebaseIndit().firestore().collection('bingo_hozzaferes');
@@ -423,7 +407,7 @@ async function hozzaferesBetolt() {
       return `<li class="aemail${admin ? ' is-admin' : ''}">
         <span class="aemail__betu">${szoveg(email[0].toUpperCase())}</span>
         <span class="aemail__szoveg"><strong>${szoveg(email)}</strong>
-          <small>${admin ? 'admin — mindig hozzáfér' : `hozzáadta: ${szoveg(x.hozzaadta || '?')}${mikor ? ' · ' + mikor : ''}`}</small></span>
+          <small>${admin ? 'admin – mindig hozzáfér' : `hozzáadta: ${szoveg(x.hozzaadta || '?')}${mikor ? ' · ' + mikor : ''}`}</small></span>
         ${admin
           ? '<span class="aemail__zar" aria-label="Nem törölhető">🔒</span>'
           : `<button class="btn btn--ghost btn--sm" type="button" data-torol="${szoveg(email)}">Eltávolítás</button>`}
@@ -469,7 +453,7 @@ $('emailUrlap').addEventListener('submit', async (e) => {
   } finally { gomb.disabled = false; }
 });
 
-/* ───────────── indulás ───────────── */
+// indulás
 
 (async function () {
   await Fiok.kesz();

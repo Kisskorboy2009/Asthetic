@@ -1,17 +1,15 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — az alkalmazás önfrissítése
-
-   Csak az Android alkalmazásban működik (böngészőben azonnal kilép).
-
-   Induláskor megnézi a GitHubon a legfrissebb kiadást. A kiadást a GitHub
-   Actions készíti minden feltöltésnél (.github/workflows/android.yml), a címkéje
-   "v1.<versionCode>". Ha az újabb a telepítettnél, felajánlja a frissítést: a
-   natív AstheticFrissito bővítmény letölti az APK-t, és átadja a rendszer
-   telepítőjének — a telepítést a felhasználó hagyja jóvá.
-
-   Kívülről: AstheticFrissites.ellenoriz({ kezi: true }) — kézi keresés
-             AstheticFrissites.verzio()                 — a telepített verzió
-   ═══════════════════════════════════════════════════════════════ */
+// Az alkalmazás önfrissítése
+//
+// Csak az Android alkalmazásban működik (böngészőben azonnal kilép).
+//
+// Induláskor megnézi a GitHubon a legfrissebb kiadást. A kiadást a GitHub
+// Actions készíti minden feltöltésnél (.github/workflows/android.yml), a címkéje
+// "v1.<versionCode>". Ha az újabb a telepítettnél, felajánlja a frissítést: a
+// natív AstheticFrissito bővítmény letölti az APK-t, és átadja a rendszer
+// telepítőjének – a telepítést a felhasználó hagyja jóvá.
+//
+// Kívülről: AstheticFrissites.ellenoriz({ kezi: true }) – kézi keresés
+//           AstheticFrissites.verzio()                 – a telepített verzió
 
 (function () {
   'use strict';
@@ -90,7 +88,7 @@
 
     const sajat = await verzio();
     if (!sajat) {
-      if (kezi) uzenet('Ebben a verzióban még nincs önfrissítés — töltsd le az újat az asthetic.hu oldalról.');
+      if (kezi) uzenet('Ebben a verzióban még nincs önfrissítés – töltsd le az újat az asthetic.hu oldalról.');
       return 'hiba';
     }
 
@@ -104,7 +102,7 @@
     ir(UTOLSO_KERESES, String(Date.now()));
 
     if (uj.versionCode <= Number(sajat.versionCode)) {
-      if (kezi) uzenet(`Naprakész vagy — ez a legfrissebb verzió (${sajat.versionName}).`);
+      if (kezi) uzenet(`Naprakész vagy – ez a legfrissebb verzió (${sajat.versionName}).`);
       return 'naprakesz';
     }
 
@@ -117,7 +115,7 @@
     return 'uj';
   }
 
-  /* ───────────────────────── felület ───────────────────────── */
+  // felület
 
   function szoveg(s) {
     return String(s ?? '').replace(/[&<>"']/g, (c) => ({
@@ -224,8 +222,8 @@
 
     async function telepit(b) {
       allapot.textContent = telepitett && telepitett.telepithet === false
-        ? 'Az Android most megkérdezi, engedélyezed-e a telepítést az Asthetic-ből — kapcsold be, majd lépj vissza.'
-        : 'Megnyílik a telepítő — koppints a „Frissítés” gombra.';
+        ? 'Az Android most megkérdezi, engedélyezed-e a telepítést az Asthetic-ből – kapcsold be, majd lépj vissza.'
+        : 'Megnyílik a telepítő – koppints a „Frissítés” gombra.';
       try {
         await b.telepit();
       } catch (e) {
@@ -239,7 +237,7 @@
 
   window.AstheticFrissites = { ellenoriz, verzio, legfrissebb };
 
-  // Induláskor — kicsit később, hogy ne lassítsa az első képet.
+  // Induláskor – kicsit később, hogy ne lassítsa az első képet.
   if (natív) {
     const indit = () => setTimeout(() => { ellenoriz().catch(() => {}); }, 1500);
     if (document.readyState === 'complete') indit();

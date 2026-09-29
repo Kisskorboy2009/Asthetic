@@ -21,7 +21,7 @@ fs.mkdirSync(CEL, { recursive: true });
 for (const [honnan, nev] of FAJLOK) {
   const forras = path.join(GYOKER, honnan);
   if (!fs.existsSync(forras)) {
-    console.error('  ! nincs meg: ' + honnan + ' — futtass npm install-t');
+    console.error('  ! nincs meg: ' + honnan + ' – futtass npm install-t');
     process.exitCode = 1;
     continue;
   }

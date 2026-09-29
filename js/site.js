@@ -1,12 +1,10 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC GAME — közös felületi viselkedések
-   ═══════════════════════════════════════════════════════════════ */
+// Közös felületi viselkedések
 
 'use strict';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ───────────── Téma: világos / sötét ─────────────
+/* Téma: világos / sötét
    A kezdeti beállítást már a fejlécbe ágyazott kis szkript elvégzi, hogy ne
    villanjon fel a rossz szín. Itt csak a kapcsolgatás és a mentés történik. */
 
@@ -44,12 +42,12 @@ systemDark.addEventListener('change', () => {
   if (themeToggle) themeToggle.setAttribute('aria-pressed', String(systemDark.matches));
 });
 
-/* ───────────── Évszám a láblécben ───────────── */
+// Évszám a láblécben
 
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-/* ───────────── Fejléc + görgetésjelző ───────────── */
+// Fejléc + görgetésjelző
 
 const header = document.getElementById('siteHeader');
 const progress = document.getElementById('progress');
@@ -65,7 +63,7 @@ function onScroll() {
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
-/* ───────────── Mobilmenü ───────────── */
+// Mobilmenü
 
 const navToggle = document.getElementById('navToggle');
 const navLinks = document.getElementById('navLinks');
@@ -83,7 +81,7 @@ if (navToggle && navLinks) {
   });
 }
 
-/* ───────────── Címsor szavakra bontása ───────────── */
+// Címsor szavakra bontása
 
 document.querySelectorAll('[data-split]').forEach((el) => {
   if (reduceMotion) return;
@@ -107,7 +105,7 @@ document.querySelectorAll('[data-split]').forEach((el) => {
   });
 });
 
-/* ───────────── Görgetéses megjelenés ───────────── */
+// Görgetéses megjelenés
 
 const revealables = document.querySelectorAll('.reveal');
 
@@ -139,7 +137,7 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
   }, 2500);
 }
 
-/* ───────────── Gombhullám ───────────── */
+// Gombhullám
 
 document.addEventListener('pointerdown', (e) => {
   const btn = e.target.closest('.btn, .status__pill');
@@ -155,7 +153,7 @@ document.addEventListener('pointerdown', (e) => {
   ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
 });
 
-/* ───────────── Harmonika (GYIK és szabályok) ───────────── */
+// Harmonika (GYIK és szabályok)
 
 function setupAccordion(root) {
   const buttons = root.querySelectorAll('[aria-controls]');
@@ -190,7 +188,7 @@ function openFromHash() {
 window.addEventListener('hashchange', openFromHash);
 openFromHash();
 
-/* ───────────── Egyszeri adatkezelési tájékoztatás ─────────────
+/* Egyszeri adatkezelési tájékoztatás
    A játék maga nem használ sütiket és nem követ. A YouTube viszont
    a lejátszás pillanatában adatot tárol, ezért erről egyszer szólunk. */
 
@@ -215,13 +213,13 @@ if (!readNoticeFlag()) {
   requestAnimationFrame(() => bar.classList.add('is-in'));
 
   bar.querySelector('button').addEventListener('click', () => {
-    try { localStorage.setItem(NOTICE_KEY, '1'); } catch { /* privát mód — nem gond */ }
+    try { localStorage.setItem(NOTICE_KEY, '1'); } catch { /* privát mód – nem gond */ }
     bar.classList.remove('is-in');
     bar.addEventListener('transitionend', () => bar.remove(), { once: true });
   });
 }
 
-/* ───────────── Az Android alkalmazás legfrissebb kiadása ─────────────
+/* Az Android alkalmazás legfrissebb kiadása
    A letöltés oldal és a kezdőlap app-sávja a GitHubon lévő legfrissebb
    kiadásból mutatja a verziót, a méretet és a változásokat. A letöltés gombja
    ettől függetlenül is működik: a "latest/download" cím mindig a legújabbra mutat. */
@@ -272,7 +270,7 @@ if (appMezok.length) {
     });
 }
 
-/* ───────────── Kártyák fénykövetése ───────────── */
+// Kártyák fénykövetése
 
 if (!reduceMotion) {
   document.querySelectorAll('.mode').forEach((card) => {

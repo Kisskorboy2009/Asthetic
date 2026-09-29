@@ -118,7 +118,7 @@ async function main() {
     let j = null;
     try { j = await javaslat(dal); } catch (e) { console.log(`${id}: ${e.message}`); }
     eredmeny.push({ id, eloado: dal.artist, cim: dal.title, regi: dal.videoId, uj: j ? j.videoId : null, ujCim: j ? j.cim : null, csatorna: j ? j.csatorna : null, hossz: j ? j.hossz : null });
-    console.log(`${String(id).padStart(4)}  ${dal.artist} — ${dal.title}\n      ${j ? `→ ${j.videoId}  "${j.cim}" | ${j.csatorna} (${j.hossz})` : '→ NINCS megbízható találat'}`);
+    console.log(`${String(id).padStart(4)}  ${dal.artist} – ${dal.title}\n      ${j ? `→ ${j.videoId}  "${j.cim}" | ${j.csatorna} (${j.hossz})` : '→ NINCS megbízható találat'}`);
   }
   fs.writeFileSync(path.join(__dirname, 'link_javaslatok.json'), JSON.stringify(eredmeny, null, 2));
 }

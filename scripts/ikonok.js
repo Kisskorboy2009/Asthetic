@@ -16,7 +16,7 @@ const FORRAS = path.join(GYOKER, 'assets', 'asthetic-logo.png');
 
 const HATTER = [0xf7, 0xf5, 0xf1, 255];  // --paper: vilagos alap, jobban latszik a telefon fooldalan
 
-/* ───────────────────────── PNG olvasás ───────────────────────── */
+// PNG olvasás
 
 function pngOlvas(fajl) {
   const b = fs.readFileSync(fajl);
@@ -79,7 +79,7 @@ function paeth(a, b, c) {
   return pb <= pc ? b : c;
 }
 
-/* ───────────────────────── PNG írás ───────────────────────── */
+// PNG írás
 
 function crc32(buf) {
   let c = ~0;
@@ -103,7 +103,7 @@ function pngIr(fajl, sz, ma, rgba) {
   const sorHossz = sz * 4;
   const szurt = Buffer.alloc((sorHossz + 1) * ma);
   for (let y = 0; y < ma; y++) {
-    szurt[y * (sorHossz + 1)] = 0;   // "None" szűrő — a zlib úgyis tömöríti
+    szurt[y * (sorHossz + 1)] = 0;   // "None" szűrő – a zlib úgyis tömöríti
     rgba.copy(szurt, y * (sorHossz + 1) + 1, y * sorHossz, (y + 1) * sorHossz);
   }
 
@@ -123,7 +123,7 @@ function pngIr(fajl, sz, ma, rgba) {
   ]));
 }
 
-/* ───────────────────────── kép műveletek ───────────────────────── */
+// kép műveletek
 
 // Területátlagoló kicsinyítés: a nagy logóból így lesz éles kis ikon
 // (egyszerű mintavételezéssel recés és zajos lenne).
@@ -214,7 +214,7 @@ function vasznon(kep, meret, kitoltes, hatter, kerek) {
   return ki;
 }
 
-/* ───────────────────────── futtatás ───────────────────────── */
+// futtatás
 
 // A logófájl körül jókora átlátszó margó van; ha ezzel együtt méreteznénk,
 // az ikonon elveszne a rajz. Ezért előbb levágjuk a látható részre.
@@ -230,7 +230,7 @@ function levag(kep) {
       }
     }
   }
-  if (maxX < 0) return kep;   // teljesen átlátszó — hagyjuk békén
+  if (maxX < 0) return kep;   // teljesen átlátszó – hagyjuk békén
 
   const sz = maxX - minX + 1;
   const ma = maxY - minY + 1;

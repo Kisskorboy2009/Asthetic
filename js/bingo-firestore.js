@@ -1,21 +1,19 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — Rubik-Bingó online (Firestore)
-
-   A játékot a szobavezető készüléke vezeti (js/bingo-asztal.js), ez a fájl
-   csak összeköti a többiekkel:
-
-     bingo/{kod}                   nyilvános állapot — csak a szobavezető írja
-     bingo/{kod}/titkos/host       a dal adatai — csak a szobavezető olvassa
-     bingo/{kod}/jelentkezok/{uid} belépési kérés / kilépés
-     bingo/{kod}/lepesek/{uid}     egy játékos lépései: tipp, lecsapás, ikszelés
-
-   A lépéseket a játékos a saját dokumentumába írja, mindegyiket egyedi
-   azonosítóval. A szobavezető mindet egyszer dolgozza fel, és a játékost a
-   dokumentum azonosítójából (a bejelentkezett felhasználóból) ismeri fel —
-   más nevében tehát nem lehet lépni.
-
-   Csak a tesztelők érhetik el; a szabályok a firestore.rules-ban vannak.
-   ═══════════════════════════════════════════════════════════════ */
+// Rubik-Bingó online (Firestore)
+//
+// A játékot a szobavezető készüléke vezeti (js/bingo-asztal.js), ez a fájl
+// csak összeköti a többiekkel:
+//
+//   bingo/{kod}                   nyilvános állapot – csak a szobavezető írja
+//   bingo/{kod}/titkos/host       a dal adatai – csak a szobavezető olvassa
+//   bingo/{kod}/jelentkezok/{uid} belépési kérés / kilépés
+//   bingo/{kod}/lepesek/{uid}     egy játékos lépései: tipp, lecsapás, ikszelés
+//
+// A lépéseket a játékos a saját dokumentumába írja, mindegyiket egyedi
+// azonosítóval. A szobavezető mindet egyszer dolgozza fel, és a játékost a
+// dokumentum azonosítójából (a bejelentkezett felhasználóból) ismeri fel –
+// más nevében tehát nem lehet lépni.
+//
+// Csak a tesztelők érhetik el; a szabályok a firestore.rules-ban vannak.
 
 (function () {
   'use strict';
@@ -55,13 +53,13 @@
   const ujKod = () => Array.from({ length: 4 }, () => KOD_ABC[B().veletlenEgesz(KOD_ABC.length)]).join('');
   const ujAzon = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
-  /* ───────────── a szobavezető oldala ───────────── */
+  // a szobavezető oldala
 
   let vezetes = null;
 
   /**
    * Az asztal állapotát írja ki. Egyszerre mindig csak egy írás fut; ha közben
-   * újabb állapot jön, az előzőt kihagyjuk — mindig a legfrissebb kerül ki.
+   * újabb állapot jön, az előzőt kihagyjuk – mindig a legfrissebb kerül ki.
    */
   function iro(kod) {
     let varakozo = null;
@@ -168,7 +166,7 @@
         kod, hostUid: uid, beallitas, songs: dalok, valtozas: () => {},
       });
       const jatekosId = asztal.jatekosFelvesz({ uid, nev, kep, host: true, nezo: !beallitas.vezetoJatszik });
-      // Az első kiírás létrehozza a szobát — utána kapcsoljuk be a folyamatos írást.
+      // Az első kiírás létrehozza a szobát – utána kapcsoljuk be a folyamatos írást.
       const kezdo = { publikus: JSON.parse(JSON.stringify({ ...asztal.p, iroMs: Date.now() })) };
       await szobaHiv(kod).set({ ...kezdo.publikus, letrejott: most(), frissitve: most() });
       asztal.valtozas = iro(kod);
@@ -201,7 +199,7 @@
       const adat = d.data() || {};
       const j = (publikus.jatekosok || []).find((x) => x.uid === d.id);
       for (const lepes of [adat.tipp, adat.lecsap, adat.jeloles]) if (lepes && lepes.azon) feldolgozott.add(lepes.azon);
-      if (j && adat.tipp && adat.tipp.kor === publikus.kor) tippek[j.id] = { eloado: adat.tipp.eloado, cim: adat.tipp.cim, lecsap: false };
+      if (j && adat.tipp && adat.tipp.kor === publikus.kor) tippek[j.id] = { eloado: adat.tipp.eloado, cim: adat.tipp.cim, ev: adat.tipp.ev ?? null, lecsap: false };
     });
     asztal.visszaallit(publikus, titkos.exists ? titkos.data() : null, tippek);
     vezetesIndit(kod, asztal);
@@ -209,7 +207,7 @@
     return asztal;
   }
 
-  /* ───────────── a játékosok oldala ───────────── */
+  // a játékosok oldala
 
   async function csatlakozas(kodNyers, nev, kep = null) {
     await init();
@@ -284,7 +282,7 @@
     leiratkozok.push(szobaHiv(kod).collection('titkos').doc('host').onSnapshot((d) => {
       titkos = d.exists ? d.data() : null;
       frissit();
-    }, () => { /* játékosként ez tiltott — így is kell lennie */ }));
+    }, () => { /* játékosként ez tiltott – így is kell lennie */ }));
 
     return () => leiratkozok.forEach((f) => { try { f(); } catch { /* mindegy */ } });
   }
@@ -296,8 +294,8 @@
     }, { merge: true });
   }
 
-  const tipp = (kod, jatekosId, kor, { eloado, cim }) =>
-    lep(kod, jatekosId, 'tipp', { kor, eloado: B().tisztitTipp(eloado), cim: B().tisztitTipp(cim) });
+  const tipp = (kod, jatekosId, kor, { eloado, cim, ev }) =>
+    lep(kod, jatekosId, 'tipp', { kor, eloado: B().tisztitTipp(eloado), cim: B().tisztitTipp(cim), ev: B().evSzam(ev) });
   const lecsap = (kod, jatekosId, kor) => lep(kod, jatekosId, 'lecsap', { kor });
   const jelol = (kod, jatekosId, kor, mezo) => lep(kod, jatekosId, 'jeloles', { kor, mezo: Number(mezo) });
 

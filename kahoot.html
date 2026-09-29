@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kvízcsata — Asthetic Game</title>
-<meta name="description" content="Asthetic Kvízcsata: hozz létre szobát, hívd be a barátaidat, és tippeljetek zenékre — évszám, előadó vagy cím. A gyorsabb több pontot kap.">
+<title>Kvízcsata – Asthetic Game</title>
+<meta name="description" content="Asthetic Kvízcsata: hozz létre szobát, hívd be a barátaidat, és tippeljetek zenékre – évszám, előadó vagy cím. A gyorsabb több pontot kap.">
 <meta name="robots" content="noindex, follow">
 <meta name="theme-color" content="#F7F5F1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#15171B" media="(prefers-color-scheme: dark)">
@@ -26,7 +26,7 @@
 
 <header class="site-header" id="siteHeader">
   <div class="container nav">
-    <a class="logo" href="index.html" aria-label="Asthetic Game — főoldal">
+    <a class="logo" href="index.html" aria-label="Asthetic Game – főoldal">
       <span class="logo__mark" aria-hidden="true"></span>
       <span class="logo__text">Asthetic</span>
     </a>
@@ -54,7 +54,7 @@
 <main id="main" class="section section--tight">
   <div class="container">
 
-    <!-- ════════ MENÜ ════════ -->
+    <!-- menü -->
     <section class="kview is-active" id="kv-menu">
       <div class="kwrap">
         <div class="section-head section-head--center">
@@ -82,7 +82,7 @@
       </div>
     </section>
 
-    <!-- ════════ SZOBA LÉTREHOZÁSA ════════ -->
+    <!-- szoba létrehozása -->
     <section class="kview" id="kv-letrehoz">
       <div class="kwrap">
         <div class="section-head">
@@ -141,7 +141,7 @@
             <label class="ktoggle" style="flex:1 1 100%">
               <input type="checkbox" id="publikusInput">
               <span class="ktoggle__box" aria-hidden="true"></span>
-              <span class="ktoggle__label">Nyilvános szoba — bárki láthatja és csatlakozhat</span>
+              <span class="ktoggle__label">Nyilvános szoba – bárki láthatja és csatlakozhat</span>
             </label>
           </div>
 
@@ -149,7 +149,7 @@
             <label class="ktoggle" style="flex:1 1 100%">
               <input type="checkbox" id="mindenkiHalljaInput">
               <span class="ktoggle__box" aria-hidden="true"></span>
-              <span class="ktoggle__label">Mindenki telefonján szóljon a dal — ne csak a szobavezetőnél</span>
+              <span class="ktoggle__label">Mindenki telefonján szóljon a dal – ne csak a szobavezetőnél</span>
             </label>
           </div>
 
@@ -165,12 +165,12 @@
             <label class="ktoggle" style="flex:1 1 100%">
               <input type="checkbox" id="vezetoJatszikInput" checked>
               <span class="ktoggle__box" aria-hidden="true"></span>
-              <span class="ktoggle__label">A szobavezető is játszik — ha kikapcsolod, csak levezeti (kivetítéshez)</span>
+              <span class="ktoggle__label">A szobavezető is játszik – ha kikapcsolod, csak levezeti (kivetítéshez)</span>
             </label>
           </div>
 
           <div class="kfield">
-            <label for="elobbZeneInput">Előbb csak a dal szóljon (mp) — 0 = rögtön jöhetnek a válaszok</label>
+            <label for="elobbZeneInput">Előbb csak a dal szóljon (mp) – 0 = rögtön jöhetnek a válaszok</label>
             <input class="kinput" id="elobbZeneInput" type="number" min="0" max="60" value="0" inputmode="numeric">
           </div>
 
@@ -178,7 +178,7 @@
             <label class="ktoggle" style="flex:1 1 100%">
               <input type="checkbox" id="csakSzinekInput">
               <span class="ktoggle__box" aria-hidden="true"></span>
-              <span class="ktoggle__label">A kérdés csak a szobavezető képernyőjén — a többiek csak a négy színt látják</span>
+              <span class="ktoggle__label">A kérdés csak a szobavezető képernyőjén – a többiek csak a négy színt látják</span>
             </label>
           </div>
 
@@ -192,7 +192,7 @@
       </div>
     </section>
 
-    <!-- ════════ CSATLAKOZÁS ════════ -->
+    <!-- csatlakozás -->
     <section class="kview" id="kv-csatlakoz">
       <div class="kwrap">
         <div class="section-head section-head--center">
@@ -218,7 +218,7 @@
       </div>
     </section>
 
-    <!-- ════════ VÁRÓ (LOBBY) ════════ -->
+    <!-- váró (lobby) -->
     <section class="kview" id="kv-lobby">
       <div class="kwrap">
         <div class="kcode">
@@ -244,7 +244,7 @@
       </div>
     </section>
 
-    <!-- ════════ KÉRDÉS ════════ -->
+    <!-- kérdés -->
     <section class="kview" id="kv-kerdes">
       <div class="kwrap kwrap--wide">
         <div class="kq__fej">
@@ -274,13 +274,13 @@
 
         <div class="kJelzes" id="qNezo" hidden>
           <strong>Te vezeted a játékot</strong>
-          <span>Nem válaszolsz és nem kapsz pontot — a többiek tippelnek.</span>
+          <span>Nem válaszolsz és nem kapsz pontot – a többiek tippelnek.</span>
         </div>
 
         <p class="kvarunk" id="qStatusz"></p>
 
         <div class="krow" style="justify-content:center;margin-top:18px">
-          <button class="btn btn--ghost" id="kihagyBtn" type="button" hidden>Ez a dal nem jó — kihagyom</button>
+          <button class="btn btn--ghost" id="kihagyBtn" type="button" hidden>Ez a dal nem jó – kihagyom</button>
           <button class="btn btn--ghost" id="kilepKerdesBtn" type="button">Kilépés</button>
         </div>
 
@@ -288,7 +288,7 @@
       </div>
     </section>
 
-    <!-- ════════ KÖR EREDMÉNYE ════════ -->
+    <!-- kör eredménye -->
     <section class="kview" id="kv-eredmeny">
       <div class="kwrap">
         <div class="ksajat" id="eSajat" hidden></div>
@@ -313,7 +313,7 @@
       </div>
     </section>
 
-    <!-- ════════ VÉGE ════════ -->
+    <!-- vége -->
     <section class="kview" id="kv-vege">
       <div class="kwrap">
         <div class="section-head section-head--center">
@@ -363,7 +363,7 @@
 <script src="js/config.js" defer></script>
 <script src="js/dalok.js" defer></script>
 
-<!-- A kérdésgenerátor és a pontozás — ugyanaz a kód fut itt, mint a kiszolgálón -->
+<!-- A kérdésgenerátor és a pontozás – ugyanaz a kód fut itt, mint a kiszolgálón -->
 <script src="adatbazis/question_engine.js" defer></script>
 <script src="js/jatekmotor.js" defer></script>
 <script src="js/kahoot-firestore.js" defer></script>

@@ -1,4 +1,4 @@
-// Gombkereső — harmadik kör.
+// Gombkereső – harmadik kör.
 //
 // Az előző körökben azért nem találtunk semmit, mert a gomb egyik vezetéke a
 // belső flash lábára (SD0-3/CMD/CLK = GPIO6-11) volt kötve, onnan pedig soha

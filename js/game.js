@@ -1,15 +1,13 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC GAME — a játék logikája
-   QR → YouTube (45. mp-től, max 30 mp) + fizikai Bluetooth-gomb
-   ═══════════════════════════════════════════════════════════════ */
+// A játék logikája
+// QR → YouTube (45. mp-től, max 30 mp) + fizikai Bluetooth-gomb
 
 'use strict';
 
 const START_SECOND = 45;      // innen indul a dal
 const MAX_PLAY_MS  = 30000;   // ennyi ideig szólhat egy kártya
-const RING_LENGTH  = 540.35;  // 2 * PI * 86 — a gyűrű kerülete
+const RING_LENGTH  = 540.35;  // 2 * PI * 86 – a gyűrű kerülete
 
-// Nordic UART Service — ugyanezek az azonosítók vannak az ESP32 firmware-ben
+// Nordic UART Service – ugyanezek az azonosítók vannak az ESP32 firmware-ben
 const NUS_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const NUS_TX_CHAR = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 // A gomb felé menő irány: ezen küldjük vissza a valós lejátszási állapotot,
@@ -20,7 +18,7 @@ const RING_COLORS = { calm: '#EDEAE4', warn: '#D9A05B', last: '#C4573D' };
 
 const $ = (id) => document.getElementById(id);
 
-/* ───────────── Értesítések ───────────── */
+// Értesítések
 
 function toast(message, kind = '') {
   const el = document.createElement('div');
@@ -33,7 +31,7 @@ function toast(message, kind = '') {
   }, 3400);
 }
 
-/* ───────────── Nézetváltás a színpadon ───────────── */
+// Nézetváltás a színpadon
 
 let currentView = 'home';
 
@@ -45,9 +43,7 @@ function showView(name) {
   currentView = name;
 }
 
-/* ═══════════════════════════════════════════
-   YouTube lejátszó
-   ═══════════════════════════════════════════ */
+// YouTube lejátszó
 
 let player = null;
 let playerReady = false;
@@ -133,9 +129,7 @@ function watchForAutoplayBlock() {
   }, 1600);
 }
 
-/* ═══════════════════════════════════════════
-   Visszaszámláló
-   ═══════════════════════════════════════════ */
+// Visszaszámláló
 
 let state = 'idle';           // idle | playing | paused | done
 let remainingMs = MAX_PLAY_MS;
@@ -235,13 +229,13 @@ function togglePlayback(fromPhysicalButton = false) {
     return;
   }
   if (state === 'playing') {
-    pausePlayback(fromPhysicalButton ? 'Gomb megnyomva — megállítva' : 'Megállítva');
+    pausePlayback(fromPhysicalButton ? 'Gomb megnyomva – megállítva' : 'Megállítva');
   } else {
     resumePlayback();
   }
 }
 
-/* ───────────── Fizikai gomb visszajelzése ───────────── */
+// Fizikai gomb visszajelzése
 
 function flashShock(text) {
   const el = $('shock');
@@ -253,9 +247,9 @@ function flashShock(text) {
 }
 
 // A gomb három félét küldhet:
-//   'stop'   — a nagy gomb: mindig csak megállít
-//   'play'   — a kis gomb: mindig csak elindít/folytat
-//   'toggle' — régebbi firmware: az állapot alapján váltunk
+//   'stop'   – a nagy gomb: mindig csak megállít
+//   'play'   – a kis gomb: mindig csak elindít/folytat
+//   'toggle' – régebbi firmware: az állapot alapján váltunk
 function onPhysicalButton(parancs = 'toggle') {
   if (currentView !== 'play' || !player) {
     toast('Előbb olvass be egy kártyát.', 'warn');
@@ -265,7 +259,7 @@ function onPhysicalButton(parancs = 'toggle') {
   if (parancs === 'stop') {
     if (state !== 'playing') return;   // már áll, nincs mit tenni
     flashShock('STOP');
-    pausePlayback('Gomb megnyomva — megállítva');
+    pausePlayback('Gomb megnyomva – megállítva');
     return;
   }
 
@@ -280,9 +274,7 @@ function onPhysicalButton(parancs = 'toggle') {
   togglePlayback(true);
 }
 
-/* ═══════════════════════════════════════════
-   QR-kód beolvasás
-   ═══════════════════════════════════════════ */
+// QR-kód beolvasás
 
 let stream = null;
 let scanning = false;
@@ -335,7 +327,7 @@ async function startScanner() {
     $('scanHint').textContent = 'A kamera nem érhető el.';
     toast(err && err.name === 'NotAllowedError'
       ? 'Nem engedélyezted a kamera használatát.'
-      : 'Nincs elérhető kamera — illeszd be a linket kézzel.', 'bad');
+      : 'Nincs elérhető kamera – illeszd be a linket kézzel.', 'bad');
     return;
   }
 
@@ -395,7 +387,7 @@ async function scanLoop() {
   requestAnimationFrame(scanLoop);
 }
 
-/* ───────────── Videóazonosító kinyerése ───────────── */
+// Videóazonosító kinyerése
 
 function extractVideoId(text) {
   if (!text) return null;
@@ -415,22 +407,20 @@ function extractVideoId(text) {
       const m = url.pathname.match(/\/(?:embed|shorts|live|v)\/([A-Za-z0-9_-]{11})/);
       if (m) return m[1];
     }
-  } catch { /* nem URL — jöhet a nyers keresés */ }
+  } catch { /* nem URL – jöhet a nyers keresés */ }
 
   const fallback = value.match(/[A-Za-z0-9_-]{11}/);
   return fallback ? fallback[0] : null;
 }
 
-/* ═══════════════════════════════════════════
-   A fizikai gomb — Bluetooth Low Energy
-   ═══════════════════════════════════════════
+/* A fizikai gomb – Bluetooth Low Energy
 
    Két útvonal, ugyanazzal a felülettel:
      • böngésző        → Web Bluetooth (navigator.bluetooth), Chrome/Edge
      • Android app     → @capacitor-community/bluetooth-le natív bővítmény
    A játék többi része nem tud róla, melyik van érvényben.                     */
 
-// A felhasználó bezárta az eszközválasztót — ez nem hiba, ne kiabáljunk vele,
+// A felhasználó bezárta az eszközválasztót – ez nem hiba, ne kiabáljunk vele,
 // és ne is próbálkozzunk helyette másik kereséssel.
 function megszakitottaE(err) {
   if (!err) return false;
@@ -468,16 +458,16 @@ function bleLecsatlakozott() {
   toast('A gomb lecsatlakozott.', 'warn');
 }
 
-// Visszaszólunk a gombnak, hogy szól-e a zene — ettől világít a LED-je.
+// Visszaszólunk a gombnak, hogy szól-e a zene – ettől világít a LED-je.
 // Régebbi firmware-en nincs RX karakterisztika, olyankor ez csendben kimarad.
 function bleAllapotKuld(szol) {
   if (!bleKapcsolat || !bleKapcsolat.ir || szol === bleUtolsoAllapot) return;
   bleUtolsoAllapot = szol;
   Promise.resolve(bleKapcsolat.ir(szol ? 'PLAYING\n' : 'STOPPED\n'))
-    .catch(() => { /* a gomb lecsatlakozott — nem baj */ });
+    .catch(() => { /* a gomb lecsatlakozott – nem baj */ });
 }
 
-/* ───────────── böngésző: Web Bluetooth ───────────── */
+// böngésző: Web Bluetooth
 
 async function bleCsatlakozWeb() {
   const eszkoz = await navigator.bluetooth.requestDevice({
@@ -501,7 +491,7 @@ async function bleCsatlakozWeb() {
     bleUzenet(new TextDecoder().decode(e.target.value));
   });
 
-  // Csak az újabb firmware-ben van — a régivel is működjön a csatlakozás.
+  // Csak az újabb firmware-ben van – a régivel is működjön a csatlakozás.
   let rx = null;
   try { rx = await szolgaltatas.getCharacteristic(NUS_RX_CHAR); } catch { rx = null; }
 
@@ -517,20 +507,19 @@ async function bleCsatlakozWeb() {
   };
 }
 
-/* ───────────── Android app: natív BLE bővítmény ───────────── */
+// Android app: natív BLE bővítmény
 
 async function bleCsatlakozNatív() {
   const ble = window.capacitorCommunityBluetoothLe;
   const { BleClient, dataViewToText, textToDataView } = ble;
 
-  // FONTOS: androidNeverForLocation-t NEM adunk meg. A bővítmény olyankor nem kéri
-  // el a helyhozzáférést, viszont a manifestjében a BLUETOOTH_SCAN sincs
-  // "neverForLocation" jelzővel ellátva — Android 12-től emiatt a keresés lefut,
-  // de egyetlen eszközt sem ad vissza ("nem található eszköz").
+  // androidNeverForLocation szándékosan nincs megadva: a bővítmény manifestjében
+  // a BLUETOOTH_SCAN nem neverForLocation, így Android 12-től e nélkül a keresés
+  // nem adna vissza eszközt.
   await BleClient.initialize();
 
   // Kikapcsolt Bluetooth vagy helymeghatározás mellett a keresés némán üres
-  // marad — inkább mondjuk meg pontosan, mi hiányzik.
+  // marad – inkább mondjuk meg pontosan, mi hiányzik.
   try {
     if (!(await BleClient.isEnabled())) {
       toast('Kapcsold be a Bluetooth-t a telefonon.', 'warn');
@@ -550,7 +539,7 @@ async function bleCsatlakozNatív() {
   }
 
   // Elsőre a szolgáltatás azonosítójára szűrünk. Ha a hirdetési csomagba nem fért
-  // bele a 128 bites UUID, ez üres marad — ilyenkor névre keresünk rá.
+  // bele a 128 bites UUID, ez üres marad – ilyenkor névre keresünk rá.
   let eszkoz;
   try {
     eszkoz = await BleClient.requestDevice({ services: [NUS_SERVICE] });
@@ -577,7 +566,7 @@ async function bleCsatlakozNatív() {
   };
 }
 
-/* ───────────── közös belépési pont ───────────── */
+// közös belépési pont
 
 async function connectButton() {
   if (bleKapcsolat) {          // már csatlakozva: a gomb most bontásra szolgál
@@ -588,7 +577,7 @@ async function connectButton() {
 
   const natív = natívE();
   if (!natív && !navigator.bluetooth) {
-    toast('Ez a böngésző nem támogatja a Web Bluetooth-t — használj Chrome-ot vagy Edge-et.', 'bad');
+    toast('Ez a böngésző nem támogatja a Web Bluetooth-t – használj Chrome-ot vagy Edge-et.', 'bad');
     return;
   }
 
@@ -610,9 +599,7 @@ async function connectButton() {
   }
 }
 
-/* ═══════════════════════════════════════════
-   Eseménykötések
-   ═══════════════════════════════════════════ */
+// Eseménykötések
 
 $('startScan').addEventListener('click', startScanner);
 $('cancelScan').addEventListener('click', () => showView('home'));
@@ -631,7 +618,7 @@ $('revealBtn').addEventListener('click', () => {
   $('revealBtn').textContent = revealed ? 'Videó elrejtése' : 'Videó felfedése';
 });
 
-/* ───────────── Kézi link megadása ───────────── */
+// Kézi link megadása
 
 const sheet = $('sheet');
 let lastFocused = null;
@@ -673,11 +660,11 @@ $('manualForm').addEventListener('submit', (e) => {
   loadVideo(videoId);
 });
 
-/* ───────────── Billentyűk ───────────── */
+// Billentyűk
 
 document.addEventListener('keydown', (e) => {
   const typing = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
-  // Fókuszált gombon a szóköz magát a gombot nyomja meg — ha mi is váltanánk,
+  // Fókuszált gombon a szóköz magát a gombot nyomja meg – ha mi is váltanánk,
   // kétszer váltana (azaz semmi sem történne).
   const onButton = e.target.tagName === 'BUTTON' || e.target.tagName === 'A';
 
@@ -691,7 +678,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-/* ───────────── Indítás ───────────── */
+// Indítás
 
 paintRing(MAX_PLAY_MS);
 setBtUi('off', 'Gomb csatlakoztatása');

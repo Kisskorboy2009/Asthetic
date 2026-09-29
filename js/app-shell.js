@@ -1,12 +1,10 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — alkalmazás-váz
-
-   Csak az Android alkalmazásban fut le (a <html> elemen ott van az `is-app`
-   osztály). Böngészőben azonnal kilép, tehát a weboldalt nem érinti.
-
-   Felépíti a natív érzetű keretet: felül tömör sáv (cím + vissza + sötét mód),
-   alul fülsor, a kezdőlapon pedig marketingszöveg helyett rögtön a játékmódok.
-   ═══════════════════════════════════════════════════════════════ */
+// Alkalmazás-váz
+//
+// Csak az Android alkalmazásban fut le (a <html> elemen ott van az `is-app`
+// osztály). Böngészőben azonnal kilép, tehát a weboldalt nem érinti.
+//
+// Felépíti a natív érzetű keretet: felül tömör sáv (cím + vissza + sötét mód),
+// alul fülsor, a kezdőlapon pedig marketingszöveg helyett rögtön a játékmódok.
 
 (function () {
   'use strict';
@@ -47,7 +45,7 @@
   const fajl = location.pathname.split('/').pop() || 'index.html';
   const oldal = OLDALAK[fajl] || { cim: 'Asthetic', ful: null };
 
-  /* ───────────── felső sáv ───────────── */
+  // felső sáv
 
   const sav = document.createElement('div');
   sav.className = 'appSav';
@@ -73,7 +71,7 @@
     try { localStorage.setItem('asthetic-theme', uj); } catch { /* privát mód */ }
   });
 
-  /* ───────────── Google-fiók ───────────── */
+  // Google-fiók
 
   const Fiok = window.AstheticFiok;
   // A Rubik-Bingó zárt teszt: csak a tesztelők látják a menüben.
@@ -131,7 +129,7 @@
   document.getElementById('appFiok').addEventListener('click', fiokLap);
   fiokGombFrissit();
 
-  /* ───────────── alsó fülsor ───────────── */
+  // alsó fülsor
 
   const fulSor = document.createElement('nav');
   fulSor.className = 'appFulek';
@@ -154,7 +152,7 @@
   }
   fulekRajzol();
 
-  /* ───────────── keskeny kijelző: rövidebb oszlopnevek ───────────── */
+  // keskeny kijelző: rövidebb oszlopnevek
 
   // A "Összesen" fejléc nem fér ki egy sorban telefonon, és csúnyán törik.
   // A weboldalon marad a teljes szó, itt rövidítjük.
@@ -164,7 +162,7 @@
     if (rovid) cella.textContent = rovid;
   });
 
-  /* ───────────── kezdőlap: alkalmazás-menü a marketingszöveg helyett ───────────── */
+  // kezdőlap: alkalmazás-menü a marketingszöveg helyett
 
   if (oldal.ful === 'kezdo') {
     const fo = document.getElementById('main');
@@ -179,7 +177,7 @@
         <div class="appHome__fej">
           <img class="appHome__logo" src="assets/asthetic-logo.png" alt="">
           <div class="appHome__nev">Asthetic</div>
-          <p class="appHome__alcim">Zenei társasjáték — kártyáról vagy közösen</p>
+          <p class="appHome__alcim">Zenei társasjáték – kártyáról vagy közösen</p>
         </div>
         <div class="appCsempek">
           <a class="appCsempe" href="jatek.html">
@@ -194,7 +192,7 @@
             <span class="appCsempe__ikon">${svg(ikon.kviz)}</span>
             <span>
               <span class="appCsempe__cim">Kvízcsata</span>
-              <span class="appCsempe__alcim">Szoba a barátaidnak — aki gyorsabb, több pontot kap</span>
+              <span class="appCsempe__alcim">Szoba a barátaidnak – aki gyorsabb, több pontot kap</span>
             </span>
             <span class="appCsempe__nyil">${svg(ikon.nyil)}</span>
           </a>

@@ -1,16 +1,14 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — Rubik-Bingó: a játékvezetés
-
-   Egyetlen készüléken fut, az „asztalon”: helyi játéknál ez az egyetlen
-   telefon, online játéknál a szobavezetőé. Minden döntés itt születik: a kerék
-   színe, a dal, a lecsapás, a tippek értékelése, az ikszelés és a győzelem.
-   Kifelé csak két dolgot ad: a nyilvános állapotot (ezt mindenki látja) és a
-   titkos állapotot (a dal adatai — kör közben csak az asztal ismeri).
-
-   A tárolásról nem tud: helyi játéknál a képernyő közvetlenül rajzol belőle,
-   online a js/bingo-firestore.js írja ki. Az időt és az időzítőt kívülről
-   kapja, így Node-ban gyorsított órával is tesztelhető.
-   ═══════════════════════════════════════════════════════════════ */
+// Rubik-Bingó: a játékvezetés
+//
+// Egyetlen készüléken fut, az „asztalon”: helyi játéknál ez az egyetlen
+// telefon, online játéknál a szobavezetőé. Minden döntés itt születik: a kerék
+// színe, a dal, a lecsapás, a tippek értékelése, az ikszelés és a győzelem.
+// Kifelé csak két dolgot ad: a nyilvános állapotot (ezt mindenki látja) és a
+// titkos állapotot (a dal adatai – kör közben csak az asztal ismeri).
+//
+// A tárolásról nem tud: helyi játéknál a képernyő közvetlenül rajzol belőle,
+// online a js/bingo-firestore.js írja ki. Az időt és az időzítőt kívülről
+// kapja, így Node-ban gyorsított órával is tesztelhető.
 
 (function (globalis, keszit) {
   if (typeof module !== 'undefined' && module.exports) module.exports = keszit(require('./bingomotor.js'));
@@ -34,8 +32,8 @@
   class Asztal {
     /**
      * @param opts.songs      a daladatbázis
-     * @param opts.valtozas   ({ publikus, titkos }) => void — minden változás után
-     * @param opts.ora        { most, utemez, torol } — alapból a valódi óra
+     * @param opts.valtozas   ({ publikus, titkos }) => void – minden változás után
+     * @param opts.ora        { most, utemez, torol } – alapból a valódi óra
      */
     constructor({ kod, hostUid = null, beallitas, songs, valtozas, ora = valosOra, azonosito }) {
       this.songs = songs;
@@ -71,7 +69,7 @@
       this.t = { kor: 0, dal: null };
     }
 
-    /* ───────────── kifelé ───────────── */
+    // kifelé
 
     kuld() {
       const most = this.ora.most();
@@ -111,7 +109,7 @@
       return this.jatszok().filter((j) => !this.p.kiesettek.includes(j.id));
     }
 
-    /* ───────────── játékosok ───────────── */
+    // játékosok
 
     jatekosFelvesz({ uid = null, nev, kep = null, host = false, nezo = false }) {
       if (uid) {
@@ -122,7 +120,7 @@
       if (this.p.allapot === 'vege') throw new Error('Ez a játék már véget ért.');
 
       const j = { id: this.ujAzon(), uid, nev: B.tisztitNev(nev), kep: B.tisztitKep(kep), host, nezo, kartya: null, jelolt: null };
-      // Játék közben érkezőnek is jár kártya — a következő körtől játszik.
+      // Játék közben érkezőnek is jár kártya – a következő körtől játszik.
       if (!nezo && this.p.allapot !== 'lobby') this.kartyatOszt(j);
       this.p.jatekosok.push(j);
       this.kuld();
@@ -142,7 +140,7 @@
       j.jelolt = Array(25).fill(0);
     }
 
-    /* ───────────── menet ───────────── */
+    // menet
 
     indit() {
       if (this.p.allapot !== 'lobby') throw new Error('A játék már elindult.');
@@ -202,16 +200,16 @@
       this.ujKor({ kihagyas: true });
     }
 
-    /* ───────────── tippek és lecsapás ───────────── */
+    // tippek és lecsapás
 
-    tipp(jatekosId, { eloado, cim } = {}) {
+    tipp(jatekosId, { eloado, cim, ev } = {}) {
       if (this.p.allapot !== 'kor') return false;
       const j = this.jatekos(jatekosId);
       if (!j || j.nezo || this.p.kiesettek.includes(jatekosId)) return false;
 
-      const tipp = { eloado: B.tisztitTipp(eloado), cim: B.tisztitTipp(cim) };
+      const tipp = { eloado: B.tisztitTipp(eloado), cim: B.tisztitTipp(cim), ev: B.evSzam(ev) };
 
-      // Lecsapás alatt csak a lecsapó írhat — a többieknek megáll az idő.
+      // Lecsapás alatt csak a lecsapó írhat – a többieknek megáll az idő.
       if (this.p.fazis === 'lecsap') {
         if (!this.p.lecsapas || this.p.lecsapas.jatekosId !== jatekosId) return false;
         this.lecsapErtekel(tipp);
@@ -254,7 +252,7 @@
       const lecsapo = this.p.lecsapas && this.p.lecsapas.jatekosId;
       if (this.p.fazis !== 'lecsap' || !lecsapo) return;
 
-      const t = tipp || { eloado: '', cim: '' };
+      const t = tipp || { eloado: '', cim: '', ev: null };
       this.tippek[lecsapo] = { ...t, lecsap: true };
       if (!this.p.bekuldtek.includes(lecsapo)) this.p.bekuldtek.push(lecsapo);
 
@@ -275,10 +273,10 @@
 
     dalAdat() {
       const d = this.t.dal;
-      return { artist: d.eloado, title: d.cim, titleOriginal: d.cimEredeti };
+      return { artist: d.eloado, title: d.cim, titleOriginal: d.cimEredeti, year: d.ev };
     }
 
-    /* ───────────── kiértékelés és ikszelés ───────────── */
+    // kiértékelés és ikszelés
 
     korVege() {
       if (this.p.allapot !== 'kor') return;
@@ -290,15 +288,17 @@
       for (const j of this.jatszok()) {
         const t = this.tippek[j.id] || null;
         const kiesett = this.p.kiesettek.includes(j.id);
-        const e = t ? B.tippErtekel(t, dal, this.p.beallitas) : { eloadoJo: false, cimJo: false, jo: false };
+        const e = t ? B.tippErtekel(t, dal, this.p.beallitas) : { eloadoJo: false, cimJo: false, evJo: false, jo: false };
         const jo = e.jo && !kiesett;
         tippek.push({
           jatekosId: j.id,
           nev: j.nev,
           eloado: t ? t.eloado : '',
           cim: t ? t.cim : '',
+          ev: t ? t.ev : null,
           eloadoJo: e.eloadoJo,
           cimJo: e.cimJo,
+          evJo: e.evJo,
           jo,
           lecsap: Boolean(t && t.lecsap),
           kiesett,
@@ -311,7 +311,7 @@
       this.p.fazis = null;
       this.p.lecsapas = null;
       this.p.eredmeny = {
-        dal: { eloado: this.t.dal.eloado, cim: this.t.dal.cim, ev: this.t.dal.ev },
+        dal: { eloado: this.t.dal.eloado, cim: this.t.dal.cim, ev: this.t.dal.ev, videoId: this.t.videoId },
         szin: this.p.szin,
         tippek,
         jogok,
@@ -355,7 +355,7 @@
         if (e.jelolesek[id] !== undefined) continue;
         const j = this.jatekos(id);
         if (!j) continue;
-        const mezo = B.legjobbMezo(j.kartya, j.jelolt, e.jogok[id], this.p.szin);
+        const mezo = B.legjobbMezo(j.kartya, j.jelolt, e.jogok[id], this.p.szin, this.p.beallitas.nyeres);
         if (mezo === null) continue;
         j.jelolt[mezo] = 1;
         e.jelolesek[id] = mezo;
@@ -367,7 +367,7 @@
     }
 
     /**
-     * A szobavezető felülbírálhatja a gép döntését — pl. elfogad egy olyan
+     * A szobavezető felülbírálhatja a gép döntését – pl. elfogad egy olyan
      * elírást, amit a gép már nem ismert fel. Ha már ikszelt, visszavesszük.
      */
     felulbiral(jatekosId, jo) {
@@ -397,11 +397,23 @@
       if (this.p.allapot !== 'eredmeny') return;
       this.jelolesLezar();
       if (this.p.allapot !== 'eredmeny') return;
+      const max = this.p.beallitas.maxKor;
+      if (max && this.p.kor >= max) { this.korlatVege(); return; }
       this.ujKor();
     }
 
+    /** Elfogytak a körök: az nyer, aki a legközelebb járt (holtversenyben többen). */
+    korlatVege() {
+      const nyeres = this.p.beallitas.nyeres;
+      const allas = this.jatszok().map((j) => ({ id: j.id, h: B.haladas(j.jelolt, nyeres) }));
+      const legjobb = Math.max(0, ...allas.map((x) => x.h));
+      const nyertesek = legjobb > 0 ? allas.filter((x) => x.h === legjobb).map((x) => x.id) : [];
+      this.vege(`Letelt a(z) ${this.p.beallitas.maxKor} kör.`, nyertesek);
+    }
+
     nyertesKeres() {
-      const nyertesek = this.jatszok().filter((j) => j.jelolt && B.bingoE(j.jelolt)).map((j) => j.id);
+      const nyeres = this.p.beallitas.nyeres;
+      const nyertesek = this.jatszok().filter((j) => B.nyertE(j.jelolt, nyeres)).map((j) => j.id);
       if (!nyertesek.length) return false;
       this.vege(null, nyertesek);
       return true;
@@ -428,7 +440,7 @@
       this.kuld();
     }
 
-    /* ───────────── újratöltés után ───────────── */
+    // újratöltés után
 
     /**
      * A szobavezető frissítette az oldalt: a kiírt állapotból folytatjuk. A

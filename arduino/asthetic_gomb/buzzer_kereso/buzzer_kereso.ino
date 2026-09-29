@@ -1,4 +1,4 @@
-// BUZZER-KERESŐ — megmondja, melyik lábon van valójában a buzzer.
+// BUZZER-KERESŐ – megmondja, melyik lábon van valójában a buzzer.
 //
 // Sorban minden használható lábon megszólaltat egy jól hallható, egy másodperces
 // sípolást, és közben kiírja a soros portra, épp melyiket teszteli. Amelyiknél
@@ -8,7 +8,7 @@
 // hajtott kimenetek maradnak.
 //
 // Ha EGYIK lábon sem szól, akkor a buzzer nem GPIO-ra van kötve, hanem a
-// tápfeszültségre (3V3/5V és GND közé) — azt a rádió áramlökései hajtják meg,
+// tápfeszültségre (3V3/5V és GND közé) – azt a rádió áramlökései hajtják meg,
 // és ezért kattog Bluetooth mellett.
 
 const int labak[] = { 2, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33 };

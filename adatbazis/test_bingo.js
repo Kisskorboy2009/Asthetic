@@ -60,8 +60,8 @@ ellenoriz(talalt.size === 5 && !talalt.has(B.JOKER), 'joker nélkül mind az 5 s
 for (let i = 0; i < 400; i++) talalt.add(B.szinSorsol({ joker: true }));
 ellenoriz(talalt.has(B.JOKER), 'jokerrel a fehér is kijöhet');
 
-console.log('Tippek — normál elfogadás, előadó + cím');
-const b = B.tisztitBeallitas({});
+console.log('Tippek – normál elfogadás, előadó + cím');
+const b = B.tisztitBeallitas({ tippelheto: ['eloado', 'cim'] });
 const dal = (artist, title, titleOriginal) => ({ artist, title, titleOriginal: titleOriginal || title });
 const eset = (leiras, d, tipp, vart, beallitas = b) => {
   const e = B.tippErtekel(tipp, d, beallitas);
@@ -84,9 +84,9 @@ eset('zárójeles toldás elhagyható', dal('Toto', 'Africa (Remastered)'), { el
 eset('kötőjeles toldás elhagyható', dal('Toto', 'Hold the Line - 2008 Remaster'), { eloado: 'toto', cim: 'hold the line' }, true);
 eset('névelő elhagyható', dal('The Beatles', 'Yesterday'), { eloado: 'Beatles', cim: 'Yesterday' }, true);
 
-console.log('Tippek — elfogadási szintek');
-const pontos = B.tisztitBeallitas({ elfogadas: 'pontos' });
-const laza = B.tisztitBeallitas({ elfogadas: 'laza' });
+console.log('Tippek – elfogadási szintek');
+const pontos = B.tisztitBeallitas({ elfogadas: 'pontos', tippelheto: ['eloado', 'cim'] });
+const laza = B.tisztitBeallitas({ elfogadas: 'laza', tippelheto: ['eloado', 'cim'] });
 eset('pontos módban az elírás nem jó', queen, { eloado: 'Queen', cim: 'Bohemian Rapsody' }, false, pontos);
 eset('pontos módban az ékezet és a kisbetű mindegy', dal('Zorán', 'Kell ott fenn egy ország'), { eloado: 'zoran', cim: 'kell ott fenn egy orszag' }, true, pontos);
 eset('pontos módban a duó egyik tagja nem elég', dal('Les Paul & Mary Ford', 'Vaya Con Dios'), { eloado: 'Mary Ford', cim: 'Vaya Con Dios' }, false, pontos);
@@ -94,7 +94,7 @@ eset('normál módban a sok elírás nem jó', queen, { eloado: 'Queen', cim: 'B
 eset('laza módban a sok elírás is jó', queen, { eloado: 'Queen', cim: 'Bohemian Rapszodi' }, true, laza);
 eset('laza módban sem jó a teljesen más', queen, { eloado: 'Queen', cim: 'Radio Ga Ga' }, false, laza);
 
-console.log('Tippek — mit kell eltalálni');
+console.log('Tippek – mit kell eltalálni');
 eset('„bármelyik”: csak az előadó elég', queen, { eloado: 'Queen', cim: 'valami' }, true, B.tisztitBeallitas({ mitKell: 'barmelyik' }));
 eset('„bármelyik”: egyik sem jó', queen, { eloado: 'ABBA', cim: 'valami' }, false, B.tisztitBeallitas({ mitKell: 'barmelyik' }));
 eset('„csak cím”: az előadó nem számít', queen, { eloado: '', cim: 'Bohemian Rhapsody' }, true, B.tisztitBeallitas({ mitKell: 'cim' }));
@@ -105,7 +105,7 @@ let rossz = 0;
 for (const s of songs) {
   if (!B.tippErtekel({ eloado: s.artist, cim: s.title }, s, pontos).jo) {
     rossz++;
-    if (rossz <= 5) console.log('       nem fogadja el: ' + s.artist + ' — ' + s.title);
+    if (rossz <= 5) console.log('       nem fogadja el: ' + s.artist + ' – ' + s.title);
   }
 }
 ellenoriz(rossz === 0, `${songs.length} dal, ebből ${rossz} nem fogadná el a saját előadóját és címét`);
@@ -124,6 +124,42 @@ const t = B.tisztitBeallitas({ mod: 'semmi', valaszIdoMp: 999, elfogadas: 'x', e
 ellenoriz(t.mod === 'online' && t.valaszIdoMp === 120 && t.elfogadas === 'normal', 'érvénytelen értékek helyett alapérték / korlát');
 ellenoriz(t.evTol === 1990 && t.evIg === 2000, 'felcserélt évtartomány megfordul');
 ellenoriz(t.lecsapas === false && B.tisztitBeallitas({}).lecsapas === true, 'a lecsapás kikapcsolható, alapból be van kapcsolva');
+const regi = B.tisztitBeallitas({ mitKell: 'mindketto' });
+ellenoriz(JSON.stringify(regi.tippelheto) === '["eloado","cim"]' && regi.mitKell === 'mindegyik', 'a régi „előadó + cím” szoba évszám nélkül, mindkettőt kérve értelmeződik');
+ellenoriz(JSON.stringify(B.tisztitBeallitas({}).tippelheto) === '["eloado","cim","ev"]', 'alapból az évszám is tippelhető');
+ellenoriz(B.tisztitBeallitas({ tippelheto: ['cim', 'ev'], mitKell: 'ketto' }).mitKell === 'mindegyik', 'két mezőnél a „legalább kettő” = mindegyik');
+ellenoriz(JSON.stringify(B.tisztitBeallitas({ tippelheto: [] }).tippelheto) === '["eloado","cim","ev"]', 'üres választásnál mindhárom marad');
+
+console.log('Évszám');
+const b3 = B.tisztitBeallitas({ evTures: 1 });
+const q = { artist: 'Queen', title: 'Bohemian Rhapsody', titleOriginal: 'Bohemian Rhapsody', year: 1975 };
+const e3 = (tipp, be = b3) => B.tippErtekel(tipp, q, be);
+ellenoriz(e3({ eloado: 'Queen', cim: 'Bohemian Rhapsody', ev: '1975' }).jo, 'mindhárom jó → elfogadva');
+ellenoriz(e3({ eloado: 'Queen', cim: 'Bohemian Rhapsody', ev: 1976 }).jo, '±1 év tűréssel egy év eltérés még jó');
+ellenoriz(!e3({ eloado: 'Queen', cim: 'Bohemian Rhapsody', ev: 1977 }).jo, 'két év eltérés már nem jó (±1-nél)');
+ellenoriz(!e3({ eloado: 'Queen', cim: 'Bohemian Rhapsody', ev: '' }).jo, 'évszám nélkül „mindegyik” módban nem jó');
+ellenoriz(!e3({ eloado: 'Queen', cim: 'Bohemian Rhapsody', ev: 1976 }, B.tisztitBeallitas({ evTures: 0 })).jo, '0 tűrésnél csak a pontos év jó');
+ellenoriz(e3({ eloado: 'x', cim: 'Bohemian Rhapsody', ev: '75' }).evJo === false, 'kétjegyű évszám nem számít évnek');
+const ketto = B.tisztitBeallitas({ mitKell: 'ketto' });
+ellenoriz(e3({ eloado: 'Queen', cim: 'rossz', ev: 1975 }, ketto).jo, '„legalább kettő”: előadó + év elég');
+ellenoriz(!e3({ eloado: 'Queen', cim: 'rossz', ev: 1990 }, ketto).jo, '„legalább kettő”: egy találat kevés');
+ellenoriz(e3({ eloado: '', cim: '', ev: 1975 }, B.tisztitBeallitas({ tippelheto: ['ev'] })).jo, 'csak évszám: elég az év');
+ellenoriz(e3({ eloado: 'rossz', cim: 'rossz', ev: 1975 }, B.tisztitBeallitas({ mitKell: 'barmelyik' })).jo, '„bármelyik”: az év egymagában is elég');
+
+console.log('Nyerési módok');
+const j0 = Array(25).fill(0);
+const kitolt = (mezok) => { const j = j0.slice(); mezok.forEach((i) => { j[i] = 1; }); return j; };
+ellenoriz(B.nyertE(kitolt([0, 1, 2, 3, 4]), 'vonal') && !B.nyertE(kitolt([0, 1, 2, 3, 4]), 'ketVonal'), 'egy sor: egy vonalnál nyer, kettőnél még nem');
+ellenoriz(B.nyertE(kitolt([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 'ketVonal'), 'két sor: két vonalnál nyer');
+ellenoriz(B.nyertE(kitolt([0, 4, 20, 24]), 'sarkok') && !B.nyertE(kitolt([0, 4, 20]), 'sarkok'), 'négy sarok: mind a négy kell');
+ellenoriz(B.nyertE(Array(25).fill(1), 'teli') && !B.nyertE(kitolt([...Array(24).keys()]), 'teli'), 'teli kártya: mind a 25 kell');
+ellenoriz(B.haladas(kitolt([0, 1, 2, 6]), 'vonal') === 3 && B.haladas(kitolt([0, 4]), 'sarkok') === 2, 'haladás: a legjobb vonal / a sarkok száma');
+ellenoriz(B.legjobbMezo(kartya, j0, 'joker', 0, 'sarkok') === 0, 'sarkok módban a gép sarkot ikszel, ha lehet');
+
+console.log('Nyelv');
+const huDalok = Array.from({ length: 50 }, () => B.dalValaszt(songs, B.tisztitBeallitas({ nyelv: 'hu' }), []));
+const kulfDalok = Array.from({ length: 50 }, () => B.dalValaszt(songs, B.tisztitBeallitas({ nyelv: 'kulfoldi' }), []));
+ellenoriz(huDalok.every((s) => s.nyelv === 'hu') && kulfDalok.every((s) => s.nyelv !== 'hu'), 'a nyelvszűrés csak magyar / csak külföldi dalt ad');
 
 console.log(hibak ? `\n${hibak} HIBA` : '\nMinden rendben.');
 process.exit(hibak ? 1 : 0);

@@ -1,7 +1,5 @@
-/* ═══════════════════════════════════════════════════════════════
-   ASTHETIC — Kahoot-mód (szobák, kérdések, pontozás)
-   A színek a fő dizájnrendszerből jönnek (styles.css), hogy egységes legyen.
-   ═══════════════════════════════════════════════════════════════ */
+/* Kahoot-mód (szobák, kérdések, pontozás)
+   A színek a fő dizájnrendszerből jönnek (styles.css), hogy egységes legyen. */
 
 .kview { display: none; }
 .kview.is-active { display: block; animation: kfade .45s var(--ease) both; }
@@ -10,7 +8,7 @@
 .kwrap { max-width: 760px; margin-inline: auto; }
 .kwrap--wide { max-width: 960px; }
 
-/* ───────────── kártyák, űrlapok ───────────── */
+/* kártyák, űrlapok */
 
 .kcard {
   background: var(--paper-2);
@@ -84,7 +82,7 @@
 .ktoggle input:focus-visible ~ .ktoggle__box { outline: 2px solid var(--accent); outline-offset: 3px; }
 .ktoggle__label { font-size: 15px; font-weight: 500; }
 
-/* ───────────── szobakód, lobby ───────────── */
+/* szobakód, lobby */
 
 .kcode {
   text-align: center;
@@ -119,7 +117,7 @@
 .kplayer__crown { color: var(--accent); font-size: 13px; }
 .kplayer__pont { color: var(--ink-3); font-variant-numeric: tabular-nums; }
 
-/* ───────────── kérdés ───────────── */
+/* kérdés */
 
 .kq__fej {
   display: flex; align-items: center; justify-content: space-between;
@@ -147,10 +145,7 @@
 }
 
 .kvalaszok { display: grid; gap: 12px; }
-/* FONTOS: a `display: grid` erosebb, mint a bongeszo alapertelmezett
-   [hidden] { display: none } szabalya. E sor nelkul a valaszok akkor is
-   latszottak, amikor a JS elrejtette oket - pl. a "csak a dal szol" szakaszban,
-   vagy a csak levezeto szobavezetonel, aki igy bele is tudott kattintani. */
+/* A display: grid erősebb a böngésző [hidden] szabályánál, ezért kell külön. */
 .kvalaszok[hidden] { display: none; }
 @media (min-width: 620px) { .kvalaszok { grid-template-columns: 1fr 1fr; } }
 
@@ -170,10 +165,10 @@
 .kvalasz:disabled { cursor: default; }
 
 /* A négy válasz élesen eltérő SZÍNÁRNYALATOT kap (piros / kék / borostyán /
-   zöld), nem csak eltérő árnyalatú földszínt — a korábbi terrakotta-barna-zsálya
+   zöld), nem csak eltérő árnyalatú földszínt – a korábbi terrakotta-barna-zsálya
    hármas ránézésre összemosódott. Mindegyik legalább 5:1 kontrasztot ad fehér
    szöveggel. A színek mellé forma is jár (lásd .kvalasz__jel), hogy pusztán
-   színre se kelljen hagyatkozni — ez a színtévesztőknek is segít. */
+   színre se kelljen hagyatkozni – ez a színtévesztőknek is segít. */
 .kvalasz--0 { background: #C0392B; }
 .kvalasz--1 { background: #1E6FA8; }
 .kvalasz--2 { background: #9A6407; }
@@ -195,7 +190,7 @@
 .kvarunk { text-align: center; color: var(--ink-2); margin-top: 20px; font-size: 15px; }
 
 /* rejtett videó (csak a szobavezetőnél szól) */
-.kvideo { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
+.kvideo { position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
 
 .khang {
   display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -211,7 +206,7 @@
 .is-szol .khang i { animation-play-state: running; }
 @keyframes khangUgral { from { transform: scaleY(.18); } to { transform: scaleY(1); } }
 
-/* ───────────── eredmény ───────────── */
+/* eredmény */
 
 .keredmeny__dal {
   text-align: center; padding: 22px; border-radius: var(--r-md);
@@ -233,11 +228,8 @@
 .ktabla .jo { color: #2E7D32; font-weight: 600; }
 .ktabla .rossz { color: #B3261E; }
 
-/* dobogó
-   A név és a pontszám az oszlop FÖLÖTT van, nem a színes hasábban. Korábban
-   benne volt, és mivel csak `min-height` allt rajta, egy ket sorba toro hosszu
-   nev magasabbra novelte a harmadik helyet, mint az elsot. A hasab magassaga
-   most fix: a helyezes latvanya nem fugghet a nev hosszatol. */
+/* dobogó: a név a hasáb fölött van, a hasáb magassága fix, így egy hosszú
+   név nem tolhatja el a helyezések sorrendjét. */
 .kdobogo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: end; margin-bottom: 26px; }
 .kdobogo__oszlop { display: flex; flex-direction: column; justify-content: flex-end; min-width: 0; }
 .kdobogo__fej { text-align: center; padding: 0 4px 10px; }
@@ -260,10 +252,10 @@
 }
 .kdobogo__helyszam { font-family: var(--display); font-size: 30px; font-weight: 600; }
 
-/* ───────────── évtartomány-csúszka ─────────────
+/* évtartomány-csúszka
    Két egymásra fektetett range-mező adja a két fogantyút: natív dupla csúszka
    nincs a HTML-ben. A sávok átlátszók, a látható vonalat és a kitöltést a
-   .kevsav__vonal rajzolja — így a két mező fogantyúja szabadon mozog egymás
+   .kevsav__vonal rajzolja – így a két mező fogantyúja szabadon mozog egymás
    fölött. A felső mező csak a fogantyúk közelében fogad kattintást
    (pointer-events), különben eltakarná az alsót. */
 
@@ -308,7 +300,7 @@
 .kevsav__hint { font-size: 14px; color: var(--ink-3); margin-top: 8px; }
 .kevsav__hint.is-keves { color: #B3261E; }
 
-/* ───────────── publikus szobák ───────────── */
+/* publikus szobák */
 
 .kszobak { display: grid; gap: 10px; }
 .kszoba {
@@ -324,7 +316,7 @@
 
 .kures { text-align: center; color: var(--ink-3); padding: 26px; font-size: 15px; }
 
-/* ───────────── hibaüzenet ───────────── */
+/* hibaüzenet */
 
 .khiba {
   margin-top: 14px; padding: 12px 16px; border-radius: var(--r-sm);
@@ -346,7 +338,7 @@
 .kHangGomb[hidden] { display: none; }
 
 /* "Csak színek" mód: a válaszgombokon nincs szöveg, ezért nagyobb, négyzetesebb
-   felületek — messziről is jól célozhatók, és kitöltik a képernyőt. */
+   felületek – messziről is jól célozhatók, és kitöltik a képernyőt. */
 .kvalaszok--szinek { grid-template-columns: 1fr 1fr; gap: 14px; }
 .kvalaszok--szinek .kvalasz {
   min-height: 118px;
@@ -359,9 +351,9 @@
   font-size: 24px;
 }
 
-/* ───────────── forma a szín mellé ───────────── */
+/* forma a szín mellé */
 
-/* A jelölésben a FORMA látszik, a betű csak a képernyőolvasóknak marad meg —
+/* A jelölésben a FORMA látszik, a betű csak a képernyőolvasóknak marad meg –
    egymásra rajzolva mindkettő olvashatatlan lenne. */
 .kvalasz__jel { font-size: 0; }
 .kvalasz__jel::before {
@@ -377,7 +369,7 @@
 
 .kvalaszok--szinek .kvalasz__jel::before { width: 30px; height: 30px; }
 
-/* ───────────── jelzőtábla: hallgatás / szobavezető ───────────── */
+/* jelzőtábla: hallgatás / szobavezető */
 
 .kJelzes {
   display: grid;
@@ -396,7 +388,7 @@
 .kJelzes span { color: var(--ink-2); font-size: 15px; }
 .kJelzes[hidden] { display: none; }
 
-/* ───────────── szobakód + QR a váróban ───────────── */
+/* szobakód + QR a váróban */
 
 .kcode {
   display: flex; align-items: center; justify-content: center;
@@ -420,7 +412,7 @@
 .kcode__masol:hover { background: rgba(237, 234, 228, .1); border-color: rgba(237, 234, 228, .5); }
 .kcode__masol[hidden] { display: none; }
 
-/* ───────────── saját állás a kérdés fejlécében ───────────── */
+/* saját állás a kérdés fejlécében */
 
 .kq__sajat {
   margin-left: auto; margin-right: 6px;
@@ -429,7 +421,7 @@
 }
 .kq__sajat:empty { display: none; }
 
-/* ───────────── saját eredmény a kör végén ───────────── */
+/* saját eredmény a kör végén */
 
 .ksajat {
   display: grid; gap: 2px; text-align: center;
@@ -443,11 +435,11 @@
 .ksajat--rossz { background: var(--paper-3); color: var(--ink); }
 .ksajat[hidden] { display: none; }
 
-/* A lejárt vagy elküldött válasz gombjai halványabbak — látszik, hogy most
+/* A lejárt vagy elküldött válasz gombjai halványabbak – látszik, hogy most
    már nem lehet koppintani. A kiválasztott teljes színben marad. */
 .kvalasz:disabled:not(.is-valasztott) { opacity: .55; }
 
-/* ───────────── sötét mód: a fix színű elemek is igazodjanak ───────────── */
+/* sötét mód: a fix színű elemek is igazodjanak */
 
 :root[data-theme="dark"] .khiba { background: #3A1F1C; border-color: #6B2F28; color: #F2B8B0; }
 :root[data-theme="dark"] .ktabla .jo { color: #7CCB8E; }
@@ -466,7 +458,7 @@
   .kcode__qr { width: 140px; height: 140px; }
 }
 
-/* ───────────── profilkép ───────────── */
+/* profilkép */
 
 .kavatar {
   position: relative; flex: none;
@@ -483,3 +475,10 @@
 .kplayer:has(.kavatar) { padding-left: 6px; }
 .knevcella { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
 .knevcella > span:last-child { overflow-wrap: anywhere; }
+
+/* A kapcsoló egy mező közvetlen gyermekeként is egy sorban maradjon
+   (a .kfield > label szabály különben blokká tenné). */
+.kfield > label.ktoggle {
+  display: flex; margin-bottom: 0;
+  font-size: inherit; letter-spacing: normal; color: var(--ink); font-weight: 400;
+}
