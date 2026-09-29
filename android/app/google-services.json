@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "494747985041",
+    "project_id": "asthetic-798d1",
+    "storage_bucket": "asthetic-798d1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:494747985041:android:a35ce2380217eb491acb30",
+        "android_client_info": {
+          "package_name": "hu.kisskorboy.asthetic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "494747985041-fih1t6pkplnhmneggi96voi9pi0cgtto.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "hu.kisskorboy.asthetic",
+            "certificate_hash": "d048f4be7f62018c139616add58d3a0c37d2bc1f"
+          }
+        },
+        {
+          "client_id": "494747985041-6q5ihjigopfjcpi4sogmps0a052fntnh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDi9oTWuPD2iZBr3KjFufMsISLmvPBGeiA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "494747985041-6q5ihjigopfjcpi4sogmps0a052fntnh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

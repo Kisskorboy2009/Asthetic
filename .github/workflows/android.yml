@@ -67,6 +67,8 @@ jobs:
           node adatbazis/test_pontozas.js
           node adatbazis/test_evtartomany.js
           node adatbazis/test_engine.js > /dev/null
+          node adatbazis/test_bingo.js > /dev/null
+          node adatbazis/test_bingo_asztal.js > /dev/null
 
       - name: Weboldal becsomagolása (www/)
         run: npm run build

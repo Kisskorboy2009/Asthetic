@@ -20,6 +20,8 @@
     szabaly: '<path d="M6 3.5h8.5L19 8v12.5H6z"/><path d="M14 3.5V8h4.5M9 12.5h6M9 16h4"/>',
     otthon: '<path d="M4 10.5 12 4l8 6.5V20h-5.5v-5h-5v5H4z"/>',
     nyil: '<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>',
+    bingo: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M9.3 4v16M14.7 4v16M4 9.3h16M4 14.7h16"/>',
+    fiok: '<circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.9-3.6 3.7-5.4 7-5.4s6.1 1.8 7 5.4"/>',
     nap: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5"/>',
   };
 
@@ -34,6 +36,7 @@
     '': { cim: 'Asthetic', ful: 'kezdo', gyoker: true },
     'jatek.html': { cim: 'Kártyás játék', ful: 'kartya', gyoker: true },
     'kahoot.html': { cim: 'Kvízcsata', ful: 'kviz', gyoker: true },
+    'bingo.html': { cim: 'Rubik-Bingó', ful: 'bingo', gyoker: true },
     'szabalyok.html': { cim: 'Szabályok', ful: null },
     'adatvedelem.html': { cim: 'Adatvédelem', ful: null },
     'feltetelek.html': { cim: 'Felhasználási feltételek', ful: null },
@@ -51,6 +54,7 @@
   sav.innerHTML = `
     <button class="appSav__gomb" id="appVissza" type="button" aria-label="Vissza" ${oldal.gyoker ? 'hidden' : ''}>${svg(ikon.vissza)}</button>
     <span class="appSav__cim">${oldal.cim}</span>
+    <button class="appSav__gomb appSav__fiok" id="appFiok" type="button" aria-label="Fiók">${svg(ikon.fiok)}</button>
     <button class="appSav__gomb" id="appTema" type="button" aria-label="Sötét mód be- és kikapcsolása">${svg(ikon.nap)}</button>`;
   document.body.appendChild(sav);
 
@@ -69,23 +73,81 @@
     try { localStorage.setItem('asthetic-theme', uj); } catch { /* privát mód */ }
   });
 
-  /* ───────────── alsó fülsor ───────────── */
+  /* ───────────── Google-fiók ───────────── */
 
-  const fulek = [
-    { azon: 'kartya', cim: 'Kártya', hivatkozas: 'jatek.html', ikon: ikon.kartya },
-    { azon: 'kviz', cim: 'Kvízcsata', hivatkozas: 'kahoot.html', ikon: ikon.kviz },
-    { azon: 'kezdo', cim: 'Kezdőlap', hivatkozas: 'index.html', ikon: ikon.otthon },
-  ];
+  const Fiok = window.AstheticFiok;
+  // A Rubik-Bingó zárt teszt: csak a tesztelők látják a menüben.
+  const bingoLathato = () => Boolean(Fiok && Fiok.engedett);
+
+  function fiokGombFrissit() {
+    const f = Fiok && Fiok.felhasznalo;
+    const gomb = document.getElementById('appFiok');
+    gomb.classList.toggle('is-be', Boolean(f));
+    gomb.innerHTML = f && f.kep
+      ? `<img src="${f.kep}" alt="" referrerpolicy="no-referrer">`
+      : svg(ikon.fiok);
+  }
+
+  function fiokLap() {
+    const f = Fiok && Fiok.felhasznalo;
+    const regi = document.getElementById('appFiokLap');
+    if (regi) { regi.remove(); return; }
+    const lap = document.createElement('div');
+    lap.className = 'appFiokLap';
+    lap.id = 'appFiokLap';
+    const nev = (s) => String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    lap.innerHTML = f
+      ? `<div class="appFiokLap__nev">${nev(f.nev)}</div><div class="appFiokLap__email">${nev(f.email)}</div>
+         <button class="btn btn--ghost" type="button" data-muvelet="ki">Kijelentkezés</button>`
+      : `<div class="appFiokLap__nev">Nem vagy bejelentkezve</div>
+         <button class="btn btn--accent" type="button" data-muvelet="be">Bejelentkezés Google-fiókkal</button>
+         <p class="appFiokLap__hiba" hidden></p>`;
+    document.body.appendChild(lap);
+    lap.querySelector('button').addEventListener('click', async (e) => {
+      const gomb = e.currentTarget;
+      gomb.disabled = true;
+      try {
+        if (gomb.dataset.muvelet === 'ki') await Fiok.kijelentkezes();
+        else await Fiok.bejelentkezes();
+        lap.remove();
+      } catch (hiba) {
+        const h = lap.querySelector('.appFiokLap__hiba');
+        if (h) { h.hidden = false; h.textContent = 'Nem sikerült: ' + (hiba && hiba.message ? hiba.message : hiba); }
+        gomb.disabled = false;
+      }
+    });
+    setTimeout(() => document.addEventListener('click', function zar(e) {
+      if (lap.contains(e.target)) return;
+      lap.remove();
+      document.removeEventListener('click', zar);
+    }), 0);
+  }
+
+  document.getElementById('appFiok').addEventListener('click', fiokLap);
+  fiokGombFrissit();
+
+  /* ───────────── alsó fülsor ───────────── */
 
   const fulSor = document.createElement('nav');
   fulSor.className = 'appFulek';
   fulSor.setAttribute('aria-label', 'Alkalmazás menü');
-  fulSor.innerHTML = fulek
-    .map((f) => `<a class="appFul${oldal.ful === f.azon ? ' is-aktiv' : ''}" href="${f.hivatkozas}">
-        ${svg(f.ikon)}<span>${f.cim}</span>
-      </a>`)
-    .join('');
   document.body.appendChild(fulSor);
+
+  function fulekRajzol() {
+    const fulek = [
+      { azon: 'kartya', cim: 'Kártya', hivatkozas: 'jatek.html', ikon: ikon.kartya },
+      { azon: 'kviz', cim: 'Kvízcsata', hivatkozas: 'kahoot.html', ikon: ikon.kviz },
+      ...(bingoLathato() ? [{ azon: 'bingo', cim: 'Bingó', hivatkozas: 'bingo.html', ikon: ikon.bingo }] : []),
+      { azon: 'kezdo', cim: 'Kezdőlap', hivatkozas: 'index.html', ikon: ikon.otthon },
+    ];
+    fulSor.style.gridTemplateColumns = `repeat(${fulek.length}, 1fr)`;
+    fulSor.innerHTML = fulek
+      .map((f) => `<a class="appFul${oldal.ful === f.azon ? ' is-aktiv' : ''}" href="${f.hivatkozas}">
+          ${svg(f.ikon)}<span>${f.cim}</span>
+        </a>`)
+      .join('');
+  }
+  fulekRajzol();
 
   /* ───────────── keskeny kijelző: rövidebb oszlopnevek ───────────── */
 
@@ -131,6 +193,14 @@
             </span>
             <span class="appCsempe__nyil">${svg(ikon.nyil)}</span>
           </a>
+          <a class="appCsempe appCsempe--bingo" id="appBingoCsempe" href="bingo.html" hidden>
+            <span class="appCsempe__ikon">${svg(ikon.bingo)}</span>
+            <span>
+              <span class="appCsempe__cim">Rubik-Bingó <span class="appCimke">teszt</span></span>
+              <span class="appCsempe__alcim">Pörgess színt, találd el a dalt, rakj ki öt X-et</span>
+            </span>
+            <span class="appCsempe__nyil">${svg(ikon.nyil)}</span>
+          </a>
           <a class="appCsempe appCsempe--szabaly" href="szabalyok.html">
             <span class="appCsempe__ikon">${svg(ikon.szabaly)}</span>
             <span>
@@ -168,5 +238,18 @@
         }
       });
     }
+  }
+
+  function fiokValtozott() {
+    fiokGombFrissit();
+    fulekRajzol();
+    const csempe = document.getElementById('appBingoCsempe');
+    if (csempe) csempe.hidden = !bingoLathato();
+  }
+  if (Fiok) {
+    Fiok.figyel(fiokValtozott);
+    fiokValtozott();
+    // A mentett bejelentkezés visszaállítása (a Firebase-t ez tölti be).
+    Fiok.kesz().then(fiokValtozott);
   }
 })();

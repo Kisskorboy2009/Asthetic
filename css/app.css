@@ -408,3 +408,37 @@
   transition: opacity .3s var(--ease), transform .3s var(--ease);
 }
 .frissUzenet.is-be { opacity: 1; transform: translate(-50%, 0); }
+
+/* ───────────── Google-fiók a felső sávban ───────────── */
+
+.appSav__fiok { overflow: hidden; }
+.appSav__fiok img { width: 28px; height: 28px; border-radius: 50%; display: block; }
+.appSav__fiok.is-be:not(:has(img)) { color: var(--accent); }
+
+.appFiokLap {
+  position: fixed; z-index: 70;
+  top: calc(56px + env(safe-area-inset-top)); right: 10px;
+  width: min(300px, calc(100vw - 20px));
+  display: grid; gap: 10px;
+  padding: 16px; border-radius: var(--r-md);
+  background: var(--paper-2); border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  animation: appBe .25s var(--ease) both;
+}
+.appFiokLap__nev { font-family: var(--display); font-size: 18px; font-weight: 600; }
+.appFiokLap__email { color: var(--ink-2); font-size: 14px; margin-top: -8px; overflow-wrap: anywhere; }
+.appFiokLap__hiba { margin: 0; color: #B3261E; font-size: 13.5px; }
+.appFiokLap__hiba[hidden] { display: none; }
+
+.appCsempe[hidden] { display: none; }
+.appCsempe:nth-child(4) { animation-delay: .23s; }
+.appCsempe--bingo .appCsempe__ikon {
+  background: conic-gradient(#C62828 0 72deg, #1565C0 0 144deg, #2E7D32 0 216deg, #F2C318 0 288deg, #E8710A 0);
+  color: #fff;
+}
+.appCimke {
+  display: inline-block; vertical-align: middle;
+  margin-left: 6px; padding: 2px 8px; border-radius: 999px;
+  background: var(--accent-wash); color: var(--accent-deep);
+  font-family: var(--body); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+}

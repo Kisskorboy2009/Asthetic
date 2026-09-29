@@ -91,12 +91,12 @@ async function firestoreHivas(ut, torzs) {
 
   switch (ut) {
     case 'szoba/letrehoz': {
-      const eredmeny = await FS.szobaLetrehoz(torzs.nev, torzs.beallitas);
+      const eredmeny = await FS.szobaLetrehoz(torzs.nev, torzs.beallitas, torzs.kep);
       vezeto.indit(eredmeny.kod);        // innentől ez a böngésző vezeti a játékot
       return eredmeny;
     }
     case 'szoba/csatlakoz':
-      return FS.csatlakozas(torzs.kod, torzs.nev);
+      return FS.csatlakozas(torzs.kod, torzs.nev, torzs.kep);
     case 'indit':
       await vezeto.jatekIndit(torzs.kod); return { ok: true };
     case 'kovetkezo':
@@ -274,7 +274,7 @@ function rajzolLobby() {
   $('lobbyLetszam').textContent = allapot.jatekosok.length;
 
   $('lobbyJatekosok').innerHTML = allapot.jatekosok
-    .map((j) => `<span class="kplayer ${j.host ? 'kplayer--host' : ''}">${j.host ? '<span class="kplayer__crown">★</span>' : ''}${szoveg(j.nev)}</span>`)
+    .map((j) => `<span class="kplayer ${j.host ? 'kplayer--host' : ''}">${avatar(j, 'kavatar kavatar--kicsi')}${j.host ? '<span class="kplayer__crown">★</span>' : ''}${szoveg(j.nev)}</span>`)
     .join('');
 
   const b = allapot.beallitas;
@@ -523,7 +523,7 @@ function rajzolEredmeny() {
   $('eTabla').innerHTML = e.korEredmeny
     .map((r) => `
       <tr class="${r.id === allapot.jatekosId ? 'is-en' : ''}">
-        <td>${szoveg(r.nev)}</td>
+        <td><span class="knevcella">${avatar((allapot.jatekosok || []).find((j) => j.id === r.id) || r, 'kavatar kavatar--kicsi')}<span>${szoveg(r.nev)}</span></span></td>
         <td class="${r.jo ? 'jo' : 'rossz'}">${r.valaszolt ? szoveg(e.valaszok[r.valasz]) : '<em>nem válaszolt</em>'}</td>
         <td class="szam">${r.szerzett > 0 ? '+' + r.szerzett : '0'}</td>
         <td class="szam">${r.osszpont}</td>
@@ -550,6 +550,7 @@ function rajzolVege() {
     .map((i) => `
       <div class="kdobogo__oszlop">
         <div class="kdobogo__fej">
+          ${avatar(v[i], 'kavatar kavatar--dobogo' + (i === 0 ? ' kavatar--elso' : ''))}
           <div class="kdobogo__nev">${szoveg(v[i].nev)}</div>
           <div class="kdobogo__pont">${v[i].pont} pont</div>
         </div>
@@ -569,10 +570,30 @@ function rajzolVege() {
     .map((j, i) => `
       <tr class="${j.id === allapot.jatekosId ? 'is-en' : ''}">
         <td>${i + 1}.</td>
-        <td>${szoveg(j.nev)}</td>
+        <td><span class="knevcella">${avatar(j, 'kavatar kavatar--kicsi')}<span>${szoveg(j.nev)}</span></span></td>
         <td class="szam">${j.pont}</td>
       </tr>`)
     .join('');
+}
+
+// Bejelentkezve (Google-fiók) a profilkép is megjelenik a játékos neve mellett.
+function sajatProfil() {
+  return (window.AstheticFiok && window.AstheticFiok.felhasznalo) || null;
+}
+
+/** Kerek profilkép; ha nincs, vagy nem töltődik be, a név kezdőbetűje látszik. */
+function avatar(j, osztaly = 'kavatar') {
+  const betu = szoveg((String((j && j.nev) || '?').trim()[0] || '?').toUpperCase());
+  const kep = j && j.kep ? `<img src="${szoveg(j.kep)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : '';
+  return `<span class="${osztaly}" style="--av:${avatarSzin(j && (j.id || j.nev))}"><b>${betu}</b>${kep}</span>`;
+}
+
+const AVATAR_SZINEK = ['#B0603A', '#2F6B8F', '#4C7A3F', '#8A4B8F', '#A8781C', '#3E6E6A', '#A33D4F', '#5A5FA8', '#7A5A3A', '#2E7D6B'];
+
+function avatarSzin(kulcs) {
+  let h = 2166136261;
+  for (const c of String(kulcs || '')) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return AVATAR_SZINEK[(h >>> 0) % AVATAR_SZINEK.length];
 }
 
 // XSS elleni védelem: a játékosnevek és a daladatok szövegként kerülnek be
@@ -723,6 +744,7 @@ $('letrehozBtn').addEventListener('click', async () => {
     hibaKiir('letrehozHiba', '');
     const adat = await hivas('szoba/letrehoz', {
       nev: nevErteke(),
+      kep: sajatProfil() ? sajatProfil().kep : null,
       beallitas: {
         evTol: evek ? evek.tol : undefined,
         evIg: evek ? evek.ig : undefined,
@@ -775,7 +797,7 @@ async function csatlakozas(kodParam) {
   $('csatlakozAllapot').textContent = 'Csatlakozás… a szobavezető most vesz fel.';
 
   try {
-    const adat = await hivas('szoba/csatlakoz', { kod, nev: nevErteke() });
+    const adat = await hivas('szoba/csatlakoz', { kod, nev: nevErteke(), kep: sajatProfil() ? sajatProfil().kep : null });
     munkamenet = { kod: adat.kod, jatekosId: adat.jatekosId, nev: nevErteke() };
     munkamenetMent(munkamenet);
     csatlakozStream();
@@ -928,6 +950,8 @@ try {
   const mentettNev = localStorage.getItem(NEV_KULCS);
   if (mentettNev && !$('nevInput').value) $('nevInput').value = mentettNev;
 } catch { /* privát mód */ }
+// Google-fiókkal bejelentkezve azzal a névvel játszol.
+if (sajatProfil() && sajatProfil().nev && !munkamenet) $('nevInput').value = sajatProfil().nev.slice(0, 20);
 $('nevInput').addEventListener('change', () => {
   try { localStorage.setItem(NEV_KULCS, nevErteke()); } catch { /* privát mód */ }
 });

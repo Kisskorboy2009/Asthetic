@@ -94,6 +94,14 @@
     return n || 'Névtelen';
   }
 
+/** Csak a Google saját képszerveréről fogadunk el profilképet. */
+  function tisztitKep(url) {
+    try {
+      const u = new URL(String(url || ''));
+      return u.protocol === 'https:' && /(^|.)googleusercontent.com$/.test(u.hostname) ? u.href.slice(0, 500) : null;
+    } catch { return null; }
+  }
+
   function tisztitBeallitas(be) {
     const b = Object.assign({}, ALAP_BEALLITAS);
     be = be || {};
@@ -256,6 +264,7 @@
     ujKod,
     ujAzonosito,
     tisztitNev,
+    tisztitKep,
     tisztitBeallitas,
     hashSeed,
     kovetkezoKerdes,

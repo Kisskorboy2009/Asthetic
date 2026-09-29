@@ -26,6 +26,7 @@ const MASOLANDO = [
   'feltetelek.html',
   'letoltes.html',
   '404.html',
+  'bingo.html',
   'css',
   'js',
   'assets',
@@ -36,6 +37,9 @@ const MASOLANDO = [
   'adatbazis/songs.json',
   'adatbazis/question_engine.js',
 ];
+
+// A Rubik-Bingó csak az alkalmazásban érhető el — a weboldalra nem kerül ki.
+const CSAK_APP = ['bingo.html', 'css/bingo.css', 'js/bingomotor.js', 'js/bingo-asztal.js', 'js/bingo-firestore.js', 'js/bingo.js'];
 
 const OLDALAK = ['index', 'jatek', 'kahoot', 'szabalyok', 'adatvedelem', 'feltetelek', 'letoltes', '404'];
 
@@ -114,7 +118,10 @@ async function main() {
     if (uj !== eredeti) fs.writeFileSync(fajl, uj);
   }
 
-  if (WEB) await tomorit();
+  if (WEB) {
+    for (const nev of CSAK_APP) fs.rmSync(path.join(CEL, nev), { force: true });
+    await tomorit();
+  }
 
   console.log(`${path.basename(CEL)}/ elkészült — ${db} elem, ${dalokSzama} dal${WEB ? ', tömörítve' : ''}.`);
 }

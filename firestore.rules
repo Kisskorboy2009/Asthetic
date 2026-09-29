@@ -54,5 +54,45 @@ service cloud.firestore {
         allow read, delete: if szobavezetoE(kod);
       }
     }
+
+    // ───────────── Rubik-Bingó ─────────────
+    // Zárt teszt: csak a felsorolt Google-fiókok érik el. Ugyanez a lista van a
+    // js/fiok.js-ben is — a kettőnek egyeznie kell.
+
+    function tesztelo() {
+      return request.auth != null
+        && request.auth.token.get('email_verified', false) == true
+        && request.auth.token.get('email', '') in ['kisskorboy1990@gmail.com', 'richardszenti@gmail.com'];
+    }
+
+    function bingoVezetoE(kod) {
+      return tesztelo()
+        && exists(/databases/$(database)/documents/bingo/$(kod))
+        && get(/databases/$(database)/documents/bingo/$(kod)).data.hostUid == request.auth.uid;
+    }
+
+    match /bingo/{kod} {
+      allow get, list: if tesztelo();
+      allow create: if tesztelo() && request.resource.data.hostUid == request.auth.uid;
+      allow update, delete: if tesztelo() && resource.data.hostUid == request.auth.uid;
+
+      // A dal adatai kör közben — csak a szobavezetőnek.
+      match /titkos/{doc} {
+        allow read, write: if bingoVezetoE(kod);
+      }
+
+      match /jelentkezok/{jelentkezoUid} {
+        allow create: if tesztelo() && jelentkezoUid == request.auth.uid;
+        allow read, delete: if bingoVezetoE(kod)
+          || (tesztelo() && jelentkezoUid == request.auth.uid);
+      }
+
+      // Tipp, lecsapás, ikszelés: mindenki csak a sajátját írja, és a tippjét
+      // rajta kívül csak a szobavezető látja.
+      match /lepesek/{jatekosUid} {
+        allow read, write: if tesztelo() && jatekosUid == request.auth.uid;
+        allow read, delete: if bingoVezetoE(kod);
+      }
+    }
   }
 }

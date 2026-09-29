@@ -44,7 +44,8 @@
     if (db) return;
     if (typeof firebase === 'undefined') throw new Error('A Firebase nem töltődött be.');
 
-    if (!firebase.apps.length) firebase.initializeApp(BEALLITAS);
+    if (window.ASTHETIC && window.ASTHETIC.firebaseIndit) window.ASTHETIC.firebaseIndit();
+    else if (!firebase.apps.length) firebase.initializeApp(BEALLITAS);
     db = firebase.firestore();
 
     // A Firestore alapesetben streamelő kapcsolatot nyit. Az Android WebView-ban
@@ -54,8 +55,12 @@
       db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     } catch { /* ha már el is indult a kapcsolat, marad az alapértelmezés */ }
 
-    const belepes = await firebase.auth().signInAnonymously();
-    uid = belepes.user.uid;
+    // Aki Google-fiókkal be van jelentkezve, azzal játszik; a névtelen belépés
+    // kijelentkeztetné. Az első állapotjelzés a mentett bejelentkezést adja vissza.
+    const meglevo = await new Promise((kesz) => {
+      const leiratkoz = firebase.auth().onAuthStateChanged((felhasznalo) => { leiratkoz(); kesz(felhasznalo); });
+    });
+    uid = meglevo ? meglevo.uid : (await firebase.auth().signInAnonymously()).user.uid;
 
     motor = window.AstheticMotor;
     if (!motor) throw new Error('A játékmotor nem töltődött be.');
@@ -75,7 +80,7 @@
 
   /* ───────────────────────── szoba létrehozás / csatlakozás ───────────────────────── */
 
-  async function szobaLetrehoz(nev, beallitasNyers) {
+  async function szobaLetrehoz(nev, beallitasNyers, kep = null) {
     await dalokBetolt();
 
     const beallitas = motor.tisztitBeallitas(beallitasNyers);
@@ -104,7 +109,7 @@
             // Ha a szobavezeto csak levezeti a jatekot (pl. kivetiti), nezokent
             // kerul be: nem szamit a letszamba, nem kap pontot, nem valaszolhat.
             jatekosok: [{
-              id: hostId, uid, nev: motor.tisztitNev(nev), pont: 0,
+              id: hostId, uid, nev: motor.tisztitNev(nev), kep: motor.tisztitKep(kep), pont: 0,
               host: true, nezo: !beallitas.vezetoJatszik,
             }],
             kerdes: null,
@@ -124,7 +129,7 @@
     throw new Error('Nem sikerült szabad szobakódot találni, próbáld újra.');
   }
 
-  async function csatlakozas(kodNyers, nev) {
+  async function csatlakozas(kodNyers, nev, kep = null) {
     const kod = String(kodNyers || '').trim().toUpperCase();
     const pillanat = await szobaHiv(kod).get();
     if (!pillanat.exists) throw new Error('Nincs ilyen szoba.');
@@ -143,6 +148,7 @@
     await szobaHiv(kod).collection('jelentkezok').doc(uid).delete().catch(() => {});
     await szobaHiv(kod).collection('jelentkezok').doc(uid).set({
       nev: motor.tisztitNev(nev),
+      kep: motor.tisztitKep(kep),
       mikor: most(),
     });
 
@@ -203,7 +209,7 @@
       nezo: Boolean(en && en.nezo),
       jatekosId,
       jatekosok: jatekosok.map((j) => ({
-        id: j.id, nev: j.nev, pont: j.pont, host: j.host, nezo: Boolean(j.nezo),
+        id: j.id, nev: j.nev, kep: j.kep || null, pont: j.pont, host: j.host, nezo: Boolean(j.nezo),
       })),
       valaszoltakSzama: szoba.valaszoltakSzama || 0,
       sajatValasz: sajatValasz === undefined ? null : sajatValasz,

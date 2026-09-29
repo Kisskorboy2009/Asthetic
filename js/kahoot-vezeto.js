@@ -75,7 +75,7 @@
         const adat = valtozas.doc.data() || {};
         const uid = valtozas.doc.id;
         if (adat.kilep) sorba(() => eltavolit(kod, uid));
-        else sorba(() => felvesz(kod, uid, adat.nev));
+        else sorba(() => felvesz(kod, uid, adat.nev, adat.kep));
       });
     }, () => {}));
 
@@ -203,7 +203,7 @@
 
   /* ───────────────────────── jelentkezők ───────────────────────── */
 
-  async function felvesz(kod, jelentkezoUid, nev) {
+  async function felvesz(kod, jelentkezoUid, nev, kep) {
     const hiv = FS().szobaHiv(kod);
     try {
       await FS().db.runTransaction(async (tr) => {
@@ -220,6 +220,7 @@
           id: motor().ujAzonosito(),
           uid: jelentkezoUid,
           nev: motor().tisztitNev(nev),
+          kep: motor().tisztitKep(kep),
           pont: 0,
           host: false,
         });
@@ -329,7 +330,7 @@
 
       const vege = (szobaAllapot) => {
         const vegeredmeny = motor().jatszok(szobaAllapot.jatekosok)
-          .map((j) => ({ id: j.id, nev: j.nev, pont: j.pont || 0 }))
+          .map((j) => ({ id: j.id, nev: j.nev, kep: j.kep || null, pont: j.pont || 0 }))
           .sort((a, b) => b.pont - a.pont);
         tr.update(hiv, {
           allapot: 'vege',

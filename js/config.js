@@ -41,6 +41,38 @@
 
   window.ASTHETIC.natív = natívE();
 
+  window.ASTHETIC.firebaseBeallitas = {
+    apiKey: 'AIzaSyBiBhnlOmE8Fyw5s_PxGVzTesqITWfZkSg',
+    authDomain: 'asthetic-798d1.firebaseapp.com',
+    projectId: 'asthetic-798d1',
+    storageBucket: 'asthetic-798d1.firebasestorage.app',
+    messagingSenderId: '494747985041',
+    appId: '1:494747985041:web:b011d8790b5cd2511acb30',
+  };
+
+  // Helyi fejlesztéshez: a Firebase-emulátorokra kapcsol, ha a gépen
+  // localStorage-ben be van állítva az `asthetic-emulator` kulcs.
+  function emulatorE() {
+    try {
+      return /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+        && localStorage.getItem('asthetic-emulator') === '1';
+    } catch { return false; }
+  }
+
+  /** Egyszer inicializálja a Firebase-t; minden oldal ezen keresztül éri el. */
+  window.ASTHETIC.firebaseIndit = function () {
+    const fb = window.firebase;
+    if (!fb) throw new Error('A Firebase nem töltődött be.');
+    if (!fb.apps.length) {
+      fb.initializeApp(window.ASTHETIC.firebaseBeallitas);
+      if (emulatorE()) {
+        fb.auth().useEmulator('http://127.0.0.1:9099', { disableWarnings: true });
+        if (fb.firestore) fb.firestore().useEmulator('127.0.0.1', 8080);
+      }
+    }
+    return fb;
+  };
+
   // Az alkalmazásban a lap a telefonon belülről töltődik be — a böngészős
   // fejléc, lábléc és a görgethető weboldal-érzet ott idegen. Ezt az osztályt
   // a css/app.css használja, hogy alkalmazás-külsőt adjon a felületnek.

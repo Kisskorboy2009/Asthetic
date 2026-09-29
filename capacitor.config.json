@@ -13,6 +13,12 @@
         "availableDevices": "Elérhető eszközök",
         "noDeviceFound": "Nem található eszköz"
       }
+    },
+    "FirebaseAuthentication": {
+      "skipNativeAuth": true,
+      "providers": [
+        "google.com"
+      ]
     }
   }
 }
