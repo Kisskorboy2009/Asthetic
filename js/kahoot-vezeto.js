@@ -295,23 +295,21 @@
     const hiv = FS().szobaHiv(kod);
     const songs = await FS().dalokBetolt();
 
-    // Előzetes ellenőrzés, mielőtt bármit törölnénk: egy dupla kattintás ne
-    // söpörje ki a már futó kör válaszait.
-    const elotte = await hiv.get();
-    if (!elotte.exists) throw new Error('Nincs ilyen szoba.');
     const engedett = inditas ? ['lobby'] : kidobas ? ['kerdes'] : ['eredmeny'];
-    if (!engedett.includes(elotte.data().allapot)) {
-      if (inditas) throw new Error('A játék már elindult.');
-      return;
-    }
 
-    await valaszokTorol(kod);
-
+    // Az állapotot CSAK a tranzakcióban szabad ellenőrizni. A kör eredményét
+    // tranzakció írja, és amíg a szoba figyelője meg nem kapja, a get() —
+    // még source: 'server'-rel is — a figyelő régi nézetét adja vissza. Egy
+    // korábbi előzetes ellenőrzés emiatt néha "még kérdés"-t látott, és a
+    // következő kör szó nélkül elmaradt.
     await FS().db.runTransaction(async (tr) => {
       const pillanat = await tr.get(hiv);
-      if (!pillanat.exists) return;
+      if (!pillanat.exists) throw new Error('Nincs ilyen szoba.');
       const szoba = pillanat.data();
-      if (!engedett.includes(szoba.allapot)) return;
+      if (!engedett.includes(szoba.allapot)) {
+        if (inditas) throw new Error('A játék már elindult.');
+        return;
+      }
 
       const titkosHiv = hiv.collection('titkos').doc('host');
       let kor = szoba.kor || 0;
@@ -326,6 +324,13 @@
         const titkos = await tr.get(titkosHiv);
         if (titkos.exists && titkos.data().dal) kizartDalok.push(titkos.data().dal.id);
         kor = Math.max(0, kor - 1);   // ez a kör nem számít bele
+      }
+
+      // Az előző kör válaszai ugyanebben a tranzakcióban törlődnek: így csak
+      // akkor, ha tényleg új kör indul — egy dupla kattintás nem söpörheti ki
+      // a már futó kör válaszait. (Minden olvasás után kell jönnie.)
+      for (const j of szoba.jatekosok || []) {
+        if (j.uid) tr.delete(hiv.collection('valaszok').doc(j.uid));
       }
 
       const vege = (szobaAllapot) => {
@@ -414,14 +419,6 @@
     });
   }
 
-  async function valaszokTorol(kod) {
-    const hiv = FS().szobaHiv(kod);
-    const regiek = await hiv.collection('valaszok').get();
-    if (regiek.empty) return;
-    const koteg = FS().db.batch();
-    regiek.forEach((doc) => koteg.delete(doc.ref));
-    await koteg.commit();
-  }
 
   function korKiertekel(kod, korSzam) {
     // Kézi hívásnál (pl. a régi "kiertekel" művelet) a sorban futunk.

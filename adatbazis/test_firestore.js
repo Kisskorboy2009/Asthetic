@@ -154,6 +154,15 @@ async function tesztMindenkiValaszolt() {
   ellenoriz(p1.allapot.sajatValasz === null, 'új körben a játékos korábbi válasza nem látszik kiválasztottnak');
   ellenoriz(host.allapot.valaszoltakSzama === 0, `új körben 0-ról indul a számláló (${host.allapot.valaszoltakSzama})`);
 
+  // Dupla kattintás: futó kör közben újra "következő kör" — a már beküldött
+  // válasz nem törlődhet, és nem indulhat új kör.
+  await p1.FS.valaszAd(kod, p1.jatekosId, 1, p1.allapot.kor);
+  await varakozas(() => p1.allapot.sajatValasz === 1, 5000);
+  await host.V.kovetkezoKor(kod);
+  await var_(1500);
+  ellenoriz(host.allapot.kor === 2 && p1.allapot.sajatValasz === 1,
+    `futó kör közben a "következő kör" nem töröl választ és nem léptet (kör: ${host.allapot.kor}, válasz: ${p1.allapot.sajatValasz})`);
+
   takarit(host, p1, p2);
 }
 
